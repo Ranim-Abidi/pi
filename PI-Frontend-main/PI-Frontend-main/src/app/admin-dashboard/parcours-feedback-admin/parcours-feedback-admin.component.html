@@ -1,0 +1,80 @@
+<div class="admin-feedback-area">
+  <div class="admin-header">
+    <div class="header-left">
+      <a routerLink="/admin-dashboard/formations" class="btn-back">
+        <i class="ri-arrow-left-line"></i>
+      </a>
+      <h2 class="page-title">
+        <i class="ri-chat-heart-line"></i> Macro Feedbacks : {{ parcours?.titre || 'Chargement...' }}
+      </h2>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="table-card-header">
+      <h3>
+        <i class="ri-feedback-line"></i> {{ macroFeedbacks.length }} avis reçus pour ce parcours
+      </h3>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Chargement des feedbacks...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty" *ngIf="!loading && macroFeedbacks.length === 0">
+      <i class="ri-chat-off-line"></i>
+      <h3>Aucun macro feedback pour le moment</h3>
+      <p>Les avis apparaîtront ici dès que les candidats auront terminé le parcours.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-container" *ngIf="!loading && macroFeedbacks.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Note</th>
+            <th>Progression</th>
+            <th>Quiz</th>
+            <th>Recommandé</th>
+            <th>Commentaire</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fb of macroFeedbacks">
+            <td class="td-candidat">
+              <div class="candidat-info">
+                <span class="candidat-name">{{ fb.candidat?.nom || 'Anonyme' }}</span>
+                <span class="candidat-email">{{ fb.candidat?.email }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="tag" [ngClass]="getNoteClass(fb.noteGlobale)">{{ fb.noteGlobale }} / 5</span>
+            </td>
+            <td>
+              <span class="tag tag-blue">{{ fb.progression }}</span>
+            </td>
+            <td>
+              <span class="tag tag-purple">{{ fb.experienceQuiz }}</span>
+            </td>
+            <td>
+              <span class="tag" [ngClass]="fb.recommandation === 'Absolument' || fb.recommandation === 'Probablement' ? 'tag-green' : 'tag-amber'">
+                {{ fb.recommandation }}
+              </span>
+            </td>
+            <td class="td-comment">
+              <p class="comment-text" [title]="fb.commentaireLibre">{{ fb.commentaireLibre || '-' }}</p>
+            </td>
+            <td class="td-date">
+              {{ formatDate(fb.createdAt) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

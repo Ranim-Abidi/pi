@@ -1,0 +1,73 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">Espace Freelance</div>
+  <div class="fl-page-header">
+    <div class="fl-header-left">
+      <h1 class="fl-title">Missions disponibles</h1>
+      <p class="fl-subtitle">Parcourez les offres, filtrez rapidement, et ouvrez les details en un clic.</p>
+    </div>
+    <a routerLink="/freelance" class="fl-back-btn">← Tableau de bord</a>
+  </div>
+
+  <div *ngIf="loading" class="fl-loading">Chargement des missions...</div>
+  <div *ngIf="erreur" class="fl-error">{{ erreur }}</div>
+
+  <div class="fl-client-tools" *ngIf="!loading && !erreur">
+    <input
+      class="fl-input"
+      type="text"
+      placeholder="Rechercher une mission, description ou competence..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onFiltersChanged()"
+    />
+    <select class="fl-input" [(ngModel)]="statusFilter" (ngModelChange)="onFiltersChanged()">
+      <option value="ALL">Tous les statuts</option>
+      <option value="OUVERTE">Ouvertes</option>
+      <option value="EN_COURS">En cours</option>
+      <option value="FERMEE">Fermees</option>
+    </select>
+    <select class="fl-input" [(ngModel)]="sortMode" (ngModelChange)="onFiltersChanged()">
+      <option value="RECENT">Plus recentes</option>
+      <option value="BUDGET_DESC">Budget decroissant</option>
+      <option value="BUDGET_ASC">Budget croissant</option>
+    </select>
+  </div>
+
+  <div class="fl-results-kpi" *ngIf="!loading && !erreur">
+    {{ missions.length }} mission(s) affichée(s) / {{ totalElements }} total
+  </div>
+
+  <div class="fl-missions-list fl-cards-square" *ngIf="!loading && !erreur">
+    <div *ngIf="missions.length === 0" class="fl-empty">
+      Aucune mission disponible pour le moment.
+    </div>
+    <div class="fl-mission-card fl-client-mission-card"
+         *ngFor="let mission of missions"
+         [routerLink]="['/freelance/projects', mission.id]">
+      <div class="fl-mission-header">
+        <div class="fl-mission-headline">
+          <span class="fl-mission-title">{{ mission.titre }}</span>
+          <span class="fl-mission-meta">Mission freelance</span>
+        </div>
+        <span class="fl-status-badge" [ngClass]="{
+          'fl-open':    mission.statut === 'OUVERTE',
+          'fl-closed':  mission.statut === 'FERMEE',
+          'fl-ongoing': mission.statut === 'EN_COURS'
+        }">{{ mission.statut }}</span>
+      </div>
+      <p class="fl-mission-desc">{{ mission.description }}</p>
+      <div class="fl-mission-footer">
+        <span class="fl-budget">{{ mission.budget }} TND</span>
+        <div class="fl-skills">
+          <span class="fl-skill-tag"
+                *ngFor="let comp of mission.competences">{{ comp }}</span>
+        </div>
+        <span class="fl-card-cta">Voir details →</span>
+      </div>
+    </div>
+  </div>
+  <div class="fl-action-buttons" *ngIf="!loading && !erreur && totalElements > pageSize">
+    <button class="fl-back-btn" (click)="previousPage()" [disabled]="currentPage === 0">← Précédent</button>
+    <span class="fl-skill-tag">Page {{ currentPage + 1 }}</span>
+    <button class="fl-back-btn" (click)="nextPage()" [disabled]="(currentPage + 1) * pageSize >= totalElements">Suivant →</button>
+  </div>
+</div>

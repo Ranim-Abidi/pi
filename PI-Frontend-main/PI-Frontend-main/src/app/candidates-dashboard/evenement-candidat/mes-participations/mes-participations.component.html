@@ -1,0 +1,224 @@
+<div class="mes-participations-wrapper">
+    <div class="container-fluid px-4">
+
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="hero-badge">
+                        <i class="ri-calendar-check-line"></i>
+                        Espace Candidat
+                    </span>
+                    <h1>Mes Participations</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <p>Chargement de vos participations...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && participations.length === 0" class="empty-state-modern">
+            <div class="empty-illustration">
+                <i class="ri-inbox-line"></i>
+            </div>
+            <h3>Aucune participation trouvée</h3>
+            <p>Vous n'avez pas encore participé à des événements.</p>
+        </div>
+
+        <!-- Grid participations -->
+        <div class="participations-grid" *ngIf="!isLoading && participations.length > 0">
+            <div class="participation-card" *ngFor="let p of participations">
+
+                <!-- Card Header -->
+                <div class="card-header">
+                    <div class="event-icon-wrapper">
+                        <i class="ri-calendar-event-line"></i>
+                    </div>
+                    <div class="event-info">
+                        <h3>{{ p.titreEvenement }}</h3>
+                        <div class="info-row">
+                            <i class="ri-calendar-line"></i>
+                            <span>{{ formatDate(p.dateInscription) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-indicator" [ngClass]="getStatutClass(p.statut)">
+                        <span class="status-dot"></span>
+                        <span class="status-text">{{ p.statut }}</span>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="info-row">
+                        <i class="ri-ticket-line"></i>
+                        <span class="info-label">Événement</span>
+                        <span class="info-value">{{ p.titreEvenement }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="ri-calendar-line"></i>
+                        <span class="info-label">Date d'inscription</span>
+                        <span class="info-value">{{ formatDate(p.dateInscription) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span class="info-label">Statut</span>
+                        <span class="statut-pill" [ngClass]="getStatutClass(p.statut)">
+                            {{ p.statut }}
+                        </span>
+                    </div>
+                </div>
+
+                                    <!-- Bouton placé dans la page "Mes Participations", visible par le candidat connecté -->
+                                <div class="cal-actions">
+                        <button class="btn-cal btn-ics" (click)="exporterCalendrier()">
+                            <i class="ri-calendar-download-line"></i>
+                            <span>Exporter (.ics)</span>
+                        </button>
+                        <button class="btn-cal btn-google" (click)="ouvrirGoogleCalendar()">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg"
+                                width="16" height="16" alt="Google Calendar">
+                            <span>Google Calendar</span>
+                        </button>
+                    </div>
+                <!-- QR Code Section -->
+                <div class="qr-section" *ngIf="p.statut === 'CONFIRME' && p.qrCode">
+                    <div class="section-divider">
+                        <span><i class="ri-qr-code-line"></i> Votre billet numérique</span>
+                    </div>
+                    <div class="qr-content">
+                        <div class="qr-image-wrapper">
+                            <img
+                                [src]="'data:image/png;base64,' + p.qrCode"
+                                alt="QR Code participation"
+                                class="qr-image" />
+                        </div>
+                        <p class="qr-hint">
+                            <i class="ri-scan-line"></i>
+                            Présentez ce QR à l'entrée de l'événement
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chat Section -->
+                <div class="chat-section" *ngIf="p.statut === 'CONFIRME'">
+    <div class="section-divider">
+        <span><i class="ri-chat-3-line"></i> Chat des participants</span>
+                    </div>
+                    <button class="btn-chat"
+                            (click)="ouvrirChat(p.evenementId)"
+                            *ngIf="p.chatOuvert">
+                        <i class="ri-chat-3-line"></i>
+                        <span>Rejoindre le chat</span>
+                    </button>
+                    <div class="chat-attente" *ngIf="!p.chatOuvert">
+                        <i class="ri-time-line"></i>
+                        <span>Chat disponible 24h avant l'événement</span>
+                    </div>
+                </div>
+
+                <!-- Feedback Section -->
+                <div class="feedback-section" *ngIf="p.statut === 'CONFIRME'">
+                    <div class="section-divider">
+                        <span><i class="ri-chat-3-line"></i> Feedback</span>
+                    </div>
+
+                    <!-- Pas encore passé -->
+                    <div class="feedback-attente" *ngIf="!evenementPasse(p)">
+                        <i class="ri-time-line"></i>
+                        <span>Le feedback sera disponible après la date de l'événement</span>
+                    </div>
+
+                    <!-- Événement passé -->
+                    <ng-container *ngIf="evenementPasse(p)">
+
+                        <!-- Succès -->
+                        <div class="feedback-succes" *ngIf="feedbackSucces === p.id">
+                            <i class="ri-check-circle-line"></i>
+                            <span>Feedback envoyé avec succès !</span>
+                        </div>
+
+                        <!-- Bouton toggle -->
+                        <button class="btn-feedback"
+                                (click)="toggleFeedback(p.id)"
+                                *ngIf="feedbackSucces !== p.id">
+                            <i class="ri-chat-3-line"></i>
+                            <span>{{ feedbackOuvert === p.id ? 'Annuler' : 'Laisser un feedback' }}</span>
+                        </button>
+
+                        <!-- Formulaire -->
+                        <div class="feedback-form" *ngIf="feedbackOuvert === p.id">
+
+                            <!-- Étoiles -->
+                            <div class="stars-wrapper">
+                                <span class="stars-label">Note</span>
+                                <div class="stars">
+                                    <span *ngFor="let star of [1,2,3,4,5]"
+                                          class="star"
+                                          [class.active]="star <= feedbackNote"
+                                          (click)="setNote(star)">★</span>
+                                </div>
+                                <span class="note-value">{{ feedbackNote }}/5</span>
+                            </div>
+
+                            <!-- Commentaire -->
+                            <textarea
+                                class="feedback-textarea"
+                                placeholder="Décrivez votre expérience..."
+                                [(ngModel)]="feedbackCommentaire"
+                                rows="3">
+                            </textarea>
+
+                            <!-- Erreur -->
+                            <div class="feedback-erreur" *ngIf="feedbackErreur">
+                                <i class="ri-error-warning-line"></i>
+                                <span>{{ feedbackErreur }}</span>
+                            </div>
+
+                            <!-- Soumettre -->
+                            <button class="btn-soumettre"
+                                    (click)="soumettreFeedback(p.id)"
+                                    [disabled]="feedbackEnvoi">
+                                <i class="ri-send-plane-line"></i>
+                                <span>{{ feedbackEnvoi ? 'Envoi...' : 'Envoyer le feedback' }}</span>
+                            </button>
+
+                        </div>
+                    </ng-container>
+                </div>
+
+                <!-- Certificat Section -->
+                <div class="certificat-section" *ngIf="p.statut === 'CONFIRME'">
+                    <div class="section-divider">
+                        <span><i class="ri-award-line"></i> Certificat de présence</span>
+                    </div>
+
+                    <!-- Certificat disponible -->
+                    <div class="cert-ready" *ngIf="p.certificateGenerated && p.certificateUrl">
+                        <div class="cert-ready-info">
+                            <i class="ri-checkbox-circle-fill cert-icon-ready"></i>
+                            <span>Votre certificat est disponible !</span>
+                        </div>
+                        <button class="btn-cert" (click)="telecharger(p.certificateUrl)">
+                            <i class="ri-download-2-line"></i>
+                            Télécharger le PDF
+                        </button>
+                    </div>
+
+                    <!-- En attente de génération -->
+                    <div class="cert-pending" *ngIf="!p.certificateGenerated">
+                        <i class="ri-time-line"></i>
+                        <span>Certificat disponible 24h après la fin de l'événement</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

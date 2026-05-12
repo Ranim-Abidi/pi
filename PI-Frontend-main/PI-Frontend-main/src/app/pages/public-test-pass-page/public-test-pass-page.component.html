@@ -1,0 +1,173 @@
+<app-navbar />
+
+<!-- ── Anti-Screenshot Overlay ────────────────────────────────────── -->
+<div class="screenshot-blocker-overlay" *ngIf="isObscured">
+  <div class="message">
+    <i class="ri-forbid-line"></i>
+    <span>Capture d'écran interdite</span>
+  </div>
+</div>
+
+
+<section class="test-pass-area ptb-100">
+  <div class="container">
+    <div class="test-pass-head">
+      <div>
+        <h2>Passer l'entretien test</h2>
+        <p>Repondez aux questions puis validez pour enregistrer votre score. Seuil de reussite: {{ requiredThresholdPercent }}%.</p>
+        <p>Duree prevue: {{ dureeMinutes }} minute(s).</p>
+      </div>
+
+      <div class="exam-status" *ngIf="examStarted">
+        <span class="status-dot"></span>
+        Mode surveille actif - Temps restant: {{ remainingTimeLabel }}
+      </div>
+    </div>
+
+    <div *ngIf="showConsent && !loading && !loadError && questions.length > 0" class="consent-panel">
+      <div class="consent-card">
+        <span class="consent-tag">Mode surveille</span>
+        <h3>Plein ecran et restrictions obligatoires</h3>
+        <p>
+          Pour proteger l'integrite de l'entretien, l'ouverture de cet exercice se fait en plein ecran.
+          Les clics droits, copier/coller, onglets, sorties de fenetre et raccourcis interdits sont detectes.
+          Toute tentative suspecte peut refuser automatiquement l'entretien et avertir {{ recruiterName }}.
+        </p>
+
+        <div class="consent-actions">
+          <label class="consent-check">
+            <input type="checkbox" [(ngModel)]="acknowledgingRules" />
+            J'accepte de passer l'entretien en mode surveille.
+          </label>
+
+          <button class="btn-submit" type="button" [disabled]="!acknowledgingRules" (click)="startExam()">
+            {{ acknowledgingRules ? 'Entrer en plein ecran' : 'Commencer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="state-box">Chargement des questions...</div>
+    <div *ngIf="!loading && loadError" class="state-box error">{{ loadError }}</div>
+
+    <div *ngIf="!loading && !loadError && questions.length === 0" class="state-box">
+      Cet entretien ne contient pas encore de questions.
+    </div>
+
+    <div *ngIf="!loading && !loadError && questions.length > 0" class="questions-wrap">
+      <div class="exam-banner">
+        <div>
+          <strong>{{ examTitle }}</strong>
+          <p>Ne quittez pas cet onglet et gardez la fenetre en plein ecran jusqu'a la validation finale.</p>
+        </div>
+
+        <div class="exam-guard" *ngIf="violationDetected">
+          Entretien refuse: {{ violationReason }}
+        </div>
+      </div>
+
+      <article class="question-card" *ngFor="let q of questions; let i = index" [hidden]="!examStarted">
+        <div class="question-meta">Question {{ i + 1 }} - {{ q.points || 1 }} pt(s)</div>
+        <h3>{{ getQuestionText(q) }}</h3>
+
+        <div class="choices" *ngIf="q.choix?.length">
+          <label class="choice" *ngFor="let c of q.choix; let idx = index">
+            <input
+              *ngIf="!isQcm(q)"
+              type="radio"
+              [name]="'q_' + q.id"
+              [value]="idx"
+              [(ngModel)]="answers[q.id]"
+            />
+
+            <input
+              *ngIf="isQcm(q)"
+              type="checkbox"
+              [checked]="isSelectedQcm(q.id, idx)"
+              (change)="toggleQcmSelection(q.id, idx)"
+            />
+
+            <span>{{ getChoiceText(c) }}</span>
+          </label>
+        </div>
+      </article>
+
+      <div class="actions" *ngIf="examStarted">
+        <button class="btn-submit" [disabled]="submitting || violationDetected" (click)="submitTest()">
+          {{ submitting ? 'Envoi en cours...' : violationDetected ? 'Entretien refuse' : 'Valider mes reponses' }}
+        </button>
+        <button class="btn-back" type="button" (click)="goHome()">Retour accueil</button>
+      </div>
+
+      <div
+        class="result-box"
+        *ngIf="resultMessage"
+        [class.error-state]="violationDetected"
+        [class.pass-state]="!violationDetected && passedEntretien === true"
+        [class.fail-state]="!violationDetected && passedEntretien === false"
+      >
+        <div class="result-head" *ngIf="passedEntretien !== null">
+          <span class="result-pill" [class.ok]="passedEntretien === true" [class.ko]="passedEntretien === false">
+            {{ passedEntretien ? 'Reussi' : 'Non reussi' }}
+          </span>
+          <span class="result-score" *ngIf="finalScorePercent !== null">Score: {{ finalScorePercent.toFixed(2) }}%</span>
+          <span class="result-score">Seuil: {{ requiredThresholdPercent }}%</span>
+        </div>
+        <div>{{ resultMessage }}</div>
+      </div>
+
+      <div class="report-dashboard" *ngIf="candidateReport">
+        <div class="report-head">
+          <h3>Rapport automatique du candidat</h3>
+          <button class="btn-back" type="button" (click)="exportReportPdf()">Exporter PDF</button>
+        </div>
+
+        <div class="report-metrics">
+          <div class="metric-card">
+            <span>Score global</span>
+            <strong>{{ candidateReport.scoreGlobal }}%</strong>
+          </div>
+          <div class="metric-card">
+            <span>Seuil requis</span>
+            <strong>{{ candidateReport.seuil }}%</strong>
+          </div>
+          <div class="metric-card">
+            <span>Date du rapport</span>
+            <strong>{{ candidateReport.generatedAt | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-card success">
+            <h4>Points forts</h4>
+            <ul *ngIf="candidateReport.pointsForts.length > 0">
+              <li *ngFor="let point of candidateReport.pointsForts">{{ point }}</li>
+            </ul>
+            <p *ngIf="candidateReport.pointsForts.length === 0">Aucun point fort identifie.</p>
+          </div>
+
+          <div class="report-card danger">
+            <h4>Points faibles</h4>
+            <ul *ngIf="candidateReport.pointsFaibles.length > 0">
+              <li *ngFor="let point of candidateReport.pointsFaibles">{{ point }}</li>
+            </ul>
+            <p *ngIf="candidateReport.pointsFaibles.length === 0">Aucun point faible identifie.</p>
+          </div>
+
+          <div class="report-card recommendation">
+            <h4>Recommandations automatiques</h4>
+            <ul *ngIf="candidateReport.recommandations.length > 0">
+              <li *ngFor="let reco of candidateReport.recommandations">
+                <strong>{{ reco.titre }}</strong> - {{ reco.raison }}
+              </li>
+            </ul>
+            <p *ngIf="candidateReport.recommandations.length === 0">Aucune recommandation disponible.</p>
+            <button class="btn-submit mt-2" type="button" (click)="openFormationRecommendations()">Voir les formations</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer />

@@ -1,0 +1,254 @@
+<div class="form-page-area">
+  <div class="container">
+    <div class="row justify-content-center">
+
+      <div class="col-lg-7 col-md-12" *ngIf="loading">
+        <div class="form-card">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Chargement de la formation...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7 col-md-12" *ngIf="!loading">
+        <div class="form-card">
+
+          <div class="form-card-header">
+            <div class="form-icon">✏️</div>
+            <div>
+              <h2>Modifier la formation</h2>
+              <p>Mettez à jour les informations de la formation.</p>
+            </div>
+          </div>
+
+          <div class="form-card-body">
+            <form [formGroup]="form" (ngSubmit)="submit()">
+
+              <div class="form-section-title">
+                <span class="section-number">1</span>
+                Informations générales
+              </div>
+
+              <div class="form-group">
+                <label>Titre de la formation <span class="required">*</span></label>
+                <input
+                  class="form-control"
+                  formControlName="titre"
+                  (input)="onTitreChange($any($event.target).value)"
+                  placeholder="Ex: Cours Angular débutant, Python Machine Learning..."
+                >
+
+                <div class="suggestions-loading" *ngIf="loading">
+                  <i class="ri-loader-4-line spin"></i>
+                  Recherche des meilleures playlists YouTube...
+                </div>
+
+                <div class="suggestions-list" *ngIf="suggestions.length > 0 && !suggestionSelected">
+                  <div class="suggestions-header">
+                    <i class="ri-youtube-line" style="color:#E24B4A; font-size:16px"></i>
+                    Playlists trouvées — cliquez pour sélectionner
+                  </div>
+                  <div class="suggestion-card" *ngFor="let s of suggestions" (click)="selectSuggestion(s)">
+                    <img [src]="s.thumbnail" [alt]="s.titre" class="thumb">
+                    <div class="suggestion-info">
+                      <strong class="suggestion-title">{{ s.titre }}</strong>
+                      <span class="channel"><i class="ri-youtube-line"></i> {{ s.chaineYoutube }}</span>
+                      <div class="suggestion-badges">
+                        <span class="badge cat">{{ s.categorie }}</span>
+                        <span class="badge niv">{{ s.niveau }}</span>
+                        <span class="badge videos">
+                          <i class="ri-time-line"></i> {{ getDureeBadge(s) }}
+                        </span>
+                        <span class="badge doc" *ngIf="s.writtenUrl">
+                          <i class="ri-book-read-line"></i> Doc incluse
+                        </span>
+                      </div>
+                    </div>
+                    <div class="suggestion-arrow"><i class="ri-arrow-right-line"></i></div>
+                  </div>
+                </div>
+
+                <div class="invalid-feedback" *ngIf="form.get('titre')?.invalid && form.get('titre')?.touched">
+                  Le titre est requis (min. 3 caractères).
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Catégorie <span class="required">*</span></label>
+                    <div class="select-wrap">
+                      <select class="form-select" formControlName="categorie"
+                        [class.is-invalid]="form.get('categorie')?.invalid && form.get('categorie')?.touched">
+                        <option value="">-- Choisir --</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="IA">IA</option>
+                        <option value="Data">Data</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="Design">Design</option>
+                        <option value="Développement">Développement</option>
+                      </select>
+                      <i class="ri-arrow-down-s-line select-arrow"></i>
+                    </div>
+                    <div class="invalid-feedback" *ngIf="form.get('categorie')?.invalid && form.get('categorie')?.touched">
+                      La catégorie est requise.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Plateforme <span class="required">*</span></label>
+                    <div class="select-wrap">
+                      <select class="form-select" formControlName="plateforme"
+                        [class.is-invalid]="form.get('plateforme')?.invalid && form.get('plateforme')?.touched">
+                        <option value="">-- Choisir --</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Udemy">Udemy</option>
+                        <option value="Coursera">Coursera</option>
+                        <option value="OpenClassrooms">OpenClassrooms</option>
+                        <option value="LinkedIn Learning">LinkedIn Learning</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                      <i class="ri-arrow-down-s-line select-arrow"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">2</span>
+                Configuration
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Niveau</label>
+                    <div class="select-wrap">
+                      <select class="form-select" formControlName="niveau">
+                        <option value="Débutant">Débutant</option>
+                        <option value="Intermédiaire">Intermédiaire</option>
+                        <option value="Avancé">Avancé</option>
+                        <option value="Expert">Expert</option>
+                      </select>
+                      <i class="ri-arrow-down-s-line select-arrow"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Statut</label>
+                    <div class="select-wrap">
+                      <select class="form-select" formControlName="statut">
+                        <option value="Disponible">Disponible</option>
+                        <option value="Bientôt">Bientôt</option>
+                        <option value="Archivée">Archivée</option>
+                      </select>
+                      <i class="ri-arrow-down-s-line select-arrow"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Durée <span class="required">*</span></label>
+                    <input
+                      class="form-control"
+                      formControlName="duree"
+                      placeholder="Ex : 12h"
+                      [class.is-invalid]="form.get('duree')?.invalid && form.get('duree')?.touched"
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">3</span>
+                Lien externe (URL)
+              </div>
+
+              <div class="form-group">
+                <input
+                  class="form-control"
+                  formControlName="lienExterne"
+                  placeholder="https://www.udemy.com/course/..."
+                >
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">4</span>
+                Playlist YouTube
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <input
+                    class="form-control"
+                    formControlName="playlistId"
+                    placeholder="Ex: PLblA84xge2_zwxh3XJqy6UVxS60YdusY8"
+                    style="flex:1"
+                  >
+                  <a
+                    *ngIf="form.get('playlistId')?.value"
+                    [href]="'https://www.youtube.com/playlist?list=' + form.get('playlistId')?.value"
+                    target="_blank" rel="noopener noreferrer"
+                    class="btn-preview-yt"
+                  >
+                    <i class="ri-youtube-line"></i> Vérifier
+                  </a>
+                </div>
+                <div class="playlist-preview" *ngIf="form.get('playlistId')?.value">
+                </div>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">5</span>
+                Éditeur interactif
+              </div>
+
+              <div class="form-group">
+                <div class="editor-toggle-row">
+                  <div class="toggle-info">
+                    <label class="toggle-label">Activer l'éditeur de code</label>
+                    <small>Pour Frontend, Backend, IA, Data...</small>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" formControlName="hasEditor">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group" *ngIf="form.get('hasEditor')?.value">
+                <label>Template éditeur</label>
+                <select class="form-select" formControlName="stackBlitzUrl">
+                  <option *ngFor="let t of stackBlitzTemplates" [value]="t.value">{{ t.label }}</option>
+                </select>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">6</span>
+                Source documentation 
+              </div>
+
+              <div class="form-group">
+                <input class="form-control" formControlName="writtenUrl" placeholder="Ex: https://developer.mozilla.org/..." readonly>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-submit" [disabled]="saving">
+                  <i class="ri-save-line" *ngIf="!saving"></i>
+                  <i class="ri-loader-4-line spin" *ngIf="saving"></i>
+                  {{ saving ? 'Mise à jour...' : 'Enregistrer les modifications' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

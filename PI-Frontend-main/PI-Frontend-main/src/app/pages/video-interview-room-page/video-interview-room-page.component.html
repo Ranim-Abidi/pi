@@ -1,0 +1,43 @@
+<app-navbar />
+
+<section class="video-room-area ptb-100">
+  <div class="container">
+    <div class="video-room-head">
+      <h2>{{ entretienTitle }}</h2>
+      <p>Salle d'entretien video integree.</p>
+    </div>
+
+    <div *ngIf="loading" class="state-box">Chargement de la salle video...</div>
+
+    <div *ngIf="!loading && errorMessage" class="state-box error">
+      <p>{{ errorMessage }}</p>
+      <div class="actions">
+        <button type="button" class="btn btn-outline-primary" (click)="goBack()">Retour</button>
+        <button type="button" class="btn btn-primary" (click)="openExternalMeeting()" *ngIf="meetingLink">Ouvrir le lien externe</button>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage" class="room-shell">
+      <div class="room-layout">
+        <div class="room-frame" #jitsiContainer></div>
+        <aside class="emotion-analysis-panel" *ngIf="emotionAnalysisEnabled">
+          <ng-container *ngIf="conferenceAnalysisStream as stream; else analysisWaiting">
+            <app-emotion-detector [entretienId]="entretienId" [mediaStream]="stream"></app-emotion-detector>
+          </ng-container>
+          <ng-template #analysisWaiting>
+            <div class="analysis-waiting">
+              <h3 class="analysis-waiting-title">Analyse émotionnelle</h3>
+              <p class="analysis-waiting-text">
+                Rejoignez la réunion Jitsi (caméra et micro activés). Dès que la connexion est établie, une capture
+                navigateur en temps réel démarre pour analyser les mêmes appareils que la visioconférence.
+              </p>
+              <p class="analysis-waiting-error" *ngIf="analysisMediaError">{{ analysisMediaError }}</p>
+            </div>
+          </ng-template>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer />

@@ -1,0 +1,409 @@
+.candidate-entretiens-area {
+  background: linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%);
+  min-height: 70vh;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0 0 6px;
+    color: #074d82;
+  }
+
+  p {
+    margin: 0;
+    color: #5b6f89;
+  }
+}
+
+.calendar-toggle-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px;
+  background: #eef5ff;
+  color: #074d82;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(7, 77, 130, 0.08);
+
+  i {
+    font-size: 1.05rem;
+  }
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.calendar-card,
+.upcoming-card {
+  background: #fff;
+  border: 1px solid rgba(9, 101, 164, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(7, 77, 130, 0.08);
+  padding: 18px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0 0 4px;
+    color: #074d82;
+  }
+
+  p {
+    margin: 0;
+    color: #5b6f89;
+    text-transform: capitalize;
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 8px;
+
+  button {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: #eef5ff;
+    color: #074d82;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+}
+
+.calendar-weekdays,
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-weekdays {
+  margin-bottom: 10px;
+
+  span {
+    text-align: center;
+    color: #5b6f89;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 0;
+  }
+}
+
+.calendar-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.calendar-day {
+  border: 1px solid #d6e3f1;
+  border-radius: 14px;
+  min-height: 92px;
+  padding: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: #074d82;
+  text-align: left;
+
+  &.outside-month {
+    opacity: 0.35;
+  }
+
+  &.today {
+    border-color: #0965a4;
+    box-shadow: inset 0 0 0 1px #0965a4;
+  }
+
+  &.has-event {
+    background: #eef5ff;
+  }
+}
+
+.day-number {
+  font-weight: 700;
+}
+
+.day-badge {
+  align-self: flex-end;
+  background: #0965a4;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.upcoming-card {
+  h3 {
+    margin: 0 0 14px;
+    color: #074d82;
+  }
+}
+
+.upcoming-list {
+  display: grid;
+  gap: 12px;
+}
+
+.upcoming-item {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #d9e7f5;
+  border-radius: 14px;
+  background: #fafdff;
+}
+
+.upcoming-date strong {
+  color: #0965a4;
+  font-size: 0.92rem;
+}
+
+.upcoming-content {
+  h4 {
+    margin: 0 0 4px;
+    color: #074d82;
+  }
+
+  p {
+    margin: 0;
+    color: #4a5f79;
+    line-height: 1.45;
+  }
+}
+
+.state-box {
+  background: #fff;
+  border: 1px dashed rgba(9, 101, 164, 0.34);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #2d587b;
+
+  &.error {
+    border-color: rgba(220, 38, 38, 0.32);
+    color: #b42323;
+  }
+}
+
+.reminder-panel {
+  background: #fff;
+  border: 1px solid rgba(9, 101, 164, 0.2);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(7, 77, 130, 0.08);
+  padding: 16px;
+  margin: 16px 0 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.reminder-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    color: #074d82;
+    font-size: 1.06rem;
+  }
+
+  span {
+    color: #4a5f79;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+}
+
+.reminder-item {
+  border-radius: 12px;
+  border: 1px solid #dce8f4;
+  background: #fafdff;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+
+  &.level-today {
+    border-color: rgba(220, 38, 38, 0.35);
+    background: #fff5f5;
+  }
+
+  &.level-soon {
+    border-color: rgba(234, 88, 12, 0.35);
+    background: #fff9f2;
+  }
+
+  &.level-planned {
+    border-color: rgba(9, 101, 164, 0.24);
+    background: #f4f9ff;
+  }
+}
+
+.reminder-badge {
+  align-self: flex-start;
+  border-radius: 999px;
+  background: #074d82;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.level-today .reminder-badge {
+  background: #b42323;
+}
+
+.level-soon .reminder-badge {
+  background: #c34f08;
+}
+
+.reminder-content {
+  h4 {
+    margin: 0 0 4px;
+    color: #103d61;
+    font-size: 0.98rem;
+  }
+
+  p {
+    margin: 0;
+    color: #35526f;
+    line-height: 1.4;
+  }
+}
+
+.entretiens-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.entretien-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(9, 101, 164, 0.2);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(7, 77, 130, 0.1);
+
+  .cover {
+    height: 190px;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tag {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      background: rgba(7, 77, 130, 0.9);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+  }
+
+  .body {
+    padding: 14px;
+
+    h3 {
+      margin: 0 0 8px;
+      color: #074d82;
+      font-size: 1.06rem;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: #4a5f79;
+      line-height: 1.45;
+      min-height: 60px;
+    }
+  }
+}
+
+.meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+
+  li {
+    color: #3f6688;
+    font-size: 0.88rem;
+
+    i {
+      margin-right: 6px;
+    }
+  }
+}
+
+.actions {
+  margin-top: 12px;
+}
+
+.pass-hint {
+  display: block;
+  margin-top: 8px;
+  color: #4e6e90;
+  font-size: 0.8rem;
+}
+
+.btn-pass {
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0965A4 0%, #85B7EB 100%);
+  color: #fff;
+
+  &:disabled {
+    background: #d7e5f4;
+    color: #66839f;
+    cursor: not-allowed;
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .entretiens-grid {
+    grid-template-columns: 1fr;
+  }
+}

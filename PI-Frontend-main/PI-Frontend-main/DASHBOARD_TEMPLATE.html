@@ -1,0 +1,355 @@
+<!-- 
+    Modern Professional Recruiter Dashboard Template
+    LinkedIn-inspired design with clean, minimal aesthetics
+    
+    Responsive: Mobile (≤768px), Tablet (769-1024px), Desktop (≥1025px)
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - Matchy Khedma</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+</head>
+<body>
+
+<div class="recruiter-layout">
+    
+    <!-- ====== HEADER ====== -->
+    <header class="recruiter-header">
+        <div class="container-fluid">
+            <div class="row align-items-center justify-content-between">
+                <!-- Logo & Title -->
+                <div class="col-auto d-flex align-items-center gap-3">
+                    <img src="/images/logoMatchy.png" alt="Matchy Logo" class="logo">
+                    <div class="header-content">
+                        <h1>Recruiter Dashboard</h1>
+                        <p class="subtitle">Matchy Khedma - Connexion & Carrière</p>
+                    </div>
+                </div>
+                
+                <!-- User Welcome -->
+                <div class="col-auto">
+                    <div class="welcome-wrapper">
+                        <p class="welcome-text">Welcome, Recruiter</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="recruiter-sidebar">
+        <nav class="nav-menu">
+            <ul>
+                <li>
+                    <a href="/recruiter-dashboard" class="active">
+                        <i class="ri-dashboard-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/post-job">
+                        <i class="ri-add-circle-line"></i>
+                        <span>Post a Job</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/manage-jobs">
+                        <i class="ri-file-list-line"></i>
+                        <span>Manage Jobs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/applicants">
+                        <i class="ri-user-line"></i>
+                        <span>Applicants</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/interviews">
+                        <i class="ri-questionnaire-line"></i>
+                        <span>Interviews</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/messages">
+                        <i class="ri-chat-1-line"></i>
+                        <span>Messages</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/profile">
+                        <i class="ri-building-line"></i>
+                        <span>Company Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/recruiter-dashboard/change-password">
+                        <i class="ri-lock-line"></i>
+                        <span>Change Password</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="main-content">
+        
+        <!-- Dashboard Overview Section -->
+        <section class="dashboard-section">
+            <h2>Dashboard Overview</h2>
+            
+            <!-- Statistics Cards Grid -->
+            <div class="stat-cards-grid">
+                
+                <!-- Stat Card 1: Total Candidates -->
+                <div class="stat-card">
+                    <div class="stat-label">Total Candidates</div>
+                    <div class="stat-value">245</div>
+                    <div class="stat-change positive">
+                        <i class="ri-arrow-up-line"></i> 12% this week
+                    </div>
+                </div>
+                
+                <!-- Stat Card 2: Open Positions -->
+                <div class="stat-card">
+                    <div class="stat-label">Open Positions</div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-change">
+                        <i class="ri-circle-line"></i> 2 urgent
+                    </div>
+                </div>
+                
+                <!-- Stat Card 3: Active Interviews -->
+                <div class="stat-card">
+                    <div class="stat-label">Active Interviews</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-change positive">
+                        <i class="ri-arrow-up-line"></i> 3 scheduled
+                    </div>
+                </div>
+                
+                <!-- Stat Card 4: Pending Approvals -->
+                <div class="stat-card">
+                    <div class="stat-label">Pending Approvals</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-change negative">
+                        <i class="ri-alert-line"></i> Requires action
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- Recent Activity Section -->
+        <section class="dashboard-section mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Applicants</h4>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- List Item 1 -->
+                    <div class="list-item">
+                        <div class="item-avatar">JD</div>
+                        <div class="item-content">
+                            <div class="item-title">John Doe</div>
+                            <div class="item-subtitle">Applied for Senior Developer, 2 hours ago</div>
+                        </div>
+                        <div class="item-action">
+                            <span class="badge badge-primary">New</span>
+                        </div>
+                    </div>
+                    
+                    <!-- List Item 2 -->
+                    <div class="list-item">
+                        <div class="item-avatar">AS</div>
+                        <div class="item-content">
+                            <div class="item-title">Alice Smith</div>
+                            <div class="item-subtitle">Applied for Product Manager, 5 hours ago</div>
+                        </div>
+                        <div class="item-action">
+                            <button class="btn btn-sm btn-secondary">View</button>
+                        </div>
+                    </div>
+                    
+                    <!-- List Item 3 -->
+                    <div class="list-item">
+                        <div class="item-avatar">MJ</div>
+                        <div class="item-content">
+                            <div class="item-title">Mark Johnson</div>
+                            <div class="item-subtitle">Applied for UX Designer, 1 day ago</div>
+                        </div>
+                        <div class="item-action">
+                            <span class="badge badge-success">Interviewed</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Positions Table -->
+        <section class="dashboard-section mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Active Job Positions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Position</th>
+                                    <th>Department</th>
+                                    <th>Applications</th>
+                                    <th>Status</th>
+                                    <th>Posted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <!-- Row 1 -->
+                                <tr>
+                                    <td>
+                                        <strong>Senior Frontend Developer</strong>
+                                    </td>
+                                    <td>Engineering</td>
+                                    <td>24</td>
+                                    <td>
+                                        <span class="badge badge-success">Active</span>
+                                    </td>
+                                    <td>3 days ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Row 2 -->
+                                <tr>
+                                    <td>
+                                        <strong>Product Manager</strong>
+                                    </td>
+                                    <td>Product</td>
+                                    <td>18</td>
+                                    <td>
+                                        <span class="badge badge-success">Active</span>
+                                    </td>
+                                    <td>1 week ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Row 3 -->
+                                <tr>
+                                    <td>
+                                        <strong>UX Designer</strong>
+                                    </td>
+                                    <td>Design</td>
+                                    <td>12</td>
+                                    <td>
+                                        <span class="badge badge-warning">Closing Soon</span>
+                                    </td>
+                                    <td>2 weeks ago</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ====== FOOTER ====== -->
+    <footer class="recruiter-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2024 Matchy Khedma. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-right">
+                    <p>
+                        <a href="/privacy">Privacy Policy</a> | 
+                        <a href="/terms">Terms of Service</a> | 
+                        <a href="/contact">Support</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<!-- 
+    ====== RESPONSIVE BEHAVIOR ======
+    
+    MOBILE (≤ 768px):
+    - Sidebar hidden by default, becomes overlay on menu toggle
+    - Header height reduced to 56px
+    - Main content padding: 16px
+    - Single column layout
+    
+    TABLET (769-1024px):
+    - Sidebar visible at 260px
+    - Header: normal 64px
+    - Main content: fluid width
+    - 2-column stat grid
+    
+    DESKTOP (≥ 1025px):
+    - Sidebar: fixed 260px
+    - Header: normal 64px
+    - Main content: full width - 260px
+    - 4-column stat grid
+    
+    ====== COLOR SCHEME ======
+    Primary Blue: #0A66C2
+    Dark Blue: #003D7A
+    Light Blue: #E7F3FF
+    Gray Background: #F3F2EF
+    Text: #505050
+    Light Text: #8A8D91
+    Border: #D3D3D3
+    
+    ====== SPACING ======
+    All spacing based on 8px grid
+    Padding: 16px (small), 24px (standard), 32px (large)
+    Gaps: 8px (icons), 16px (elements), 24px (sections)
+    
+    ====== TYPOGRAPHY ======
+    Font: System sans-serif stack
+    H1: 28px, weight 700
+    H2: 20px, weight 600
+    H4: 14px, weight 600
+    Body: 13px, weight 400
+    Small: 12px, weight 400
+    
+    ====== SHADOWS ======
+    Light: 0 2px 4px rgba(0, 0, 0, 0.1)
+    Medium: 0 4px 12px rgba(0, 0, 0, 0.15)
+    Heavy: 0 8px 20px rgba(0, 0, 0, 0.12)
+    
+    ====== TRANSITIONS ======
+    Duration: 0.2s
+    Easing: ease
+    Apply to: color, background, border, box-shadow, transform
+-->
+
+</body>
+</html>

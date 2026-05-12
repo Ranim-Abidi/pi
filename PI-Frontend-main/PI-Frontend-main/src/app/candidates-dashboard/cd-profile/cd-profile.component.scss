@@ -1,0 +1,555 @@
+// Breadcrumb Title
+.breadcrumb-title {
+    margin-bottom: 25px;
+    
+    h1 {
+        font-size: 24px;
+    }
+}
+
+// Card
+.jove-card {
+    background-color: var(--whiteColor);
+    margin-bottom: 25px;
+    border-radius: 15px;
+    padding: 30px;
+
+    .title {
+        font-size: 18px;
+        margin-bottom: 25px;
+        border-bottom: 1px solid var(--borderColor);
+        padding: {
+            left: 30px;
+            right: 30px;
+            bottom: 12px;
+        };
+        margin: {
+            left: -30px;
+            right: -30px;
+        };
+    }
+    form {
+        .form-group {
+            margin-bottom: 25px;
+
+            label {
+                display: block;
+                margin-bottom: 8px;
+            }
+            .form-control {
+                height: 50px;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-size: var(--fontSize);
+                color: var(--headingColor);
+                border: 1px solid #e0e6e9;
+                background-color: #f9fafb;
+                transition: var(--transition);
+
+                &::placeholder {
+                    color: var(--bodyColor);
+                }
+                &:focus {
+                    border-color: var(--primaryColor);
+                }
+            }
+            .form-select {
+                height: 50px;
+                cursor: pointer;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-size: var(--fontSize);
+                color: var(--headingColor);
+                border: 1px solid #e0e6e9;
+                transition: var(--transition);
+                background: {
+                    color: #f9fafb;
+                    position: right 20px center;
+                };
+                &:focus {
+                    border-color: var(--primaryColor);
+                }
+            }
+            textarea.form-control {
+                height: auto;
+                padding-top: 20px;
+            }
+            &.upload-photo {
+                padding-bottom: 25px;
+                border-bottom: 1px solid var(--borderColor);
+
+                input[type="file" i] {
+                    margin-top: 5px;
+                }
+                p {
+                    line-height: initial;
+                    margin-top: 12px;
+                    font: {
+                        size: 14px;
+                        style: italic;
+                    };
+                }
+            }
+        }
+    }
+}
+
+/* Max width 767px */
+@media only screen and (max-width : 767px) {
+
+    // Breadcrumb Title
+    .breadcrumb-title {
+        h1 {
+            font-size: 20px;
+        }
+    }
+
+    // Card
+    .jove-card {
+        border-radius: 5px;
+        padding: 20px 15px;
+    
+        .title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding: {
+                left: 15px;
+                right: 15px;
+                bottom: 10px;
+            };
+            margin: {
+                left: -15px;
+                right: -15px;
+            };
+        }
+        form {
+            .form-group {
+                margin-bottom: 15px;
+    
+                label {
+                    margin-bottom: 7px;
+                }
+                .form-control {
+                    height: 48px;
+                    font-size: 15px;
+                    padding: 10px 15px;
+                }
+                .form-select {
+                    height: 48px;
+                    font-size: 15px;
+                    padding: 10px 15px;
+                    background: {
+                        position: right 20px center;
+                    };
+                }
+                textarea.form-control {
+                    padding-top: 15px;
+                }
+                &.upload-photo {
+                    padding-bottom: 15px;
+    
+                    p {
+                        font-size: 13px;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width : 576px) and (max-width : 767px) {}
+
+/* Candidate details page styles */
+.candidate-details-area {
+    background: #f7f9fc;
+    padding-top: 10px;
+    padding-bottom: 50px;
+
+    .candidate-details-header {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 26px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 12px 25px rgba(33, 58, 77, 0.08);
+
+        h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #171717;
+            font-weight: 700;
+        }
+
+        p {
+            margin: 8px 0 0;
+            color: #5f6c7b;
+            max-width: 650px;
+            line-height: 1.7;
+        }
+    }
+
+    .single-candidate-box {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 24px 28px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 24px rgba(22, 51, 85, 0.08);
+        min-height: 150px;
+
+        .image {
+            margin-right: 20px;
+            position: relative;
+            width: 130px;
+            min-width: 130px;
+            height: 130px;
+        }
+
+        .profile-pic-wrapper {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(102, 126, 234, 0.18);
+            background: #f8faff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-pic-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-pic-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.82);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.3;
+            color: #334d6e;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .content h3 {
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+
+        .designation,
+        .location {
+            color: #5f6c7b;
+            font-size: 15px;
+        }
+
+        .location {
+            margin-top: 6px;
+        }
+    }
+
+    .candidate-details-description {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 10px 24px rgba(22, 51, 85, 0.08);
+
+        h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #171717;
+        }
+
+        .default-btn {
+            min-width: 140px;
+            border-radius: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            line-height: 48px;
+            text-align: center;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: #f9fafb;
+            border: 1px solid #e0e6e9;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e2432;
+        }
+
+        .section-title {
+            margin-top: 38px;
+            margin-bottom: 22px;
+            font-size: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .section-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 35px;
+        }
+
+        .section-actions--form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .section-actions-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .form-status {
+            padding: 12px 14px;
+            background: #fff2f2;
+            border: 1px solid #f5c2c7;
+            border-radius: 12px;
+            color: #842029;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background-color: #85B7EB !important;
+            color: white !important;
+            padding: 10px 20px !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            border: none !important;
+        }
+
+        .btn-secondary {
+            background-color: #999 !important;
+            color: white !important;
+            padding: 10px 20px !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            border: none !important;
+        }
+
+        .btn-danger {
+            background-color: #f3c388 !important;
+            color: white !important;
+            padding: 10px 20px !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            border: none !important;
+        }
+
+        .section-list {
+            margin: 0;
+            padding: 0;
+
+            li {
+                position: relative;
+                padding-left: 70px;
+                padding-bottom: 25px;
+            }
+
+            li::before {
+                top: 0;
+                left: 25px;
+                width: 1px;
+                height: 100%;
+                content: "";
+                position: absolute;
+                z-index: -1;
+                border-left: 1px solid #e0e6e9;
+            }
+
+            li:last-child {
+                padding-bottom: 0;
+            }
+
+            li:last-child::before {
+                display: none;
+            }
+        }
+
+        .section-list-item {
+            background: #f8fbff;
+            padding: 22px 24px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            border: 1px solid #edf2f9;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+
+            li {
+                padding: 0;
+                border: none;
+            }
+
+            h4 {
+                margin: 0 0 6px;
+                font-size: 20px;
+                color: #1e2432;
+            }
+
+            .designation {
+                color: #66727e;
+                font-size: 14px;
+            }
+
+            p {
+                color: #505f76;
+                margin: 10px 0 0;
+            }
+        }
+    }
+
+    .sidebar-area {
+        margin-top: 0;
+
+        .box {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 24px rgba(22, 51, 85, 0.08);
+
+            h3,
+            h4 {
+                margin-top: 0;
+                margin-bottom: 18px;
+                color: #1e2432;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+
+                label {
+                    display: block;
+                    margin-bottom: 8px;
+                    color: #5f6c7b;
+                    font-weight: 600;
+                }
+
+                input,
+                textarea,
+                select {
+                    border-radius: 10px;
+                    background: #f8fbff;
+                    border: 1px solid #e6ebf4;
+                }
+            }
+
+            .download-cv a {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 18px;
+                background: #f6f9ff;
+                border-radius: 14px;
+                color: #334d6e;
+                margin-bottom: 12px;
+                transition: 0.2s ease;
+            }
+
+            .download-cv a:hover {
+                background: #e8f0ff;
+            }
+        }
+    }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width : 768px) and (max-width : 991px) {
+
+    // Breadcrumb Title
+    .breadcrumb-title {
+        h1 {
+            font-size: 22px;
+        }
+    }
+
+    // Card
+    .jove-card {
+        border-radius: 10px;
+        padding: 25px;
+    
+        .title {
+            font-size: 18px;
+            padding: {
+                left: 25px;
+                right: 25px;
+                bottom: 12px;
+            };
+            margin: {
+                left: -25px;
+                right: -25px;
+            };
+        }
+        form {
+            .form-group {
+                .form-control {
+                    padding: 10px 18px;
+                    font-size: 15px;
+                }
+                .form-select {
+                    padding: 10px 18px;
+                    font-size: 15px;
+                    background: {
+                        position: right 18px center;
+                    };
+                }
+                textarea.form-control {
+                    padding-top: 18px;
+                }
+            }
+        }
+    }
+
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width : 992px) and (max-width : 1199px) {
+
+    // Card
+    .jove-card {
+        padding: 25px;
+    
+        .title {
+            padding: {
+                left: 25px;
+                right: 25px;
+            };
+            margin: {
+                left: -25px;
+                right: -25px;
+            };
+        }
+    }
+
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

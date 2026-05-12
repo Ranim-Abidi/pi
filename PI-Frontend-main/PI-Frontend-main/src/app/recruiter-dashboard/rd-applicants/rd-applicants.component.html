@@ -1,0 +1,47 @@
+<div class="card">
+	<div class="card-header">
+		<h4>Candidatures par offre</h4>
+	</div>
+	<div class="card-body">
+		<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+		<div class="d-flex align-items-center gap-2 mb-3">
+			<label class="mb-0 fw-semibold">Offre:</label>
+			<select class="form-control w-auto" [(ngModel)]="selectedOffreId">
+				<option value="ALL">Toutes mes offres</option>
+				<option *ngFor="let offre of offres" [value]="offre.id">{{ offre.titre }}</option>
+			</select>
+			<button class="btn btn-primary" (click)="chargerDonnees()">Actualiser</button>
+		</div>
+
+		<div *ngIf="loading" class="text-muted">Chargement...</div>
+		<div *ngIf="!loading && candidaturesFiltrees.length === 0" class="text-muted">
+			Aucune candidature trouvee pour la selection actuelle.
+		</div>
+
+		<div class="table-responsive" *ngIf="!loading && candidaturesFiltrees.length > 0">
+			<table class="table align-middle">
+				<thead>
+					<tr>
+						<th>Offre</th>
+						<th>Candidat</th>
+						<th>Email</th>
+						<th>Telephone</th>
+						<th>Date</th>
+						<th>Statut</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let candidature of candidaturesFiltrees">
+						<td>{{ getTitreOffre(candidature.offreId) }}</td>
+						<td>{{ candidature.nomComplet || '-' }}</td>
+						<td>{{ candidature.email || '-' }}</td>
+						<td>{{ candidature.telephone || '-' }}</td>
+						<td>{{ formatDate(candidature.dateEnvoi) }}</td>
+						<td>{{ candidature.statut || '-' }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

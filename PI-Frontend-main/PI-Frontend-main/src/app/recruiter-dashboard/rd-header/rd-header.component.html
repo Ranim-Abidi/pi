@@ -1,0 +1,28 @@
+<div class="recruiter-header">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg">
+            <a class="navbar-brand" href="#">
+                <img src="/images/logo.png" alt="Matchy Khedma Logo">
+                <div class="header-brand">
+                    <h5>Recruiter Dashboard</h5>
+                    <p class="brand-subtitle">Matchy Khedma</p>
+                </div>
+            </a>
+
+            <div class="others-option">
+                <div class="option-item">
+                    <a routerLink="/recruiter-dashboard/messages" class="notification-btn" title="Notifications et messages">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+                        <span class="alert-dot" *ngIf="unreadCheatAlertCount > 0" title="Alerte triche non lue"></span>
+                    </a>
+
+                    <span class="welcome-text">Welcome, Recruiter</span>
+                    <div class="profile-avatar">
+                        <i class="ri-user-circle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

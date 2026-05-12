@@ -1,0 +1,121 @@
+<div class="admin-parcours-area">
+  <div class="admin-header">
+    <h2 class="page-title">
+      <i class="ri-road-map-line"></i> Gestion des parcours
+    </h2>
+    <div style="display: flex; gap: 12px;">
+      <button class="add-btn" (click)="creer()">
+        <i class="ri-add-line"></i> Ajouter un parcours
+      </button>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="table-card-header">
+      <h3>
+        <i class="ri-list-settings-line"></i> Niveaux des parcours
+      </h3>
+      <div class="d-flex gap-2">
+        <button 
+          type="button" 
+          class="tab-btn-mini" 
+          [class.active]="activeTab === 'actives'"
+          (click)="activeTab = 'actives'">
+          Actifs
+        </button>
+        <button 
+          type="button" 
+          class="tab-btn-mini archive" 
+          [class.active]="activeTab === 'archivees'"
+          (click)="activeTab = 'archivees'">
+          Archives
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Chargement...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty" *ngIf="!loading && flattenedParcours.length === 0">
+      <i class="ri-folder-open-line"></i>
+      <h3>Aucun parcours {{ activeTab === 'actives' ? 'actif' : 'archivé' }}</h3>
+      <p>Gérez vos parcours multi-niveaux ici</p>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-container" *ngIf="!loading && flattenedParcours.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Titre (Formation)</th>
+            <th>Parcours Parent</th>
+            <th>Catégorie</th>
+            <th>Niveau</th>
+            <th>Statut</th>
+            <th>Badge</th>
+            <th>Stats</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of flattenedParcours">
+            <td class="td-title">
+              <span class="formation-title">{{ row.titre }}</span>
+            </td>
+            <td>
+              <span class="parcours-badge">{{ row.parcoursTitre }}</span>
+            </td>
+            <td>{{ row.categorie }}</td>
+            <td>
+              <span class="tag" [ngClass]="getNiveauTag(row.labelNiveau)">{{ row.labelNiveau }}</span>
+            </td>
+            <td>
+              <span class="tag" [ngClass]="getStatutTag(row.statut)">{{ row.statut }}</span>
+            </td>
+            <td>
+              <span *ngIf="row.badge" class="tag tag-purple">{{ row.badge }}</span>
+              <span *ngIf="!row.badge" class="text-muted small">-</span>
+            </td>
+            <td>
+              <div class="stats-cell">
+                <span class="stats-score" *ngIf="row.scorePopularite !== undefined">{{ row.scorePopularite }}</span>
+                <span class="stats-inscrits"><i class="ri-team-line"></i> {{ row.totalInscrits || 0 }}</span>
+              </div>
+            </td>
+            <td class="td-actions">
+              <div class="actions-group">
+                <a [routerLink]="['/admin-dashboard/formations', row.id, 'participants']" class="action-btn btn-view">
+                  <i class="ri-group-line"></i> Participants
+                </a>
+                <a [routerLink]="['/admin-dashboard/formations', row.id, 'feedbacks']" class="action-btn btn-feedback">
+                  <i class="ri-chat-3-line"></i> Feedbacks
+                </a>
+                <a [routerLink]="['/admin-dashboard/parcours', row.parcoursId, 'macro-feedbacks']" class="action-btn btn-macro-feedback">
+                  <i class="ri-chat-heart-line"></i> Macro Feedbacks
+                </a>
+                <a [routerLink]="['/admin-dashboard/formations/edit', row.id]" class="action-btn btn-edit">
+                  <i class="ri-edit-line"></i> Modifier
+                </a>
+                <button type="button" class="action-btn btn-archive" (click)="archiver(row.id, row.statut)">
+                  <i class="ri-archive-line"></i> {{ row.statut === 'Archivée' ? 'Désarchiver' : 'Archiver' }}
+                </button>
+                <button type="button" class="action-btn btn-delete" (click)="deleteFormation(row.id)">
+                  <i class="ri-delete-bin-line"></i> Supprimer
+                </button>
+                <button type="button" class="action-btn btn-delete-parcours" (click)="supprimer(row.parcoursId)">
+                  <i class="ri-close-circle-line"></i> Parcours
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+

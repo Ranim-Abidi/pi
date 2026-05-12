@@ -1,0 +1,252 @@
+// =============================================
+// EVENEMENT DEMANDES — style Jove template
+// =============================================
+
+.demandes-area {
+    background-color: var(--whiteColor);
+}
+
+// ── Section box ───────────────────────────────────────────────────────────────
+.section-box {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 15px;
+    overflow: hidden;
+
+    .section-box-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--borderColor);
+        background-color: #f5f9fc;
+
+        h3 {
+            font-size: 18px;
+            color: var(--headingColor);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--whiteColor);
+    background-color: var(--primaryColor);
+
+    &.pending {
+        background-color: #f9a825;
+    }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+    padding: 50px 20px;
+
+    i {
+        font-size: 48px;
+        color: #d1d5db;
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    h4 {
+        font-size: 18px;
+        color: var(--headingColor);
+        margin-bottom: 8px;
+    }
+
+    p {
+        font-size: 14px;
+        color: var(--bodyColor);
+        margin: 0;
+    }
+}
+
+// ── Liste demandes ────────────────────────────────────────────────────────────
+.demandes-list {
+    padding: 0;
+}
+
+.demande-item {
+    border-bottom: 1px solid var(--borderColor);
+    transition: var(--transition);
+
+    &:last-child { border-bottom: none; }
+
+    &:hover { background-color: #f9fbfc; }
+}
+
+// Ligne principale
+.demande-main {
+    padding: 20px 25px 15px;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+// Avatar candidat
+.candidat-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: #f4f7fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+
+    i {
+        font-size: 24px;
+        color: var(--primaryColor);
+    }
+}
+
+// Infos candidat
+h4.fw-semibold {
+    font-size: 16px;
+    color: var(--headingColor);
+}
+
+.event-name {
+    font-size: 13px;
+    color: var(--bodyColor);
+    margin-bottom: 4px;
+
+    i {
+        margin-right: 4px;
+        color: var(--primaryColor);
+    }
+}
+
+.statut-attente {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #92400e;
+    background-color: #fef3c7;
+    border-radius: 30px;
+    padding: 3px 10px 4px;
+}
+
+// Boutons accepter / refuser
+.demande-actions {
+    flex-shrink: 0;
+
+    .btn-accepter,
+    .btn-refuser {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 9px 20px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+
+        i { font-size: 15px; }
+    }
+
+    .btn-accepter {
+        background-color: #1a6b3c;
+        color: var(--whiteColor);
+
+        &:hover {
+            background-color: #145c31;
+            color: var(--whiteColor);
+        }
+    }
+
+    .btn-refuser {
+        background-color: #f4f7fb;
+        color: var(--headingColor);
+        border: 1px solid var(--borderColor);
+
+        &:hover {
+            background-color: #ef4444;
+            border-color: #ef4444;
+            color: var(--whiteColor);
+        }
+    }
+}
+
+// Footer infos
+.demande-footer {
+    padding: 12px 25px 18px;
+    font-size: 13px;
+    color: var(--bodyColor);
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-top: 1px dashed var(--borderColor);
+
+    .fw-semibold {
+        color: var(--headingColor);
+        margin-right: 4px;
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .section-box {
+        border-radius: 10px;
+
+        .section-box-header { padding: 15px 20px; }
+    }
+
+    .demande-main {
+        padding: 15px 20px 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .demande-actions {
+        width: 100%;
+
+        .btn-accepter,
+        .btn-refuser {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+
+    .demande-footer {
+        padding: 10px 20px 15px;
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .demande-main { padding: 18px 20px 12px; }
+
+    .demande-footer { padding: 10px 20px 16px; }
+
+    .demande-actions {
+        .btn-accepter,
+        .btn-refuser { padding: 8px 14px; }
+    }
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

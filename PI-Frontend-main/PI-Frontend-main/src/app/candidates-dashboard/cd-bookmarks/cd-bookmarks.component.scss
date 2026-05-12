@@ -1,0 +1,653 @@
+// src/app/candidates-dashboard/cd-bookmarks/cd-bookmarks.component.scss
+
+// ============================================
+// VARIABLES
+// ============================================
+$primary-color: #667eea;
+$primary-dark: #5a67d8;
+$secondary-color: #764ba2;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$danger-color: #f44336;
+$text-dark: #1a1a2e;
+$text-gray: #666;
+$text-light: #999;
+$border-light: #f0f0f0;
+$bg-light: #f8f9fa;
+$shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 12px 30px rgba(0, 0, 0, 0.1);
+$transition: all 0.3s ease;
+
+// ============================================
+// MIXINS
+// ============================================
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin gradient-bg($start, $end) {
+  background: linear-gradient(135deg, $start, $end);
+}
+
+@mixin card-hover {
+  transform: translateY(-4px);
+  box-shadow: $shadow-md;
+}
+
+// ============================================
+// MAIN CONTAINER
+// ============================================
+.bookmarks-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  // ==========================================
+  // HEADER
+  // ==========================================
+  .bookmarks-header {
+    @include flex-between;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid $border-light;
+
+    .header-content {
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        i {
+          color: $primary-color;
+          font-size: 28px;
+        }
+      }
+
+      p {
+        color: $text-gray;
+        font-size: 14px;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .domain-info {
+      .domain-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 500;
+
+        &.domain-informatique {
+          background: #e3f2fd;
+          color: #1565c0;
+        }
+        &.domain-sante {
+          background: #fce4ec;
+          color: #c62828;
+        }
+        &.domain-finance {
+          background: #fff3e0;
+          color: #ef6c00;
+        }
+        &.domain-marketing {
+          background: #e8eaf6;
+          color: #3f51b5;
+        }
+        &.domain-enseignement {
+          background: #f3e5f5;
+          color: #7b1fa2;
+        }
+      }
+    }
+  }
+
+  // ==========================================
+  // REFRESH BUTTONS
+  // ==========================================
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    @include gradient-bg($primary-color, $secondary-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+    i {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      i { transform: rotate(180deg); }
+    }
+    &:active { transform: translateY(0); }
+  }
+
+  .refresh-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 2px solid $primary-color;
+    color: $primary-color;
+    border-radius: 30px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+
+    i { font-size: 16px; }
+
+    &:hover {
+      background: $primary-color;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+
+  .refresh-btn-minimal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #555;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+
+    i {
+      font-size: 14px;
+      color: #888;
+      transition: $transition;
+    }
+
+    &:hover {
+      background: #eeeeee;
+      border-color: #ccc;
+      i { color: $primary-color; }
+    }
+  }
+
+  .refresh-btn-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    cursor: pointer;
+    @include flex-center;
+    transition: $transition;
+
+    i { font-size: 18px; }
+
+    &:hover {
+      background: $primary-color;
+      color: white;
+      transform: rotate(90deg);
+      border-color: transparent;
+    }
+  }
+
+  // ==========================================
+  // NOTIFICATION
+  // ==========================================
+  .notification {
+    @include flex-between;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+
+    &.notification-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid $success-color;
+    }
+    &.notification-error {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid $danger-color;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: inherit;
+    }
+  }
+
+  // ==========================================
+  // LOADING
+  // ==========================================
+  .loading-container {
+    text-align: center;
+    padding: 80px 20px;
+    background: $bg-light;
+    border-radius: 24px;
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #e0e0e0;
+      border-top: 3px solid $primary-color;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    p {
+      color: $text-gray;
+      margin-bottom: 8px;
+    }
+    .loading-hint {
+      font-size: 13px;
+      color: $text-light;
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  // ==========================================
+  // OFFRES GRID
+  // ==========================================
+  .offres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+  }
+
+  .offre-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: $shadow-sm;
+    transition: $transition;
+    position: relative;
+    border: 1px solid $border-light;
+
+    &:hover { @include card-hover; }
+
+    .top-badge {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      @include gradient-bg(#ff9800, #f57c00);
+      color: white;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .source-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 12px;
+
+      &.badge-ml {
+        @include gradient-bg($primary-color, $secondary-color);
+        color: white;
+      }
+      &.badge-static {
+        background: #f5f5f5;
+        color: $text-gray;
+      }
+    }
+
+    .domain-badge-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 12px;
+
+      &.domain-informatique { background: #e3f2fd; color: #1565c0; }
+      &.domain-sante { background: #fce4ec; color: #c62828; }
+      &.domain-finance { background: #fff3e0; color: #ef6c00; }
+      &.domain-marketing { background: #e8eaf6; color: #3f51b5; }
+      &.domain-enseignement { background: #f3e5f5; color: #7b1fa2; }
+    }
+
+    .score-circle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      @include flex-center;
+      flex-direction: column;
+
+      &.score-high { @include gradient-bg($success-color, #2e7d32); color: white; }
+      &.score-medium { @include gradient-bg($warning-color, #ef6c00); color: white; }
+      &.score-low { @include gradient-bg($danger-color, #c62828); color: white; }
+
+      .score-value { font-size: 18px; font-weight: bold; }
+      .score-label { font-size: 9px; margin-top: 2px; }
+    }
+
+    .offre-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0 0 10px 0;
+      padding-right: 75px;
+    }
+
+    .offre-entreprise, .offre-location {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: $text-gray;
+      margin: 8px 0;
+
+      i { width: 16px; color: $text-light; }
+    }
+
+    .offre-description {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+      margin: 12px 0;
+    }
+
+    .offre-details {
+      display: flex;
+      gap: 16px;
+      margin: 12px 0;
+      padding: 10px 0;
+      border-top: 1px solid $border-light;
+      border-bottom: 1px solid $border-light;
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #555;
+
+        i { font-size: 13px; color: $text-light; }
+      }
+    }
+
+    .offre-skills {
+      margin: 12px 0;
+
+      .skills-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: $text-light;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .skill-tag {
+          background: #f5f5f5;
+          padding: 4px 10px;
+          border-radius: 16px;
+          font-size: 11px;
+          color: #555;
+        }
+        .skill-more {
+          font-size: 11px;
+          color: #aaa;
+          padding: 4px 8px;
+        }
+      }
+    }
+
+    .match-reason {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0f7ff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 12px 0;
+      font-size: 12px;
+      color: #1565c0;
+
+      i { font-size: 16px; }
+    }
+
+    .offre-dates {
+      @include flex-between;
+      font-size: 11px;
+      color: $text-light;
+      margin: 12px 0;
+      padding: 8px 0;
+      border-top: 1px solid $border-light;
+      border-bottom: 1px solid $border-light;
+    }
+
+    .offre-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+
+      button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: $transition;
+        @include flex-center;
+        gap: 8px;
+      }
+
+      .btn-view {
+        background: $primary-color;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: $primary-dark;
+          transform: translateY(-2px);
+        }
+      }
+
+      .btn-remove {
+        background: white;
+        border: 1px solid $danger-color;
+        color: $danger-color;
+
+        &:hover {
+          background: $danger-color;
+          color: white;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  // ==========================================
+  // EMPTY STATE
+  // ==========================================
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: $bg-light;
+    border-radius: 24px;
+
+    .empty-icon {
+      font-size: 64px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: $text-gray;
+      margin-bottom: 8px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: $text-light;
+      margin-bottom: 24px;
+    }
+
+    .empty-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      button {
+        padding: 10px 24px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: $transition;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-browse {
+        background: $primary-color;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: $primary-dark;
+          transform: translateY(-2px);
+        }
+      }
+
+      .btn-refresh {
+        background: white;
+        border: 1px solid #ddd;
+        color: $text-gray;
+
+        &:hover {
+          border-color: $primary-color;
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 768px) {
+  .bookmarks-container {
+    padding: 16px;
+
+    .bookmarks-header {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .offres-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .offre-card {
+      .score-circle {
+        width: 55px;
+        height: 55px;
+        .score-value { font-size: 14px; }
+      }
+
+      .offre-title {
+        font-size: 16px;
+        padding-right: 65px;
+      }
+
+      .offre-actions {
+        flex-direction: column;
+      }
+    }
+
+    .empty-state .empty-actions {
+      flex-direction: column;
+      button { width: 100%; }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .bookmarks-container {
+    .offre-card {
+      padding: 16px;
+      
+      .score-circle {
+        width: 48px;
+        height: 48px;
+        .score-value { font-size: 12px; }
+        .score-label { font-size: 8px; }
+      }
+      
+      .offre-title { font-size: 15px; }
+    }
+  }
+}

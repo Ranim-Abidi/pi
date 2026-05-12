@@ -1,0 +1,133 @@
+<div class="offre-statistiques-container">
+  <h1>📊 Statistiques des Offres d'Emploi</h1>
+
+  <!-- Barre de filtres -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <button
+        class="filter-btn"
+        [class.active]="selectedFilter === 'all'"
+        (click)="loadAllOffres()">
+        🔄 Toutes les offres
+      </button>
+      <button
+        class="filter-btn"
+        [class.active]="selectedFilter === 'top'"
+        (click)="loadTopOffres()">
+        🏆 Top offres
+      </button>
+    </div>
+
+    <div class="filter-group">
+      <label>Recruteur ID:</label>
+      <input
+        type="number"
+        [(ngModel)]="recruteurId"
+        placeholder="ID recruteur"
+        class="input-field">
+      <button class="filter-btn" (click)="loadRecruteurOffres()">
+        👤 Offres du recruteur
+      </button>
+    </div>
+
+    <div class="filter-group">
+      <label>Plage de salaire:</label>
+      <div class="salary-inputs">
+        <input
+          type="number"
+          [(ngModel)]="salaryMin"
+          placeholder="Min"
+          class="input-field">
+        <span>-</span>
+        <input
+          type="number"
+          [(ngModel)]="salaryMax"
+          placeholder="Max"
+          class="input-field">
+        <input
+          type="number"
+          [(ngModel)]="minCandidatures"
+          placeholder="Min candidatures"
+          class="input-field">
+      </div>
+      <button class="filter-btn" (click)="loadSalaryRangeOffres()">
+        💰 Filtrer par salaire
+      </button>
+    </div>
+
+    <div class="filter-group">
+      <label>Nombre de top offres:</label>
+      <input
+        type="number"
+        [(ngModel)]="topLimit"
+        placeholder="Limite"
+        class="input-field">
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="error-message">
+    ❌ {{ errorMessage }}
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="isLoading" class="loader">
+    ⏳ Chargement...
+  </div>
+
+  <!-- Tableau des offres -->
+  <div *ngIf="!isLoading && filteredOffres.length > 0" class="offres-table-container">
+    <table class="offres-table">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Entreprise</th>
+          <th>Recruteur</th>
+          <th>Salaire</th>
+          <th>Type de contrat</th>
+          <th class="stats-header">Candidatures</th>
+          <th class="stats-header">Acceptées</th>
+          <th class="stats-header">Taux</th>
+          <th>Dernière</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let offre of filteredOffres" [class]="getCandidaturesClass(offre.nombreCandidatures)">
+          <td class="title-cell">
+            <strong>{{ offre.titrOffre }}</strong>
+          </td>
+          <td>{{ offre.entreprise }}</td>
+          <td class="recruiter-cell">
+            <strong>{{ offre.recruteurNom }}</strong><br>
+            <small>{{ offre.recruteurEmail }}</small>
+          </td>
+          <td class="salary-cell">
+            <span class="badge badge-salary">{{ offre.salaire }}</span>
+          </td>
+          <td>
+            <span class="badge badge-contract">{{ offre.typeContrat }}</span>
+          </td>
+          <td class="stats-cell">
+            <span class="stat-number">{{ offre.nombreCandidatures }}</span>
+          </td>
+          <td class="stats-cell">
+            <span class="stat-success">{{ offre.nombreCandidaturesAcceptees }}</span>
+          </td>
+          <td class="stats-cell">
+            <span class="stat-percentage">
+              {{ getAcceptanceRate(offre.nombreCandidaturesAcceptees, offre.nombreCandidatures) }}
+            </span>
+          </td>
+          <td class="date-cell">
+            {{ formatDate(offre.derniereCandidatureDate) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Message vide -->
+  <div *ngIf="!isLoading && filteredOffres.length === 0" class="empty-message">
+    📭 Aucune offre trouvée avec les critères sélectionnés
+  </div>
+</div>

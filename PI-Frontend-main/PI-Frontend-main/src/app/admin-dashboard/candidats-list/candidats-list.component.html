@@ -1,0 +1,615 @@
+<div class="candidats-container">
+  <div class="candidats-header">
+    <div class="header-top">
+      <div>
+        <h2>
+          <i class="ri-user-3-line"></i> Gestion des Candidats
+        </h2>
+        <p *ngIf="!loading">{{ totalCandidats }} candidat(s)</p>
+      </div>
+      <button (click)="openAddCandidate()" class="btn btn-primary">
+        <i class="ri-add-line"></i> Ajouter un candidat
+      </button>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <i class="ri-search-line"></i>
+        <input 
+          type="text" 
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (keyup)="onSearch()"
+          placeholder="Rechercher par nom, email, téléphone...">
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des candidats...</p>
+  </div>
+
+  <!-- TABLE -->
+  <div *ngIf="!loading" class="table-container">
+    <table class="candidats-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Candidate</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Niveau d'étude</th>
+          <th>Ville</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of filteredCandidats; let i = index" class="candidat-row">
+          <td class="id-col">{{ i + 1 }}</td>
+          <td class="name-col">
+            <div class="candidate-info">
+              <div class="avatar" [title]="c.nom + ' ' + c.prenom">
+                {{ getInitials(c.nom, c.prenom) }}
+              </div>
+              <div class="name-details">
+                <div class="full-name">{{ c.nom }} {{ c.prenom }}</div>
+                <div class="sub-text">ID: {{ c.id }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="email-col">
+            <a [href]="'mailto:' + c.email" class="email-link">{{ c.email }}</a>
+          </td>
+          <td class="telephone-col">{{ c.telephone || '-' }}</td>
+          <td class="niveau-col">
+            <span class="tag tag-blue">
+              {{ c.niveau_etude || 'Non spécifié' }}
+            </span>
+          </td>
+          <td class="ville-col">{{ c.localisations?.ville || '-' }}</td>
+          <td class="actions-col">
+            <button (click)="editCandidate(c.id)" class="btn-icon btn-edit" title="Modifier">
+              <i class="ri-edit-line"></i>
+            </button>
+            <button (click)="addLocation(c.id)" class="btn-icon btn-location" title="Ajouter localisation">
+              <i class="ri-map-pin-line"></i>
+            </button>
+            <button (click)="openCompetence(c.id)" class="btn-icon btn-competence" title="Ajouter compétences">
+              <i class="ri-mind-map-line"></i>
+            </button>
+            <button 
+              (click)="deleteCandidate(c.id)" 
+              [disabled]="deletingId === c.id"
+              class="btn-icon btn-delete" 
+              title="Supprimer">
+              <i class="ri-delete-line"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredCandidats.length === 0" class="empty-row">
+          <td colspan="7" class="empty-message">
+            <i class="ri-inbox-line"></i>
+            <p>{{ searchTerm ? 'Aucun candidat ne correspond à votre recherche' : 'Aucun candidat trouvé' }}</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- POPUP AJOUTER CANDIDAT -->
+<div class="popup-overlay" *ngIf="isAddPopupOpen">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h5>
+        <i class="ri-user-add-line"></i>
+        Ajouter un candidat
+      </h5>
+      <button class="close-btn" (click)="closeAddCandidate()">✕</button>
+    </div>
+    <div class="popup-body">
+      <form (ngSubmit)="saveCandidat()" #addForm="ngForm" novalidate>
+        
+        <!-- Nom -->
+        <div class="form-group">
+          <label>Nom *</label>
+          <div class="input-wrapper">
+            <i class="ri-user-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="newCandidat.nom"
+              name="nom"
+              #nom="ngModel"
+              required
+              minlength="2"
+              maxlength="50"
+              placeholder="Nom du candidat"
+              [class.input-error]="nom.invalid && nom.touched"
+              [class.input-success]="nom.valid && nom.touched">
+          </div>
+          <div class="error-box" *ngIf="nom.invalid && nom.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="nom.errors?.['required']">Le nom est obligatoire</span>
+            <span *ngIf="nom.errors?.['minlength']">Minimum 2 caractères</span>
+            <span *ngIf="nom.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <!-- Prénom -->
+        <div class="form-group">
+          <label>Prénom *</label>
+          <div class="input-wrapper">
+            <i class="ri-user-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="newCandidat.prenom"
+              name="prenom"
+              #prenom="ngModel"
+              required
+              minlength="2"
+              maxlength="50"
+              placeholder="Prénom du candidat"
+              [class.input-error]="prenom.invalid && prenom.touched"
+              [class.input-success]="prenom.valid && prenom.touched">
+          </div>
+          <div class="error-box" *ngIf="prenom.invalid && prenom.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="prenom.errors?.['required']">Le prénom est obligatoire</span>
+            <span *ngIf="prenom.errors?.['minlength']">Minimum 2 caractères</span>
+            <span *ngIf="prenom.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email *</label>
+          <div class="input-wrapper">
+            <i class="ri-mail-line input-icon"></i>
+            <input 
+              type="email"
+              [(ngModel)]="newCandidat.email"
+              name="email"
+              #email="ngModel"
+              required
+              email
+              placeholder="Email du candidat"
+              [class.input-error]="email.invalid && email.touched"
+              [class.input-success]="email.valid && email.touched">
+          </div>
+          <div class="error-box" *ngIf="email.invalid && email.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="email.errors?.['required']">L'email est obligatoire</span>
+            <span *ngIf="email.errors?.['email']">Email invalide</span>
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="form-group">
+          <label>Téléphone *</label>
+          <div class="input-wrapper">
+            <i class="ri-phone-line input-icon"></i>
+            <input 
+              type="tel"
+              [(ngModel)]="newCandidat.telephone"
+              name="telephone"
+              #telephone="ngModel"
+              required
+              minlength="8"
+              maxlength="15"
+              placeholder="Numéro de téléphone"
+              [class.input-error]="telephone.invalid && telephone.touched"
+              [class.input-success]="telephone.valid && telephone.touched">
+          </div>
+          <div class="error-box" *ngIf="telephone.invalid && telephone.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="telephone.errors?.['required']">Le téléphone est obligatoire</span>
+            <span *ngIf="telephone.errors?.['minlength']">Minimum 8 chiffres</span>
+            <span *ngIf="telephone.errors?.['maxlength']">Maximum 15 chiffres</span>
+          </div>
+        </div>
+
+        <!-- Niveau d'étude -->
+        <div class="form-group">
+          <label>Niveau d'étude</label>
+          <div class="input-wrapper">
+            <i class="ri-school-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="newCandidat.niveau_etude"
+              name="niveau_etude"
+              placeholder="Ex: Licence, Master, Bac..."
+              maxlength="30">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            [(ngModel)]="newCandidat.description"
+            name="description"
+            placeholder="Description du candidat..."
+            maxlength="200"
+            rows="3"
+            class="textarea-field"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button 
+            type="submit"
+            class="btn btn-save"
+            [disabled]="!isFormValid() || isSaving">
+            <i class="ri-check-line"></i> {{ isSaving ? 'Création en cours...' : 'Créer candidat' }}
+          </button>
+          <button 
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeAddCandidate()"
+            [disabled]="isSaving">
+            <i class="ri-close-line"></i> Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP LOCALISATION -->
+<div class="popup-overlay" *ngIf="isLocationPopupOpen">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h5>
+        <i class="ri-map-pin-line"></i>
+        Localisation du candidat
+      </h5>
+      <button class="close-btn" (click)="closeLocationPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <form (ngSubmit)="saveLocation()" #locationForm="ngForm" novalidate>
+        
+        <!-- Pays -->
+        <div class="form-group">
+          <label>Pays</label>
+          <div class="input-wrapper">
+            <i class="ri-global-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="localisationData.pays"
+              name="pays"
+              placeholder="Ex: Tunisie"
+              maxlength="50">
+          </div>
+        </div>
+
+        <!-- Ville -->
+        <div class="form-group">
+          <label>Ville</label>
+          <div class="input-wrapper">
+            <i class="ri-building-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="localisationData.ville"
+              name="ville"
+              placeholder="Ex: Tunis"
+              maxlength="50">
+          </div>
+        </div>
+
+        <!-- Latitude -->
+        <div class="form-group">
+          <label>Latitude *</label>
+          <div class="input-wrapper">
+            <i class="ri-map-2-line input-icon"></i>
+            <input 
+              type="number"
+              [(ngModel)]="localisationData.latitude"
+              name="latitude"
+              #latitude="ngModel"
+              required
+              placeholder="Ex: 36.8065"
+              step="0.0001"
+              [class.input-error]="latitude.invalid && latitude.touched"
+              [class.input-success]="latitude.valid && latitude.touched">
+          </div>
+          <div class="error-box" *ngIf="latitude.invalid && latitude.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="latitude.errors?.['required']">Latitude requise</span>
+          </div>
+        </div>
+
+        <!-- Longitude -->
+        <div class="form-group">
+          <label>Longitude *</label>
+          <div class="input-wrapper">
+            <i class="ri-map-2-line input-icon"></i>
+            <input 
+              type="number"
+              [(ngModel)]="localisationData.longitude"
+              name="longitude"
+              #longitude="ngModel"
+              required
+              placeholder="Ex: 10.1615"
+              step="0.0001"
+              [class.input-error]="longitude.invalid && longitude.touched"
+              [class.input-success]="longitude.valid && longitude.touched">
+          </div>
+          <div class="error-box" *ngIf="longitude.invalid && longitude.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="longitude.errors?.['required']">Longitude requise</span>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="location-info">
+          <i class="ri-information-line"></i>
+          <span>Vous pouvez utiliser Google Maps pour trouver les coordonnées GPS</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button 
+            type="submit"
+            class="btn btn-save"
+            [disabled]="!localisationData.latitude || !localisationData.longitude || isSaving">
+            <i class="ri-check-line"></i> {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder localisation' }}
+          </button>
+          <button 
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeLocationPopup()"
+            [disabled]="isSaving">
+            <i class="ri-close-line"></i> Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP COMPETENCES -->
+<div class="popup-overlay" *ngIf="isCompetencePopupOpen">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h5>
+        <i class="ri-mind-map-line"></i>
+        Compétences et détails
+      </h5>
+      <button class="close-btn" (click)="closeCompetencePopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <form (ngSubmit)="saveCompetence()" #competenceForm="ngForm" novalidate>
+        
+        <!-- Niveau d'étude -->
+        <div class="form-group">
+          <label>Niveau d'étude</label>
+          <div class="input-wrapper">
+            <i class="ri-school-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="competenceData.niveau_etude"
+              name="niveau_etude"
+              placeholder="Ex: Master en Informatique, Licence..."
+              maxlength="100">
+          </div>
+        </div>
+
+        <!-- Lien Portfolio -->
+        <div class="form-group">
+          <label>Lien Portfolio</label>
+          <div class="input-wrapper">
+            <i class="ri-links-line input-icon"></i>
+            <input 
+              type="url"
+              [(ngModel)]="competenceData.lien_portfolio"
+              name="lien_portfolio"
+              placeholder="https://example.com/portfolio"
+              maxlength="255">
+          </div>
+        </div>
+
+        <!-- Background Expertise -->
+        <div class="form-group">
+          <label>Expérience professionnelle</label>
+          <textarea 
+            [(ngModel)]="competenceData.backgroundExpertise"
+            name="backgroundExpertise"
+            placeholder="Décrivez votre expérience professionnelle..."
+            maxlength="500"
+            rows="3"
+            class="textarea-field"></textarea>
+        </div>
+
+        <!-- Passion and Goals -->
+        <div class="form-group">
+          <label>Passion et objectifs</label>
+          <textarea 
+            [(ngModel)]="competenceData.passionAndGoals"
+            name="passionAndGoals"
+            placeholder="Décrivez votre passion et vos objectifs professionnels..."
+            maxlength="500"
+            rows="3"
+            class="textarea-field"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button 
+            type="submit"
+            class="btn btn-save"
+            [disabled]="isSaving">
+            <i class="ri-check-line"></i> {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder' }}
+          </button>
+          <button 
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeCompetencePopup()"
+            [disabled]="isSaving">
+            <i class="ri-close-line"></i> Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP MODIFIER CANDIDAT -->
+<div class="popup-overlay" *ngIf="isEditPopupOpen">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h5>
+        <i class="ri-edit-line"></i>
+        Modifier un candidat
+      </h5>
+      <button class="close-btn" (click)="closeEditPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <form (ngSubmit)="saveEditCandidate()" #editForm="ngForm" novalidate>
+        
+        <!-- Nom -->
+        <div class="form-group">
+          <label>Nom *</label>
+          <div class="input-wrapper">
+            <i class="ri-user-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="editCandidat.nom"
+              name="editNom"
+              #editNom="ngModel"
+              required
+              minlength="2"
+              maxlength="50"
+              placeholder="Nom du candidat"
+              [class.input-error]="editNom.invalid && editNom.touched"
+              [class.input-success]="editNom.valid && editNom.touched">
+          </div>
+          <div class="error-box" *ngIf="editNom.invalid && editNom.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="editNom.errors?.['required']">Le nom est obligatoire</span>
+            <span *ngIf="editNom.errors?.['minlength']">Minimum 2 caractères</span>
+            <span *ngIf="editNom.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <!-- Prénom -->
+        <div class="form-group">
+          <label>Prénom *</label>
+          <div class="input-wrapper">
+            <i class="ri-user-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="editCandidat.prenom"
+              name="editPrenom"
+              #editPrenom="ngModel"
+              required
+              minlength="2"
+              maxlength="50"
+              placeholder="Prénom du candidat"
+              [class.input-error]="editPrenom.invalid && editPrenom.touched"
+              [class.input-success]="editPrenom.valid && editPrenom.touched">
+          </div>
+          <div class="error-box" *ngIf="editPrenom.invalid && editPrenom.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="editPrenom.errors?.['required']">Le prénom est obligatoire</span>
+            <span *ngIf="editPrenom.errors?.['minlength']">Minimum 2 caractères</span>
+            <span *ngIf="editPrenom.errors?.['maxlength']">Maximum 50 caractères</span>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email *</label>
+          <div class="input-wrapper">
+            <i class="ri-mail-line input-icon"></i>
+            <input 
+              type="email"
+              [(ngModel)]="editCandidat.email"
+              name="editEmail"
+              #editEmail="ngModel"
+              required
+              email
+              placeholder="Email du candidat"
+              [class.input-error]="editEmail.invalid && editEmail.touched"
+              [class.input-success]="editEmail.valid && editEmail.touched">
+          </div>
+          <div class="error-box" *ngIf="editEmail.invalid && editEmail.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="editEmail.errors?.['required']">L'email est obligatoire</span>
+            <span *ngIf="editEmail.errors?.['email']">Email invalide</span>
+          </div>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="form-group">
+          <label>Téléphone *</label>
+          <div class="input-wrapper">
+            <i class="ri-phone-line input-icon"></i>
+            <input 
+              type="tel"
+              [(ngModel)]="editCandidat.telephone"
+              name="editTelephone"
+              #editTelephone="ngModel"
+              required
+              minlength="8"
+              maxlength="15"
+              placeholder="Numéro de téléphone"
+              [class.input-error]="editTelephone.invalid && editTelephone.touched"
+              [class.input-success]="editTelephone.valid && editTelephone.touched">
+          </div>
+          <div class="error-box" *ngIf="editTelephone.invalid && editTelephone.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="editTelephone.errors?.['required']">Le téléphone est obligatoire</span>
+            <span *ngIf="editTelephone.errors?.['minlength']">Minimum 8 chiffres</span>
+            <span *ngIf="editTelephone.errors?.['maxlength']">Maximum 15 chiffres</span>
+          </div>
+        </div>
+
+        <!-- Niveau d'étude -->
+        <div class="form-group">
+          <label>Niveau d'étude</label>
+          <div class="input-wrapper">
+            <i class="ri-school-line input-icon"></i>
+            <input 
+              type="text"
+              [(ngModel)]="editCandidat.niveau_etude"
+              name="editNiveauEtude"
+              placeholder="Ex: Licence, Master, Bac..."
+              maxlength="30">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            [(ngModel)]="editCandidat.description"
+            name="editDescription"
+            placeholder="Description du candidat..."
+            maxlength="200"
+            rows="3"
+            class="textarea-field"></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button 
+            type="submit"
+            class="btn btn-save"
+            [disabled]="isSaving">
+            <i class="ri-check-line"></i> {{ isSaving ? 'Modification en cours...' : 'Modifier candidat' }}
+          </button>
+          <button 
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeEditPopup()"
+            [disabled]="isSaving">
+            <i class="ri-close-line"></i> Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

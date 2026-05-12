@@ -1,0 +1,26 @@
+[
+  {
+    "offreId": 1,
+    "titrOffre": "Java Developer",
+    "entreprise": "TechCorp",
+    "recruteurNom": "Ali Bouali",
+    "recruteurEmail": "ali@techcorp.com",
+    "nombreCandidatures": 15,
+    "nombreCandidaturesAcceptees": 3,
+    "derniereCandidatureDate": "2026-04-15",
+    "salaire": "80",
+    "typeContrat": "CDI"
+  },
+  {
+    "offreId": 4,
+    "titrOffre": "Python Developer",
+    "entreprise": "TechCorp",
+    "recruteurNom": "Ali Bouali",
+    "recruteurEmail": "ali@techcorp.com",
+    "nombreCandidatures": 12,
+    "nombreCandidaturesAcceptees": 2,
+    "derniereCandidatureDate": "2026-04-12",
+    "salaire": "75",
+    "typeContrat": "CDI"
+  }
+]

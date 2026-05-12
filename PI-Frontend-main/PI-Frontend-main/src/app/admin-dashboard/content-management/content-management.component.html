@@ -1,0 +1,203 @@
+<div class="content-management-area">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><i class="ri-layout-grid-line"></i> Gestion des contenus</h1>
+      <p class="subtitle">Organisez vos formations et parcours en un seul endroit</p>
+    </div>
+  </div>
+
+  <!-- Coverage Stats -->
+  <div class="coverage-card" *ngIf="!formationLoading && !parcoursLoading">
+    <div class="coverage-content">
+      <div class="coverage-text">
+        <h3>Couverture des formations</h3>
+        <p class="coverage-desc">
+          <strong>{{ coverageStats.used }}</strong> formations utilisées sur 
+          <strong>{{ coverageStats.total }}</strong> formations disponibles
+        </p>
+      </div>
+      <div class="coverage-bar">
+        <div class="bar-bg">
+          <div class="bar-fill" [style.width.%]="coverageStats.percentage"></div>
+        </div>
+        <span class="percentage">{{ coverageStats.percentage }}%</span>
+      </div>
+      <div class="coverage-stats">
+        <div class="stat">
+          <span class="stat-number">{{ coverageStats.used }}</span>
+          <span class="stat-label">Utilisées</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{{ coverageStats.unused }}</span>
+          <span class="stat-label">Non utilisées</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{{ parcours.length }}</span>
+          <span class="stat-label">Parcours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="content-grid">
+    <!-- LEFT: Formations -->
+    <div class="section-panel formations-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="ri-book-2-line"></i> Formations
+        </h2>
+        <button class="btn-create-section" (click)="creerFormation()">
+          <i class="ri-add-line"></i> Ajouter
+        </button>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="filter-section">
+        <div class="search-input">
+          <i class="ri-search-line"></i>
+          <input type="text" placeholder="Rechercher une formation..." [(ngModel)]="searchTerm">
+        </div>
+        <select [(ngModel)]="filterNiveau" class="filter-select">
+          <option value="">Tous les niveaux</option>
+          <option value="Débutant">Débutant</option>
+          <option value="Intermédiaire">Intermédiaire</option>
+          <option value="Avancé">Avancé</option>
+          <option value="Expert">Expert</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      <div class="section-loading" *ngIf="formationLoading">
+        <div class="spinner"></div>
+        <p>Chargement des formations...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="section-empty" *ngIf="!formationLoading && filteredFormations.length === 0">
+        <i class="ri-inbox-line"></i>
+        <p>Aucune formation trouvée</p>
+      </div>
+
+      <!-- Formations List -->
+      <div class="formations-list" *ngIf="!formationLoading && filteredFormations.length > 0">
+        <div class="formation-item" *ngFor="let f of filteredFormations" 
+             [class.used]="isFormationUsed(f.id)"
+             [class.unused]="!isFormationUsed(f.id)">
+          
+          <div class="formation-content">
+            <div class="formation-header">
+              <h4 class="formation-titre">{{ f.titre }}</h4>
+              <span class="tag" [ngClass]="getNiveauTag(f.niveau)">{{ f.niveau }}</span>
+            </div>
+            
+            <div class="formation-meta">
+              <span class="categorie"><i class="ri-folder-line"></i> {{ f.categorie }}</span>
+              <span class="statut" [ngClass]="f.statut === 'Disponible' ? 'available' : 'coming'">
+                <i class="ri-check-circle-line"></i> {{ f.statut }}
+              </span>
+            </div>
+
+            <!-- Usage info -->
+            <div class="usage-info" *ngIf="isFormationUsed(f.id)">
+              <div class="usage-label"><i class="ri-links-line"></i> Utilisée dans</div>
+              <div class="parcours-list">
+                <span class="parcours-tag" *ngFor="let p of getParcoursPourFormation(f.id)">
+                  {{ p }}
+                </span>
+              </div>
+            </div>
+            <div class="usage-info unused" *ngIf="!isFormationUsed(f.id)">
+              <div class="usage-label"><i class="ri-alert-line"></i> Non utilisée</div>
+            </div>
+          </div>
+
+          <div class="formation-actions">
+            <a [routerLink]="['/admin-dashboard/formations/edit', f.id]" class="action-link edit">
+              <i class="ri-edit-line"></i>
+            </a>
+            <button class="action-link archive" (click)="archiver(f.id)" [disabled]="archivingId === f.id">
+              <i class="ri-archive-line"></i>
+            </button>
+            <button class="action-link delete" (click)="delete(f.id)" [disabled]="deletingId === f.id">
+              <i class="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Parcours -->
+    <div class="section-panel parcours-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="ri-road-map-line"></i> Parcours
+        </h2>
+        <button class="btn-create-section" (click)="creerParcours()">
+          <i class="ri-add-line"></i> Ajouter
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="section-loading" *ngIf="parcoursLoading">
+        <div class="spinner"></div>
+        <p>Chargement des parcours...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="section-empty" *ngIf="!parcoursLoading && parcours.length === 0">
+        <i class="ri-inbox-line"></i>
+        <p>Aucun parcours créé</p>
+      </div>
+
+      <!-- Parcours List -->
+      <div class="parcours-list-container" *ngIf="!parcoursLoading && parcours.length > 0">
+        <div class="parcours-item" *ngFor="let p of parcours">
+          <div class="parcours-header">
+            <h4 class="parcours-titre">{{ p.titre }}</h4>
+            <span class="cat-badge">{{ p.categorie }}</span>
+          </div>
+
+          <!-- Niveaux avec formations -->
+          <div class="niveaux-container">
+            <div class="niveau-item" *ngIf="p.niveauDebutant">
+              <span class="niveau-label">Débutant</span>
+              <div class="formation-info">
+                <i class="ri-book-line"></i> {{ p.niveauDebutant.titre }}
+              </div>
+            </div>
+            <div class="niveau-item" *ngIf="p.niveauIntermediaire">
+              <span class="niveau-label">Intermédiaire</span>
+              <div class="formation-info">
+                <i class="ri-book-line"></i> {{ p.niveauIntermediaire.titre }}
+              </div>
+            </div>
+            <div class="niveau-item" *ngIf="p.niveauAvance">
+              <span class="niveau-label">Avancé</span>
+              <div class="formation-info">
+                <i class="ri-book-line"></i> {{ p.niveauAvance.titre }}
+              </div>
+            </div>
+            <div class="niveau-item" *ngIf="p.niveauExpert">
+              <span class="niveau-label">Expert</span>
+              <div class="formation-info">
+                <i class="ri-book-line"></i> {{ p.niveauExpert.titre }}
+              </div>
+            </div>
+          </div>
+
+          <div class="parcours-actions">
+            <a [routerLink]="['/admin-dashboard/parcours', p.id, 'edit']" class="action-link edit">
+              <i class="ri-edit-line"></i> Éditer
+            </a>
+            <button class="action-link delete" (click)="deleteParcours(p.id)" 
+                    [disabled]="deletingId === p.id">
+              <i class="ri-delete-bin-line"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

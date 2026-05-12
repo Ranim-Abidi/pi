@@ -1,0 +1,73 @@
+<div
+    class="sidebar-area"
+    [class.active]="classApplied"
+>
+    <ul class="ps-0 mb-0 list-unstyled">
+        <li>
+            <a routerLink="/evenement-dashboard" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-dashboard-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <a routerLink="/evenement-dashboard/liste" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-calendar-line"></i>
+                Listes des événements
+            </a>
+        </li>
+        <li>
+            <a routerLink="/evenement-dashboard/ajouter" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-add-circle-line"></i>
+                Créer un événement
+            </a>
+        </li>
+        <li>
+            <a routerLink="/evenement-dashboard/calendrier" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-calendar-2-line"></i>
+                Calendrier
+            </a>
+        </li>
+        <li>
+            <a routerLink="/evenement-dashboard/demandes" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-user-received-line"></i>
+                Demandes
+            </a>
+        </li>
+
+        <li>
+            <a routerLink="/evenement-dashboard/chats" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-chat-3-line"></i>
+                Salons de chat
+            </a>
+        </li>
+
+        <li>
+            <a routerLink="/evenement-dashboard/feedbacks" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-star-line"></i>
+                Feedbacks
+            </a>
+        </li>
+        <li>
+            <a routerLink="/evenement-dashboard/settings" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-settings-3-line"></i>
+                Paramètres
+            </a>
+        </li>
+        <li>
+            <a class="d-block position-relative" (click)="logout()" style="cursor: pointer;">
+                <i class="ri-logout-box-line"></i>
+                Logout
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Sidebar Button pour mobile -->
+<div
+    class="sidebar-btn d-xl-none"
+    [class.active]="classApplied"
+>
+    <button (click)="toggleClass()">
+        <span>Menus</span>
+    </button>
+</div>

@@ -1,0 +1,26 @@
+{
+  "/api": {
+    "target": "http://127.0.0.1:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/ml": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info",
+    "pathRewrite": {
+      "^/ml": ""
+    }
+  },
+  "/oss": {
+    "target": "https://text.pollinations.ai",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "info",
+    "pathRewrite": {
+      "^/oss/generate": "/generate"
+    }
+  }
+}

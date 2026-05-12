@@ -1,0 +1,493 @@
+.recherche-avancee-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: #333;
+
+  .recherche-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+  }
+
+  // === Sélecteur de type de recherche ===
+  .search-type-selector {
+    margin-bottom: 2rem;
+
+    .search-type-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .type-btn {
+        padding: 0.8rem 1.5rem;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateY(-2px);
+        }
+
+        &.active {
+          background: white;
+          color: #667eea;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+      }
+    }
+  }
+
+  // === Formulaire de recherche ===
+  .search-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    .search-section {
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #333;
+          font-size: 0.95rem;
+        }
+
+        .input-group {
+          display: flex;
+          gap: 0.5rem;
+
+          input,
+          select {
+            flex: 1;
+          }
+
+          .search-btn {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background: #5568d3;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+          }
+        }
+
+        input,
+        select,
+        datalist {
+          padding: 0.75rem;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 0.95rem;
+          transition: border-color 0.3s ease;
+
+          &:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+
+      .search-btn {
+        padding: 0.8rem 2rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #5568d3;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        &.primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+          &:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+          }
+        }
+      }
+
+      .reset-btn {
+        padding: 0.8rem 2rem;
+        background: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #e0e0e0;
+          border-color: #999;
+        }
+      }
+    }
+  }
+
+  // === Alerte d'erreur ===
+  .alert {
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 6px;
+
+    &.alert-danger {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+    }
+  }
+
+  // === Chargement ===
+  .loader-container {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  }
+
+  // === Contrôles des résultats ===
+  .results-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .filter-section {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      min-width: 300px;
+
+      .form-control {
+        &.small {
+          padding: 0.5rem;
+          font-size: 0.9rem;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+
+          &:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+        }
+      }
+    }
+
+    .results-count {
+      background: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #333;
+      white-space: nowrap;
+    }
+  }
+
+  // === Tableau des résultats ===
+  .results-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      thead {
+        background: #f8f9fa;
+
+        tr {
+          border-bottom: 2px solid #ddd;
+
+          th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          border-bottom: 1px solid #eee;
+          transition: background-color 0.3s ease;
+
+          &:hover {
+            background: #f9f9f9;
+          }
+
+          &.high-relevance {
+            background: rgba(102, 126, 234, 0.02);
+
+            &:hover {
+              background: rgba(102, 126, 234, 0.05);
+            }
+          }
+
+          td {
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: #555;
+
+            strong {
+              color: #333;
+            }
+
+            .matched-fields {
+              font-size: 0.85rem;
+              color: #667eea;
+              margin-top: 0.3rem;
+            }
+
+            .badge {
+              padding: 0.3rem 0.8rem;
+              border-radius: 20px;
+              font-size: 0.85rem;
+              font-weight: 600;
+
+              &.badge-info {
+                background: #e3f2fd;
+                color: #1976d2;
+              }
+            }
+
+            .salary-badge {
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              padding: 0.3rem 0.8rem;
+              border-radius: 4px;
+              font-weight: 600;
+            }
+
+            .candidatures-none {
+              color: #ccc;
+              font-weight: 600;
+            }
+
+            .candidatures-low {
+              color: #ff9800;
+              font-weight: 600;
+            }
+
+            .candidatures-medium {
+              color: #2196f3;
+              font-weight: 600;
+            }
+
+            .candidatures-high {
+              color: #4caf50;
+              font-weight: 600;
+            }
+
+            small {
+              display: block;
+              font-size: 0.8rem;
+              color: #999;
+            }
+
+            .relevance-score {
+              .score-bar {
+                height: 6px;
+                background: #eee;
+                border-radius: 3px;
+                overflow: hidden;
+                margin-bottom: 0.3rem;
+
+                .score-fill {
+                  height: 100%;
+                  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                  transition: width 0.3s ease;
+                }
+              }
+
+              .score-text {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: #667eea;
+              }
+            }
+
+            &.date-cell {
+              font-size: 0.85rem;
+              color: #999;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
+    }
+
+    .offers-details {
+      display: none;
+
+      .offer-detail-card {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-left: 4px solid #667eea;
+        border-radius: 6px;
+
+        h4 {
+          margin: 0 0 0.5rem 0;
+          color: #333;
+        }
+
+        p {
+          margin: 0.3rem 0;
+          font-size: 0.9rem;
+          color: #666;
+
+          &.highlighted-text {
+            background: #fffacd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            color: #333;
+          }
+
+          &.description {
+            margin-top: 0.8rem;
+            line-height: 1.4;
+          }
+        }
+      }
+    }
+  }
+
+  // === États vides ===
+  .no-results,
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 12px;
+    color: #666;
+
+    p {
+      font-size: 1.1rem;
+      margin: 0.5rem 0;
+
+      strong {
+        color: #333;
+      }
+
+      &.hint {
+        font-size: 0.95rem;
+        color: #999;
+        margin-top: 1rem;
+      }
+    }
+  }
+
+  // === Responsive ===
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .recherche-header h1 {
+      font-size: 1.8rem;
+    }
+
+    .search-form {
+      padding: 1.5rem;
+
+      .search-section .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .results-table {
+      font-size: 0.85rem;
+
+      thead th,
+      tbody td {
+        padding: 0.7rem 0.5rem;
+      }
+    }
+
+    .results-controls {
+      flex-direction: column;
+
+      .filter-section {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+    }
+  }
+}

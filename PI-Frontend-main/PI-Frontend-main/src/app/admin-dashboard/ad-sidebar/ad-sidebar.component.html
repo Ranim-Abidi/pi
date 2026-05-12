@@ -1,0 +1,285 @@
+<div class="sidebar-area" [class.active]="classApplied">
+
+    <!-- LOGO -->
+    <div class="sidebar-logo">
+        <div class="logo-img">
+            <img src="images/logo.png" alt="logo"
+                 onerror="this.style.display='none'">
+        </div>
+        <div>
+            <div class="logo-text">Matchy Khedma</div>
+            <div class="logo-sub">Connexion & Carrière</div>
+            <span class="logo-badge">Admin Panel</span>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <nav class="sidebar-nav">
+
+        <div class="nav-section-label">Principal</div>
+
+        <ul>
+            <li>
+                <a routerLink="/admin-dashboard"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-dashboard-line"></i>
+                    </div>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/candidats"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-user-3-line"></i>
+                    </div>
+                    <span>Candidats</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/candidatures"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-file-list-3-line"></i>
+                    </div>
+                    <span>Candidatures</span>
+                </a>
+            </li>
+            <li>
+                <a style="cursor:pointer" (click)="openCreatePartenaire()">
+                    <div class="nav-icon">
+                        <i class="ri-add-circle-line"></i>
+                    </div>
+                    <span>Créer Partenaire</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/partenaires"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-building-line"></i>
+                    </div>
+                    <span>Liste Partenaires</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/entretiens"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-calendar-check-line"></i>
+                    </div>
+                    <span>Entretiens</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/formations"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: false}">
+                    <div class="nav-icon">
+                        <i class="ri-book-2-line"></i>
+                    </div>
+                    <span>Formations</span>
+                </a>
+            </li>
+            <li>
+                <a routerLink="/admin-dashboard/evenements"
+                   routerLinkActive="active"
+                   [routerLinkActiveOptions]="{exact: true}">
+                    <div class="nav-icon">
+                        <i class="ri-calendar-event-line"></i>
+                    </div>
+                    <span>Evenements</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Compte</div>
+
+        <ul>
+            <li>
+                <a (click)="logout()" class="logout-item" style="cursor:pointer">
+                    <div class="nav-icon">
+                        <i class="ri-logout-box-line"></i>
+                    </div>
+                    <span>Déconnexion</span>
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <!-- USER CARD -->
+<div class="sidebar-footer">
+    <div class="user-card">
+        <div class="user-avatar">{{ adminName ? adminName.substring(0, 2).toUpperCase() : 'AD' }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ adminName }}</div>
+            <div class="user-role">Administrateur</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- POPUP CRÉER -->
+<div class="popup-overlay" *ngIf="isPopupOpen">
+    <div class="popup-box">
+        <div class="popup-header">
+            <h5>
+                <i class="ri-add-circle-line"></i>
+                Créer un Partenaire
+            </h5>
+            <button class="close-btn" (click)="closeCreatePartenaire()">✕</button>
+        </div>
+        <div class="popup-body">
+            <form (ngSubmit)="savePartenaire()" #partenaireForm="ngForm" novalidate>
+
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-user-line input-icon"></i>
+                        <input type="text"
+                               [(ngModel)]="newPartenaire.nom"
+                               name="nom"
+                               #nom="ngModel"
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[a-zA-ZÀ-ÿ\s\-]+"
+                               placeholder="Ex: Google"
+                               (blur)="verifierNom()"
+                               [class.input-error]="(nom.invalid && nom.touched) || nomExiste"
+                               [class.input-success]="nom.valid && nom.touched && !nomExiste">
+                    </div>
+                    <div class="error-box" *ngIf="nom.invalid && nom.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="nom.errors?.['required']">Le nom est obligatoire</span>
+                        <span *ngIf="nom.errors?.['minlength']">Minimum 2 caractères</span>
+                        <span *ngIf="nom.errors?.['maxlength']">Maximum 50 caractères</span>
+                        <span *ngIf="nom.errors?.['pattern']">Le nom ne doit pas contenir de chiffres</span>
+                    </div>
+                    <div class="error-box" *ngIf="nomExiste && nom.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span>Ce nom existe déjà</span>
+                    </div>
+                    <div class="success-box" *ngIf="nom.valid && nom.touched && !nomExiste">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Nom valide</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-mail-line input-icon"></i>
+                        <input type="email"
+                               [(ngModel)]="newPartenaire.email"
+                               name="email"
+                               #email="ngModel"
+                               required
+                               email
+                               placeholder="Ex: contact@google.com"
+                               [class.input-error]="email.invalid && email.touched"
+                               [class.input-success]="email.valid && email.touched">
+                    </div>
+                    <div class="error-box" *ngIf="email.invalid && email.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="email.errors?.['required']">L'email est obligatoire</span>
+                        <span *ngIf="email.errors?.['email']">Format invalide (ex: contact&#64;gmail.com)</span>
+                    </div>
+                    <div class="success-box" *ngIf="email.valid && email.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Email valide</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-phone-line input-icon"></i>
+                        <input type="text"
+                               [(ngModel)]="newPartenaire.telephone"
+                               name="telephone"
+                               #telephone="ngModel"
+                               required
+                               pattern="[0-9]{8}"
+                               placeholder="Ex: 0123456789"
+                               (blur)="verifierTelephone()"
+                               [class.input-error]="(telephone.invalid && telephone.touched) || telephoneExiste"
+                               [class.input-success]="telephone.valid && telephone.touched && !telephoneExiste">
+                    </div>
+                    <div class="error-box" *ngIf="telephone.invalid && telephone.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="telephone.errors?.['required']">Le téléphone est obligatoire</span>
+                        <span *ngIf="telephone.errors?.['pattern']">Seulement 8 chiffres exactement</span>
+                    </div>
+                    <div class="error-box" *ngIf="telephoneExiste && telephone.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span>Ce numéro existe déjà</span>
+                    </div>
+                    <div class="success-box" *ngIf="telephone.valid && telephone.touched && !telephoneExiste">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Téléphone valide</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Type *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-building-line input-icon"></i>
+                        <select [(ngModel)]="newPartenaire.type"
+                                name="type"
+                                #type="ngModel"
+                                required
+                                [class.input-error]="type.invalid && type.touched"
+                                [class.input-success]="type.valid && type.touched">
+                            <option value="">-- Choisir un type --</option>
+                            <option value="ENTREPRISE">Entreprise</option>
+                            <option value="UNIVERSITE">Université</option>
+                        </select>
+                    </div>
+                    <div class="error-box" *ngIf="type.invalid && type.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="type.errors?.['required']">Le type est obligatoire</span>
+                    </div>
+                    <div class="success-box" *ngIf="type.valid && type.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Type sélectionné</span>
+                    </div>
+                </div>
+
+                <div class="admin-info">
+                    <i class="ri-user-line"></i>
+                    Admin ID : <strong>{{ newPartenaire.utilisateur.id }}</strong>
+                </div>
+
+                <div class="popup-footer">
+                    <button type="button" class="btn-annuler"
+                            (click)="closeCreatePartenaire()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn-enregistrer"
+                            [disabled]="partenaireForm.invalid || nomExiste || telephoneExiste">
+                        <i class="ri-save-line"></i>
+                        Enregistrer
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-btn" [class.active]="classApplied">
+    <button (click)="toggleClass()">
+        <span>Menus</span>
+    </button>
+</div>

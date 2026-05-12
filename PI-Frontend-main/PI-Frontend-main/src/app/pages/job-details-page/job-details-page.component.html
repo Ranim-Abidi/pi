@@ -1,0 +1,133 @@
+<app-navbar />
+
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>
+                    Job Details
+                </h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">
+                            Home
+                        </a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/jobs-grid">
+                            Jobs
+                        </a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Job Details
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Page Banner -->
+
+<!-- Job Details Area -->
+<div class="job-details-area ptb-100">
+    <div class="container">
+        <div class="public-tests-state" *ngIf="loading">
+            Chargement des details de l offre...
+        </div>
+
+        <div class="public-tests-state error" *ngIf="!loading && errorMessage">
+            {{ errorMessage }}
+        </div>
+
+        <div class="row">
+            <ng-container *ngIf="!loading && !errorMessage && offre">
+                <div class="col-lg-8 col-md-12">
+                    <div class="single-job-box">
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                            <div class="d-sm-flex align-items-center">
+                                <div class="company-logo">
+                                    <img src="images/companies/company8.png" alt="company-image">
+                                </div>
+                                <div class="content">
+                                    <h3 class="fw-semibold">
+                                        {{ offreTitle }}
+                                    </h3>
+                                    <span class="location d-block">
+                                        {{ entrepriseNom }}
+                                    </span>
+                                    <span class="job-type d-block">
+                                        {{ offreType }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="apply-btn">
+                                <a href="javascript:void(0);" class="default-btn" (click)="applyToOffer()">
+                                    Apply
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="job-details-description">
+                        <h3>
+                            Description de l offre
+                        </h3>
+                        <p>
+                            {{ offreDescription }}
+                        </p>
+                    </div>
+                    <div class="job-details-description" *ngIf="competencesLabels.length > 0">
+                        <h3>
+                            Competences requises
+                        </h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge text-bg-light border" *ngFor="let competence of competencesLabels">
+                                {{ competence }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <aside class="sidebar-area">
+                        <div class="box">
+                            <h3>
+                                Job summary
+                            </h3>
+                            <ul class="job-summary ps-0 mb-0 list-unstyled">
+                                <li>
+                                    <span class="fw-medium">Published on:</span> {{ formatDate(offre.datePublication) }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Statut:</span> {{ offreStatus }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Type:</span> {{ offreType }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Localisation:</span> {{ jobLocation }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Entreprise:</span> {{ entrepriseNom }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Salaire:</span> {{ salaryLabel }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Application deadline:</span> {{ deadlineLabel }}
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<app-subscribe />
+
+<app-footer />
+
+<ngx-scrolltop />

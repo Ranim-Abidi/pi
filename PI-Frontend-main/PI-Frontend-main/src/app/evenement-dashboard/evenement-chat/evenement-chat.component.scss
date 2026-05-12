@@ -1,0 +1,355 @@
+@use 'sass:color';
+
+
+// =============================================
+// VARIABLES
+// =============================================
+$primary:       #153d93;
+$primary-dark:  #1d4ed8;
+$primary-light: #3b82f6;
+$primary-soft:  #dbeafe;
+$success:       #10b981;
+$success-soft:  rgba(#10b981, 0.1);
+$warning:       #f59e0b;
+$warning-soft:  rgba(#f59e0b, 0.1);
+$gray-50:       #f8fafc;
+$gray-100:      #f1f5f9;
+$gray-200:      #e2e8f0;
+$gray-300:      #cbd5e1;
+$gray-400:      #94a3b8;
+$gray-500:      #64748b;
+$gray-600:      #475569;
+$gray-700:      #334155;
+$gray-800:      #1e293b;
+
+$card-shadow:       0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05);
+$card-shadow-hover: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.03);
+
+@mixin flex-center  { display: flex; align-items: center; justify-content: center; }
+@mixin flex-between { display: flex; align-items: center; justify-content: space-between; }
+@mixin transition   { transition: all 0.2s ease; }
+
+// =============================================
+// ANIMATIONS
+// =============================================
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+}
+
+// =============================================
+// WRAPPER
+// =============================================
+.chats-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, $gray-50 0%, #ffffff 100%);
+    padding: 2rem 0;
+}
+
+// =============================================
+// HERO
+// =============================================
+.hero-section {
+    background: var(--whiteColor, #fff);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    border: 1px solid $gray-200;
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(37, 99, 235, 0.08);
+        color: #2563eb;
+        padding: 0.45rem 0.95rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-bottom: 0.9rem;
+        border: 1px solid rgba(37, 99, 235, 0.15);
+
+        i { font-size: 0.85rem; }
+    }
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1f2937;
+        margin: 0;
+        line-height: 1.2;
+    }
+}
+
+// =============================================
+// LOADING
+// =============================================
+.loading-container {
+    @include flex-center;
+    flex-direction: column;
+    padding: 3rem;
+
+    .loading-spinner {
+        text-align: center;
+
+        .spinner-ring {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid $gray-200;
+            border-top-color: $primary;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        p {
+            color: $gray-500;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+    }
+}
+
+// =============================================
+// EMPTY STATE
+// =============================================
+.empty-state-modern {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #fff;
+    border-radius: 1.5rem;
+    border: 1px solid $gray-200;
+
+    .empty-illustration {
+        width: 5rem;
+        height: 5rem;
+        background: $gray-100;
+        border-radius: 2rem;
+        @include flex-center;
+        margin: 0 auto 1.5rem;
+
+        i { font-size: 2.5rem; color: $gray-400; }
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+        color: $gray-800;
+    }
+
+    p {
+        color: $gray-500;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+}
+
+// =============================================
+// GRID
+// =============================================
+.chats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    animation: fadeIn 0.4s ease;
+}
+
+// =============================================
+// CHAT CARD
+// =============================================
+.chat-card {
+    background: #fff;
+    border-radius: 1.25rem;
+    border: 1px solid $gray-200;
+    overflow: hidden;
+    @include transition;
+    animation: fadeIn 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: $card-shadow-hover;
+        border-color: $primary-light;
+    }
+
+    // --- Header ---
+    &-header {
+        padding: 1.25rem;
+        border-bottom: 1px solid $gray-100;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    // --- Body ---
+    &-body {
+        padding: 1.25rem;
+    }
+
+    // --- Footer ---
+    &-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid $gray-100;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+// =============================================
+// CARD HEADER ELEMENTS
+// =============================================
+.chat-icon-wrapper {
+    width: 2.75rem;
+    height: 2.75rem;
+    background: $primary-soft;
+    border-radius: 0.875rem;
+    @include flex-center;
+    flex-shrink: 0;
+
+    i { font-size: 1.375rem; color: $primary; }
+}
+
+.chat-info {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: $gray-800;
+        margin: 0 0 0.35rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.event-type-badge {
+    display: inline-block;
+    background: $primary-soft;
+    color: $primary;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+// =============================================
+// STATUT CHAT
+// =============================================
+.chat-statut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    flex-shrink: 0;
+
+    .statut-dot {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+    }
+
+    &.chat-ouvert {
+        background: $success-soft;
+        color: $success;
+
+        .statut-dot {
+            background: $success;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+    }
+
+    &.chat-ferme {
+        background: $warning-soft;
+        color: color.adjust($warning, $lightness: -18%);
+
+        .statut-dot { background: $warning; }
+    }
+}
+
+// =============================================
+// INFO ROWS
+// =============================================
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: $gray-600;
+    margin-bottom: 0.6rem;
+
+    &:last-child { margin-bottom: 0; }
+
+    i { color: $gray-400; font-size: 1rem; flex-shrink: 0; }
+}
+
+.actif-label {
+    color: #1a6b3c;
+    font-weight: 500;
+}
+
+// =============================================
+// BOUTONS
+// =============================================
+.btn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    @include transition;
+
+    i { font-size: 0.875rem; }
+}
+
+.btn-rejoindre {
+    background: linear-gradient(135deg, $primary-light, $primary-dark);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    }
+}
+
+.btn-ferme {
+    background: $gray-100;
+    color: $gray-400;
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+// =============================================
+// RESPONSIVE
+// =============================================
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 1.5rem;
+
+        h1 { font-size: 1.5rem; }
+    }
+
+    .chats-grid {
+        grid-template-columns: 1fr;
+    }
+}

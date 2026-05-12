@@ -1,0 +1,1260 @@
+<div class="applied-jobs-wrapper">
+    <div class="container-fluid px-4">
+        <!-- Header avec effet glassmorphisme -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="hero-badge">Espace Candidat</span>
+                    <h1>My Applications</h1>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <button class="btn-primary-gradient" (click)="openCreateModal()">
+                    <i class="ri-add-line"></i>
+                    <span>New application</span>
+                </button>
+                
+                <!-- NOUVEAU BOUTON ARCHIVES MODERNE -->
+                <button class="btn-archives-modern" (click)="toggleShowArchives()" [class.active]="showArchives">
+                    <div class="btn-archives-icon">
+                        <i class="ri-archive-stack-line"></i>
+                    </div>
+                    <div class="btn-archives-text">
+                        <span class="btn-title">Archives</span>
+                        <span class="btn-count">{{ archivesCount }}</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line" [class.rotated]="showArchives"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Message de notification -->
+        <div *ngIf="message" class="notification-toast" [ngClass]="'toast-' + messageType">
+            <div class="toast-icon">
+                <i class="ri-information-line"></i>
+            </div>
+            <div class="toast-content">
+                <span>{{ message }}</span>
+            </div>
+            <button class="toast-close" (click)="message = ''">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card" (click)="openCVModal()">
+                <div class="action-icon">
+                    <i class="ri-file-user-line"></i>
+                </div>
+                <div class="action-info">
+                    <h4>Mon CV</h4>
+                    <p>Gérer mon curriculum vitae</p>
+                </div>
+                <i class="ri-arrow-right-s-line action-arrow"></i>
+            </div>
+            <div class="action-card" (click)="openLettreModal()">
+                <div class="action-icon">
+                    <i class="ri-mail-send-line"></i>
+                </div>
+                <div class="action-info">
+                    <h4>Lettre de motivation</h4>
+                    <p>Générer avec l'IA</p>
+                </div>
+                <i class="ri-arrow-right-s-line action-arrow"></i>
+            </div>
+            <div class="action-card" (click)="openAnalyseModal()">
+                <div class="action-icon">
+                    <i class="ri-bar-chart-line"></i>
+                </div>
+                <div class="action-info">
+                    <h4>Analyser mon profil</h4>
+                    <p>Optimiser vos chances</p>
+                </div>
+                <i class="ri-arrow-right-s-line action-arrow"></i>
+            </div>
+        </div>
+
+        <!-- ==================== FONCTIONNALITÉS AVANCÉES ==================== -->
+        <div class="advanced-features-section">
+            <div class="section-header">
+                <h2><i class="ri-rocket-line"></i> Fonctionnalités Avancées</h2>
+            </div>
+            <div class="features-grid">
+                <!-- Gamification -->
+                <div class="feature-card gamification-card" (click)="ouvrirGamification()">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-info">
+                        <h4>Mon Niveau</h4>
+                        <p>{{ niveau }} — {{ pointsTotal }} pts</p>
+                        <div class="mini-progress">
+                            <div class="mini-bar" [style.width]="niveauProgress + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Match -->
+                <div class="feature-card match-card" (click)="ouvrirSmartMatch()">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-info">
+                        <h4>Smart Match</h4>
+                        <p>Offres compatibles avec votre profil</p>
+                    </div>
+                </div>
+
+                <!-- Radar Compétences -->
+                <div class="feature-card radar-card" (click)="ouvrirRadar()">
+                    <div class="feature-icon">📡</div>
+                    <div class="feature-info">
+                        <h4>Radar Compétences</h4>
+                        <p>Analysez vos points forts</p>
+                    </div>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="feature-card stats-card" (click)="ouvrirStatistiques()">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-info">
+                        <h4>Statistiques</h4>
+                        <p>Taux de réussite : {{ tauxReussiteCalcule }}%</p>
+                    </div>
+                </div>
+
+                <!-- Prédiction IA -->
+                <div class="feature-card prediction-card" (click)="ouvrirPrediction()">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-info">
+                        <h4>Prédiction IA</h4>
+                        <p>Probabilité de succès</p>
+                    </div>
+                </div>
+
+                <!-- Relances -->
+                <div class="feature-card relances-card" (click)="ouvrirRelances()">
+                    <div class="feature-icon">📧</div>
+                    <div class="feature-info">
+                        <h4>Suivi Relances</h4>
+                        <p>{{ stats.enAttente }} candidatures à relancer</p>
+                    </div>
+                </div>
+
+                <!-- Assistant IA -->
+                <div class="feature-card assistant-card" (click)="ouvrirAssistant()">
+                    <div class="feature-icon">💬</div>
+                    <div class="feature-info">
+                        <h4>Assistant IA</h4>
+                        <p>Conseils personnalisés</p>
+                    </div>
+                </div>
+
+                <!-- Career Timeline -->
+                <div class="feature-card timeline-card" (click)="ouvrirTimeline()">
+                    <div class="feature-icon">🗓️</div>
+                    <div class="feature-info">
+                        <h4>Career Timeline</h4>
+                        <p>Votre parcours de candidatures</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats avancées -->
+        <div class="stats-advanced-grid">
+            <div class="stat-advanced-card">
+                <div class="stat-icon-wrapper">
+                    <i class="ri-calendar-check-line"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-number">{{ candidaturesCeMois || 0 }}</span>
+                    <span class="stat-title">Candidatures ce mois</span>
+                    <div class="stat-trend positive">
+                        <i class="ri-arrow-up-line"></i> +12%
+                    </div>
+                </div>
+            </div>
+            <div class="stat-advanced-card">
+                <div class="stat-icon-wrapper">
+                    <i class="ri-chat-voice-line"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-number">{{ entretiensObtenus || 0 }}</span>
+                    <span class="stat-title">Entretiens obtenus</span>
+                    <div class="stat-trend positive">
+                        <i class="ri-arrow-up-line"></i> +8%
+                    </div>
+                </div>
+            </div>
+            <div class="stat-advanced-card">
+                <div class="stat-icon-wrapper">
+                    <i class="ri-eye-line"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-number">{{ vuesRecruteurs || 0 }}</span>
+                    <span class="stat-title">Vues recruteurs</span>
+                    <div class="stat-trend neutral">
+                        <i class="ri-subtract-line"></i> Stable
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== BARRE FILTRES TAGS & RAPPELS ==================== -->
+        <div class="filtres-section">
+            <div class="filtres-header">
+                <span class="filtres-title">
+                    <i class="ri-price-tag-3-line"></i> Filtrer par tag
+                </span>
+                <div class="filtres-actions">
+                    <button class="btn-rappel" *ngIf="rappels.length > 0" (click)="showRelancesModal = true">
+                        <i class="ri-alarm-line"></i>
+                        {{ rappels.length }} à relancer
+                    </button>
+                    <button class="btn-doublon" *ngIf="doublons.length > 0" (click)="ouvrirDoublons()">
+                        <i class="ri-error-warning-line"></i>
+                        {{ doublons.length }} doublon(s)
+                    </button>
+                </div>
+            </div>
+            <div class="tags-filter-list">
+                <button *ngFor="let tag of availableTags"
+                        class="tag-filter-btn"
+                        [class.active]="activeTagFilter.includes(tag)"
+                        [style.borderColor]="activeTagFilter.includes(tag) ? getTagColor(tag) : ''"
+                        [style.background]="activeTagFilter.includes(tag) ? getTagColor(tag) + '20' : ''"
+                        [style.color]="activeTagFilter.includes(tag) ? getTagColor(tag) : ''"
+                        (click)="toggleTagFilter(tag)">
+                    {{ tag }}
+                </button>
+                <button *ngIf="activeTagFilter.length > 0" class="tag-clear-btn" (click)="activeTagFilter = []">
+                    <i class="ri-close-line"></i> Effacer
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <p>Chargement de vos candidatures...</p>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION ARCHIVES AMÉLIORÉE ==================== -->
+        <div *ngIf="showArchives" class="archives-section">
+            <div class="archives-header">
+                <div class="archives-title">
+                    <i class="ri-archive-stack-line"></i>
+                    <h2>Espace Archives</h2>
+                    <span class="archives-badge">{{ getArchivesCount() }} documents</span>
+                </div>
+                <button class="btn-back-active" (click)="toggleShowArchives()">
+                    <i class="ri-arrow-left-line"></i>
+                    Retour aux candidatures actives
+                </button>
+            </div>
+            
+            <!-- Statistiques des archives -->
+            <div class="archives-stats">
+                <div class="stat-card">
+                    <i class="ri-calendar-line"></i>
+                    <div class="stat-info">
+                        <h4>30+</h4>
+                        <p>jours d'archivage</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="ri-restart-line"></i>
+                    <div class="stat-info">
+                        <h4>Restaurable</h4>
+                        <p>à tout moment</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liste des archives -->
+            <div *ngIf="getArchivesCount() === 0" class="empty-state-modern">
+                <div class="empty-illustration">
+                    <i class="ri-archive-line"></i>
+                </div>
+                <h3>Archive vide</h3>
+                <p>Les candidatures de plus de 7 jours seront automatiquement déplacées ici.</p>
+            </div>
+            
+            <div *ngFor="let c of getCandidaturesArchivees()" class="candidature-card archived-card-modern">
+                <div class="card-header">
+                    <div class="company-info">
+                        <h3>{{ c.nomComplet || 'Candidat' }}</h3>
+                        <p>{{ c.offreTitre || c.poste || 'Candidature spontanée' }}</p>
+                    </div>
+                    <div class="archive-badge-modern">
+                        <i class="ri-archive-line"></i>
+                        Archivée
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <i class="ri-calendar-line"></i>
+                        <span>Postulé le {{ formatDate(c.dateEnvoi) }}</span>
+                    </div>
+                    <div class="info-row" *ngIf="c.archiveDate">
+                        <i class="ri-archive-line"></i>
+                        <span>Archivée le {{ formatDate(c.archiveDate) }}</span>
+                    </div>
+                    <div class="info-row" *ngIf="c.email">
+                        <i class="ri-mail-line"></i>
+                        <span>{{ c.email }}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn-restore-modern" (click)="restaurerCandidature(c)">
+                        <i class="ri-restart-line"></i>
+                        Restaurer
+                    </button>
+                    <button class="btn-delete-modern" (click)="deleteCandidature(c.id)">
+                        <i class="ri-delete-bin-line"></i>
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Affichage des candidatures ACTIVES (uniquement quand showArchives = false) -->
+        <div *ngIf="!showArchives">
+            <!-- Empty State -->
+            <div *ngIf="!isLoading && !errorMessage && getCandidaturesActives().length === 0 && candidatures.length === 0" class="empty-state-modern">
+                <div class="empty-illustration">
+                    <i class="ri-file-list-line"></i>
+                </div>
+                <h3>Aucune candidature pour le moment</h3>
+                <p>Commencez votre recherche d'emploi en postulant à des offres qui vous correspondent.</p>
+                <button class="btn-outline-primary" (click)="openCreateModal()">
+                    <i class="ri-add-line"></i> Postuler maintenant
+                </button>
+            </div>
+
+            <!-- Empty State pour filtres -->
+            <div *ngIf="!isLoading && !errorMessage && getCandidaturesActives().length > 0 && getCandidaturesFiltrees().length === 0" class="empty-state-modern">
+                <div class="empty-illustration">
+                    <i class="ri-filter-line"></i>
+                </div>
+                <h3>Aucune candidature avec ces filtres</h3>
+                <p>Essayez d'autres tags ou effacez les filtres.</p>
+                <button class="btn-outline-primary" (click)="activeTagFilter = []">
+                    <i class="ri-close-line"></i> Effacer les filtres
+                </button>
+            </div>
+
+            <!-- Liste des candidatures actives -->
+            <div *ngIf="!isLoading && !errorMessage && getCandidaturesFiltrees().length > 0" class="candidatures-grid">
+                <div class="candidature-card" *ngFor="let c of getCandidaturesFiltrees()">
+                    <div class="card-header">
+                        <div class="company-icon">
+                            <i class="ri-building-line"></i>
+                        </div>
+                        <div class="company-info">
+                            <h3>{{ c.nomComplet || 'Candidat' }}</h3>
+                            <p>{{ c.offreTitre || c.poste || 'Candidature spontanée' }}</p>
+                        </div>
+                        <div class="status-indicator" [ngClass]="getStatusClass(c.statut)">
+                            <span class="status-dot"></span>
+                            <span class="status-text">{{ getStatusLabel(c.statut) }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-row">
+                            <i class="ri-calendar-line"></i>
+                            <span>Postulé le {{ formatDate(c.dateEnvoi) }}</span>
+                        </div>
+                        <div class="info-row" *ngIf="c.email">
+                            <i class="ri-mail-line"></i>
+                            <span>{{ c.email }}</span>
+                        </div>
+                        <div class="skills-preview" *ngIf="c.competences">
+                            <i class="ri-flashlight-line"></i>
+                            <span>{{ c.competences | slice:0:60 }}{{ c.competences.length > 60 ? '...' : '' }}</span>
+                        </div>
+
+                        <!-- Tags affichés -->
+                        <div class="card-tags" *ngIf="getTagsForCandidature(c.id).length > 0">
+                            <span *ngFor="let tag of getTagsForCandidature(c.id)"
+                                  class="tag-badge"
+                                  [style.background]="getTagColor(tag) + '20'"
+                                  [style.color]="getTagColor(tag)">
+                                {{ tag }}
+                            </span>
+                        </div>
+
+                        <!-- Indicateur note -->
+                        <div class="note-preview" *ngIf="hasNote(c.id)">
+                            <i class="ri-sticky-note-line"></i>
+                            {{ getNote(c.id) | slice:0:60 }}{{ getNote(c.id).length > 60 ? '...' : '' }}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-icon" (click)="viewCandidature(c)" title="Voir détails">
+                            <i class="ri-eye-line"></i>
+                        </button>
+                        <button class="btn-icon" (click)="openEditModal(c)" title="Modifier">
+                            <i class="ri-edit-line"></i>
+                        </button>
+                        <button class="btn-icon" (click)="toggleTagMenu(c.id, $event)" title="Tags" style="position: relative;">
+                            <i class="ri-price-tag-3-line"></i>
+                        </button>
+                        <button class="btn-icon" [class.has-note]="hasNote(c.id)" (click)="ouvrirNote(c)" title="Note">
+                            <i class="ri-sticky-note-line"></i>
+                        </button>
+                        <button class="btn-icon danger" (click)="deleteCandidature(c.id)" title="Supprimer">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+
+                        <!-- Menu tags dropdown -->
+                        <div class="tag-dropdown" *ngIf="showTagMenu === c.id" (click)="$event.stopPropagation()">
+                            <div class="tag-dropdown-title">Ajouter un tag</div>
+                            <div *ngFor="let tag of availableTags"
+                                 class="tag-option"
+                                 [class.selected]="hasTag(c.id, tag)"
+                                 [style.color]="getTagColor(tag)"
+                                 (click)="toggleTag(c.id, tag)">
+                                <i class="ri-check-line" *ngIf="hasTag(c.id, tag)"></i>
+                                <i class="ri-add-line" *ngIf="!hasTag(c.id, tag)"></i>
+                                {{ tag }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Newsletter -->
+        <div class="newsletter-section">
+            <div class="newsletter-card">
+                <div class="newsletter-content">
+                    <div class="newsletter-text">
+                        <h3>Boostez vos candidatures</h3>
+                        <p>Recevez des offres personnalisées et des conseils exclusifs</p>
+                        <div class="newsletter-form">
+                            <input type="email" placeholder="votre@email.com" [(ngModel)]="newsletterEmail">
+                            <button (click)="subscribeNewsletter()" [disabled]="isSubscribing">
+                                {{ isSubscribing ? 'Inscription...' : "S'abonner" }}
+                                <i class="ri-arrow-right-line"></i>
+                            </button>
+                        </div>
+                        <span class="newsletter-note">+{{ nombreCandidatsActifs || 1000 }} candidats déjà inscrits</span>
+                    </div>
+                    <div class="newsletter-illustration">
+                        <i class="ri-rocket-line"></i>
+                        <div class="floating-badge">+47% de réponses</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ==================== MODAL GAMIFICATION ==================== -->
+<div class="modal-overlay" *ngIf="showGamificationModal" (click)="showGamificationModal=false">
+    <div class="modal-container modal-gamification" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>🏆 Mon Niveau & Badges</h3>
+            <button class="modal-close" (click)="showGamificationModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="niveau-container">
+                <div class="niveau-badge">{{ niveau }}</div>
+                <div class="points-total">{{ pointsTotal }} points</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" [style.width]="niveauProgress + '%'"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>{{ niveau }}</span>
+                        <span>{{ pointsPourNiveauSuivant }} pts → {{ niveauSuivant }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="badges-grid">
+                <div class="badge-item" *ngFor="let badge of badges" 
+                     [ngClass]="{'badge-obtenu': badge.obtenu, 'badge-locked': !badge.obtenu}">
+                    <div class="badge-icon">{{ badge.icon }}</div>
+                    <div class="badge-name">{{ badge.nom }}</div>
+                    <div class="badge-desc">{{ badge.desc }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL SMART MATCH ==================== -->
+<div class="modal-overlay" *ngIf="showSmartMatchModal" (click)="showSmartMatchModal=false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>🎯 Smart Match — Offres compatibles</h3>
+            <button class="modal-close" (click)="showSmartMatchModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="match-subtitle">Basé sur vos {{ getTouteMesCompetences().length }} compétences identifiées</p>
+            <div *ngIf="matchScores.length === 0" class="empty-match">
+                <p>Aucune offre disponible pour le moment. Ajoutez des compétences à vos candidatures pour améliorer le matching.</p>
+            </div>
+            <div class="match-list" *ngFor="let m of matchScores">
+                <div class="match-item">
+                    <div class="match-info">
+                        <h4>{{ m.offre.titre || 'Offre disponible' }}</h4>
+                        <p>{{ m.offre.entreprise || 'Entreprise' }} — {{ m.offre.location || 'Tunisie' }}</p>
+                        <span class="match-label" [style.color]="m.couleur">{{ m.label }}</span>
+                    </div>
+                    <div class="match-score-circle" [style.borderColor]="m.couleur">
+                        <span [style.color]="m.couleur">{{ m.score }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL RADAR ==================== -->
+<div class="modal-overlay" *ngIf="showRadarModal" (click)="showRadarModal=false">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>📡 Radar de Compétences</h3>
+            <button class="modal-close" (click)="showRadarModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="radar-bars">
+                <div class="radar-item" *ngFor="let item of radarData">
+                    <div class="radar-label">{{ item.label }}</div>
+                    <div class="radar-bar-container">
+                        <div class="radar-bar-fill" [style.width]="item.valeur + '%'"
+                             [style.background]="item.valeur >= 70 ? '#10b981' : item.valeur >= 40 ? '#f59e0b' : '#ef4444'">
+                        </div>
+                        <span class="radar-value">{{ item.valeur }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="competences-list" *ngIf="competencesUtilisateur.length > 0">
+                <h4>Vos compétences :</h4>
+                <div class="skills-cloud">
+                    <span class="skill-cloud-tag" *ngFor="let skill of competencesUtilisateur">{{ skill }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL STATISTIQUES ==================== -->
+<div class="modal-overlay" *ngIf="showStatsModal" (click)="showStatsModal=false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>📈 Statistiques de Performance</h3>
+            <button class="modal-close" (click)="showStatsModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="stats-kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">{{ tauxReussiteCalcule }}%</div>
+                    <div class="kpi-label">Taux de réussite</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{{ tempsMoyenReponse }}j</div>
+                    <div class="kpi-label">Temps moyen réponse</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{{ stats.total }}</div>
+                    <div class="kpi-label">Total candidatures</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">{{ candidaturesCeMois }}</div>
+                    <div class="kpi-label">Ce mois</div>
+                </div>
+            </div>
+            <h4>Candidatures par mois</h4>
+            <div class="bar-chart">
+                <div class="bar-item" *ngFor="let m of candidaturesParMois">
+                    <div class="bar-col">
+                        <div class="bar-fill" [style.height]="(m.count * 20) + 'px'"
+                             [style.background]="m.count > 0 ? '#6c5ce7' : '#e5e7eb'">
+                        </div>
+                        <span class="bar-count" *ngIf="m.count > 0">{{ m.count }}</span>
+                    </div>
+                    <div class="bar-label">{{ m.mois }}</div>
+                </div>
+            </div>
+            <div class="repartition-section">
+                <h4>Répartition des statuts</h4>
+                <div class="repartition-bars">
+                    <div class="rep-item">
+                        <span>En attente</span>
+                        <div class="rep-bar">
+                            <div class="rep-fill pending" [style.width]="stats.total > 0 ? (stats.enAttente/stats.total*100) + '%' : '0%'"></div>
+                        </div>
+                        <span>{{ stats.enAttente }}</span>
+                    </div>
+                    <div class="rep-item">
+                        <span>Acceptées</span>
+                        <div class="rep-bar">
+                            <div class="rep-fill accepted" [style.width]="stats.total > 0 ? (stats.acceptees/stats.total*100) + '%' : '0%'"></div>
+                        </div>
+                        <span>{{ stats.acceptees }}</span>
+                    </div>
+                    <div class="rep-item">
+                        <span>Refusées</span>
+                        <div class="rep-bar">
+                            <div class="rep-fill rejected" [style.width]="stats.total > 0 ? (stats.refusees/stats.total*100) + '%' : '0%'"></div>
+                        </div>
+                        <span>{{ stats.refusees }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL PRÉDICTION IA ==================== -->
+<div class="modal-overlay" *ngIf="showPredictionModal" (click)="showPredictionModal=false">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>🤖 Prédiction IA de Succès</h3>
+            <button class="modal-close" (click)="showPredictionModal=false">&times;</button>
+        </div>
+        <div class="modal-body" *ngIf="predictionData">
+            <div class="prediction-score">
+                <div class="prediction-circle" [style.borderColor]="predictionData.couleur">
+                    <span [style.color]="predictionData.couleur">{{ predictionData.probabilite }}%</span>
+                    <small>de succès</small>
+                </div>
+            </div>
+            <div class="prediction-details">
+                <div class="pred-section">
+                    <h4>⏰ Meilleur moment pour postuler</h4>
+                    <p class="pred-value">{{ predictionData.meilleurMoment }}</p>
+                </div>
+                <div class="pred-section">
+                    <h4>✅ Points forts</h4>
+                    <ul>
+                        <li *ngFor="let p of predictionData.pointsForts">{{ p }}</li>
+                        <li *ngIf="predictionData.pointsForts.length === 0">Complétez votre profil</li>
+                    </ul>
+                </div>
+                <div class="pred-section">
+                    <h4>🎯 Points à améliorer</h4>
+                    <ul>
+                        <li *ngFor="let p of predictionData.pointsAmeliorer">{{ p }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL RELANCES INTELLIGENTES ==================== -->
+<div class="modal-overlay" *ngIf="showRelancesModal" (click)="showRelancesModal = false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white;">
+                <i class="ri-alarm-line"></i> Rappels intelligents
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);" (click)="showRelancesModal = false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                Candidatures en attente depuis plus de 7 jours :
+            </p>
+            <div *ngFor="let c of rappels" class="rappel-item">
+                <div class="rappel-left">
+                    <div class="rappel-dot" [style.background]="c.niveauRappel"></div>
+                    <div>
+                        <div class="rappel-nom">{{ c.nomComplet || 'Sans nom' }}</div>
+                        <div class="rappel-info">{{ c.email }} · envoyé le {{ formatDate(c.dateEnvoi) }}</div>
+                    </div>
+                </div>
+                <div class="rappel-right">
+                    <span class="rappel-jours" [style.color]="c.couleurRappel">
+                        {{ c.joursEcoules }}j
+                    </span>
+                    <button class="btn-copy-relance" (click)="copierMessageRelance(c)" title="Copier message de relance">
+                        <i class="ri-file-copy-line"></i> Copier relance
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="rappels.length === 0" style="text-align: center; padding: 20px; color: #10b981;">
+                <i class="ri-checkbox-circle-line" style="font-size: 32px;"></i>
+                <p>Aucune relance nécessaire pour le moment !</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL NOTES ==================== -->
+<div class="modal-overlay" *ngIf="showNoteModal !== null" (click)="showNoteModal = null">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="ri-sticky-note-line"></i> Note privée</h3>
+            <button class="modal-close" (click)="showNoteModal = null">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color: #6b7280; margin-bottom: 12px;">
+                Vos notes sont privées et stockées localement.
+            </p>
+            <textarea class="form-control" rows="5"
+                      [(ngModel)]="currentNote"
+                      placeholder="Ex: RH sympa, stack moderne, entretien prévu...">
+            </textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="showNoteModal = null">Annuler</button>
+            <button class="btn-primary" (click)="sauvegarderNote()">
+                <i class="ri-save-line"></i> Sauvegarder
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL DOUBLONS ==================== -->
+<div class="modal-overlay" *ngIf="showDoublonsModal" (click)="showDoublonsModal = false">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #ef4444); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white;">
+                <i class="ri-error-warning-line"></i> Doublons détectés
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);" (click)="showDoublonsModal = false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                Ces emails apparaissent dans plusieurs candidatures :
+            </p>
+            <div *ngFor="let groupe of doublons" class="doublon-group">
+                <div class="doublon-email">
+                    <i class="ri-mail-line"></i> {{ groupe[0].email }}
+                    <span class="doublon-count">{{ groupe.length }}x</span>
+                </div>
+                <div class="doublon-items">
+                    <div *ngFor="let c of groupe" class="doublon-item">
+                        <span>{{ c.nomComplet || 'Sans nom' }}</span>
+                        <span class="doublon-date">{{ formatDate(c.dateEnvoi) }}</span>
+                        <span class="status-badge" [class]="getStatusClass(c.statut)">
+                            {{ getStatusLabel(c.statut) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="doublons.length === 0" style="text-align: center; padding: 20px; color: #10b981;">
+                <i class="ri-checkbox-circle-line" style="font-size: 32px;"></i>
+                <p>Aucun doublon détecté !</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL ASSISTANT IA ==================== -->
+<div class="modal-overlay" *ngIf="showAssistantModal" (click)="showAssistantModal=false">
+    <div class="modal-container modal-assistant" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>💬 Assistant Carrière IA</h3>
+            <button class="modal-close" (click)="showAssistantModal=false">&times;</button>
+        </div>
+        <div class="chat-container">
+            <div class="chat-messages" #chatMessages>
+                <div class="message" *ngFor="let msg of assistantMessages"
+                     [ngClass]="msg.role === 'user' ? 'message-user' : 'message-assistant'">
+                    <div class="message-bubble" [innerHTML]="msg.content"></div>
+                </div>
+                <div class="message message-assistant" *ngIf="isAssistantTyping">
+                    <div class="message-bubble typing">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" class="form-control" 
+                       [(ngModel)]="assistantInput" 
+                       placeholder="Posez votre question..."
+                       (keyup.enter)="envoyerMessageAssistant()">
+                <button class="btn-send" (click)="envoyerMessageAssistant()">
+                    <i class="ri-send-plane-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CAREER TIMELINE ==================== -->
+<div class="modal-overlay" *ngIf="showTimelineModal" (click)="showTimelineModal=false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header gradient-header">
+            <h3>🗓️ Career Timeline</h3>
+            <button class="modal-close" (click)="showTimelineModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="candidatures.length === 0" class="empty-timeline">
+                <p>Aucune candidature dans votre timeline.</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item" *ngFor="let item of getTimelineItems()">
+                    <div class="timeline-dot" [style.background]="item.couleur">
+                        {{ item.icon }}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">{{ formatDate(item.dateEnvoi) }}</div>
+                        <h4>{{ item.offreTitre || 'Candidature spontanée' }}</h4>
+                        <p>{{ item.nomComplet }}</p>
+                        <span class="timeline-status" [ngClass]="getStatusClass(item.statut)">
+                            {{ getStatusLabel(item.statut) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CV ==================== -->
+<div class="modal-overlay" *ngIf="showCVModal" (click)="closeCVModal()">
+    <div class="modal-container modal-cv" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-icon"><i class="ri-file-user-line"></i></div>
+            <div class="header-title">
+                <h3>Mon CV</h3>
+                <p>Gérez votre curriculum vitae</p>
+            </div>
+            <button class="modal-close" (click)="closeCVModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="cv-card" *ngIf="cvUrl">
+                <div class="cv-preview-icon">
+                    <i class="ri-file-pdf-line"></i>
+                </div>
+                <div class="cv-info-detail">
+                    <h4>{{ cvName || 'CV.pdf' }}</h4>
+                    <div class="cv-meta">
+                        <span><i class="ri-calendar-line"></i> {{ cvDate }}</span>
+                        <span><i class="ri-database-line"></i> {{ getFileSize() }}</span>
+                    </div>
+                </div>
+                <div class="cv-actions-group">
+                    <button class="btn-outline" (click)="openInNewTab()"><i class="ri-eye-line"></i> Visualiser</button>
+                    <button class="btn-outline" (click)="telechargerCV()"><i class="ri-download-line"></i> Télécharger</button>
+                    <button class="btn-outline danger" (click)="supprimerCV()"><i class="ri-delete-bin-line"></i> Supprimer</button>
+                </div>
+                <button class="btn-replace" (click)="uploadNewCV()"><i class="ri-upload-line"></i> Remplacer mon CV</button>
+            </div>
+            <div class="empty-cv-state" *ngIf="!cvUrl">
+                <div class="empty-icon"><i class="ri-file-pdf-line"></i></div>
+                <h4>Aucun CV téléchargé</h4>
+                <p>Ajoutez votre CV pour augmenter vos chances d'être contacté</p>
+                <button class="btn-primary" (click)="openFileSelector()"><i class="ri-upload-cloud-2-line"></i> Importer mon CV</button>
+                <small class="upload-hint">PDF, DOC, DOCX (Max 5 Mo)</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL LETTRE ==================== -->
+<div class="modal-overlay" *ngIf="showLettreModal" (click)="closeLettreModal()">
+    <div class="modal-container modal-lettre" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="ri-mail-send-line"></i> Générateur de lettre de motivation</h3>
+            <button class="modal-close" (click)="closeLettreModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Entreprise</label>
+                <input type="text" class="form-control" [(ngModel)]="lettreData.entreprise" placeholder="Nom de l'entreprise">
+            </div>
+            <div class="form-group">
+                <label>Poste</label>
+                <input type="text" class="form-control" [(ngModel)]="lettreData.poste" placeholder="Intitulé du poste">
+            </div>
+            <div class="form-group">
+                <label>Votre message personnalisé</label>
+                <textarea class="form-control" rows="5" [(ngModel)]="lettreData.message" placeholder="Décrivez votre motivation..."></textarea>
+            </div>
+            <div class="lettre-preview" *ngIf="lettreGeneree">
+                <h4>Aperçu</h4>
+                <div class="preview-content">{{ lettreGeneree }}</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeLettreModal()">Annuler</button>
+            <button class="btn-primary" (click)="genererLettreFinal()"><i class="ri-file-copy-line"></i> Générer</button>
+            <button class="btn-primary-outline" (click)="telechargerLettreGeneree()" *ngIf="lettreGeneree"><i class="ri-download-line"></i> Télécharger</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL ANALYSE ==================== -->
+<div class="modal-overlay" *ngIf="showAnalyseModal" (click)="closeAnalyseModal()">
+    <div class="modal-container modal-analyse" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="ri-bar-chart-line"></i> Analyse de votre profil</h3>
+            <button class="modal-close" (click)="closeAnalyseModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="score-container">
+                <div class="score-circle">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" class="circle-bg"/>
+                        <circle cx="50" cy="50" r="45" class="circle-progress" [style.stroke-dasharray]="scoreProfil * 2.83 + ', 283'"/>
+                    </svg>
+                    <div class="score-value">{{ scoreProfil }}<span>%</span></div>
+                </div>
+                <div class="score-label">Score de complétude</div>
+            </div>
+            <div class="analyse-items">
+                <div class="analyse-item" [ngClass]="{'completed': profil.competences, 'warning': !profil.competences}">
+                    <div class="item-icon"><i [class]="profil.competences ? 'ri-check-line' : 'ri-alert-line'"></i></div>
+                    <div class="item-content">
+                        <h4>Compétences</h4>
+                        <p>{{ profil.competences ? 'Compétences renseignées' : 'Aucune compétence renseignée' }}</p>
+                    </div>
+                </div>
+                <div class="analyse-item" [ngClass]="{'completed': profil.experience, 'warning': !profil.experience}">
+                    <div class="item-icon"><i [class]="profil.experience ? 'ri-check-line' : 'ri-alert-line'"></i></div>
+                    <div class="item-content">
+                        <h4>Expérience</h4>
+                        <p>{{ profil.experience || 'Non renseignée' }}</p>
+                    </div>
+                </div>
+                <div class="analyse-item" [ngClass]="{'completed': profil.cv, 'warning': !profil.cv}">
+                    <div class="item-icon"><i [class]="profil.cv ? 'ri-check-line' : 'ri-alert-line'"></i></div>
+                    <div class="item-content">
+                        <h4>CV</h4>
+                        <p>{{ profil.cv ? 'CV téléchargé' : 'CV manquant' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="conseils-box" *ngIf="conseils.length > 0">
+                <h4><i class="ri-lightbulb-line"></i> Conseils personnalisés</h4>
+                <ul>
+                    <li *ngFor="let conseil of conseils">{{ conseil }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeAnalyseModal()">Fermer</button>
+            <button class="btn-primary" (click)="allerCompleterProfil()" *ngIf="scoreProfil < 80">
+                <i class="ri-edit-line"></i> Compléter mon profil
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CREATION ==================== -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-left">
+                <div class="header-icon"><i class="ri-user-add-line"></i></div>
+                <div class="header-text">
+                    <h3>Nouvelle candidature</h3>
+                    <p>Remplissez le formulaire ci-dessous pour postuler</p>
+                </div>
+            </div>
+            <button class="modal-close" (click)="closeCreateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form class="create-form">
+                <div class="form-section" *ngIf="newCandidature.offreId || newCandidature.poste || newCandidature.entreprise">
+                    <h4>🎯 Offre ciblée</h4>
+                    <div class="alert alert-light mb-0">
+                        <div><strong>Poste:</strong> {{ newCandidature.poste || '-' }}</div>
+                        <div><strong>Entreprise:</strong> {{ newCandidature.entreprise || '-' }}</div>
+                        <div><strong>ID offre:</strong> {{ newCandidature.offreId || '-' }}</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>👤 Informations personnelles</h4>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Nom complet <span class="required">*</span></label>
+                            <input type="text" class="form-control" [class.is-invalid]="showError('nomComplet')" [(ngModel)]="newCandidature.nomComplet" name="nomComplet" placeholder="Votre nom et prénom">
+                            <div class="invalid-feedback" *ngIf="showError('nomComplet')">{{ createErrors.nomComplet }}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" [class.is-invalid]="showError('email')" [(ngModel)]="newCandidature.email" name="email" placeholder="exemple@email.com">
+                            <div class="invalid-feedback" *ngIf="showError('email')">{{ createErrors.email }}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" class="form-control" [class.is-invalid]="showError('telephone')" [(ngModel)]="newCandidature.telephone" name="telephone" placeholder="+216 55 555 555">
+                            <div class="invalid-feedback" *ngIf="showError('telephone')">{{ createErrors.telephone }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>🎓 Formation</h4>
+                    <div class="formations-list" *ngIf="newCandidature.formations?.length">
+                        <div class="formation-item" *ngFor="let f of newCandidature.formations; let i=index">
+                            <span><strong>{{ f.diplome }}</strong> - {{ f.institution }} ({{ f.annee }})</span>
+                            <button type="button" class="remove-item" (click)="removeFormation(i)">×</button>
+                        </div>
+                    </div>
+                    <div class="add-section">
+                        <div class="form-row">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newFormation.diplome" name="newDiplome" placeholder="Diplôme">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newFormation.institution" name="newInstitution" placeholder="Établissement">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newFormation.annee" name="newAnnee" placeholder="Année">
+                        </div>
+                        <button type="button" class="btn-add" (click)="addFormation()">+ Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>💼 Expérience professionnelle</h4>
+                    <div class="experiences-list" *ngIf="newCandidature.experiences?.length">
+                        <div class="experience-item" *ngFor="let exp of newCandidature.experiences; let i=index">
+                            <div class="exp-header">
+                                <span><strong>{{ exp.poste }}</strong> - {{ exp.entreprise }}</span>
+                                <button type="button" class="remove-item" (click)="removeExperience(i)">×</button>
+                            </div>
+                            <p class="exp-period">{{ exp.periode }}</p>
+                            <p class="exp-desc">{{ exp.description }}</p>
+                        </div>
+                    </div>
+                    <div class="add-section">
+                        <div class="form-grid">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newExperience.poste" name="newPoste" placeholder="Poste occupé">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newExperience.entreprise" name="newEntreprise" placeholder="Entreprise">
+                            <input type="text" class="form-control" [(ngModel)]="newCandidature.newExperience.periode" name="newPeriode" placeholder="Période (ex: 2022-2024)">
+                        </div>
+                        <textarea class="form-control" rows="2" [(ngModel)]="newCandidature.newExperience.description" name="newDescription" placeholder="Description"></textarea>
+                        <button type="button" class="btn-add" (click)="addExperience()">+ Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>⚡ Compétences <span class="required">*</span></h4>
+                    <div class="skills-tags">
+                        <span class="skill-tag" *ngFor="let skill of newCandidature.competences; let i=index">
+                            {{ skill }}
+                            <i class="ri-close-line" (click)="removeSkill(i)"></i>
+                        </span>
+                    </div>
+                    <div class="add-skill">
+                        <input type="text" class="form-control" [class.is-invalid]="showError('competences')" [(ngModel)]="newCandidature.skillInput" name="skillInput" placeholder="Ajouter une compétence" (keyup.enter)="addSkill()">
+                        <button type="button" class="btn-add-small" (click)="addSkill()">+</button>
+                    </div>
+                    <div class="invalid-feedback" *ngIf="showError('competences')">{{ createErrors.competences }}</div>
+                </div>
+
+                <div class="form-section">
+                    <h4>📄 CV <span class="required">*</span></h4>
+                    <div class="file-upload-area" [class.has-file]="newCandidature.cvName">
+                        <input type="file" #cvInput (change)="onCVFileSelected($event)" accept=".pdf,.doc,.docx" style="display: none">
+                        <button type="button" class="btn-upload" (click)="cvInput.click()">
+                            <i class="ri-upload-line"></i>
+                            {{ newCandidature.cvName ? 'Changer de fichier' : 'Choisir un fichier' }}
+                        </button>
+                        <span class="file-name" *ngIf="newCandidature.cvName">{{ newCandidature.cvName }}</span>
+                        <span class="file-hint" *ngIf="!newCandidature.cvName">PDF, DOC, DOCX (Max 5 Mo)</span>
+                    </div>
+                    <div class="invalid-feedback" *ngIf="showError('cv')">{{ createErrors.cv }}</div>
+                </div>
+
+                <div class="form-section">
+                    <h4>📝 Lettre de motivation</h4>
+                    <textarea class="form-control" rows="4" [(ngModel)]="newCandidature.lettreMotivation" name="lettreMotivation" placeholder="Décrivez votre motivation..."></textarea>
+                </div>
+
+                <div class="form-section">
+                    <h4>📅 Disponibilité</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de disponibilité</label>
+                            <input type="date" class="form-control" [(ngModel)]="newCandidature.dateDisponibilite" name="dateDisponibilite">
+                        </div>
+                        <div class="form-group">
+                            <label>Préavis</label>
+                            <select class="form-control" [(ngModel)]="newCandidature.preavis" name="preavis">
+                                <option value="">Sélectionnez</option>
+                                <option value="IMMEDIAT">Immédiat</option>
+                                <option value="1_MOIS">1 mois</option>
+                                <option value="2_MOIS">2 mois</option>
+                                <option value="3_MOIS">3 mois</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="newCandidature.acceptRGPD" name="acceptRGPD">
+                        <span>J'accepte que mes données soient traitées conformément au RGPD <span class="required">*</span></span>
+                    </label>
+                    <div class="invalid-feedback" *ngIf="showError('acceptRGPD')">{{ createErrors.acceptRGPD }}</div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeCreateModal()">Annuler</button>
+            <button class="btn-primary" (click)="createCandidature()" [disabled]="isCreating">
+                {{ isCreating ? 'Envoi en cours...' : 'Postuler' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL VISUALISATION ==================== -->
+<div class="modal-overlay" *ngIf="showViewModal" (click)="closeViewModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-left">
+                <div class="header-icon"><i class="ri-file-eye-line"></i></div>
+                <div class="header-text">
+                    <h3>Détails de la candidature</h3>
+                    <p>Informations complètes</p>
+                </div>
+            </div>
+            <button class="modal-close" (click)="closeViewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="view-header">
+                <div class="status-badge-large" [ngClass]="getStatusClass(viewingCandidature?.statut)">
+                    {{ getStatusLabel(viewingCandidature?.statut) }}
+                </div>
+                <div class="view-date">
+                    <i class="ri-calendar-line"></i> Postulé le {{ formatDate(viewingCandidature?.dateEnvoi) }}
+                </div>
+            </div>
+
+            <div class="view-section">
+                <h4><i class="ri-user-line"></i> Informations personnelles</h4>
+                <div class="info-row">
+                    <span class="info-label">Nom complet</span>
+                    <span class="info-value">{{ viewingCandidature?.nomComplet || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ viewingCandidature?.email || 'Non spécifié' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Téléphone</span>
+                    <span class="info-value">{{ viewingCandidature?.telephone || 'Non spécifié' }}</span>
+                </div>
+            </div>
+
+            <div class="view-section" *ngIf="viewingCandidature?.offreTitre">
+                <h4><i class="ri-briefcase-line"></i> Offre ciblée</h4>
+                <div class="info-row">
+                    <span class="info-label">Titre</span>
+                    <span class="info-value">{{ viewingCandidature?.offreTitre }}</span>
+                </div>
+            </div>
+
+            <div class="view-section" *ngIf="viewingCandidature?.competences">
+                <h4><i class="ri-flashlight-line"></i> Compétences</h4>
+                <div class="skills-list">
+                    <span class="skill-tag" *ngFor="let skill of viewingCandidature?.competences?.split(',')">
+                        {{ skill.trim() }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="view-section" *ngIf="viewingCandidature?.formation">
+                <h4><i class="ri-graduation-cap-line"></i> Formation</h4>
+                <div class="view-text">{{ viewingCandidature?.formation }}</div>
+            </div>
+
+            <div class="view-section" *ngIf="viewingCandidature?.experience">
+                <h4><i class="ri-briefcase-line"></i> Expérience</h4>
+                <div class="view-text">{{ viewingCandidature?.experience }}</div>
+            </div>
+
+            <div class="view-section" *ngIf="viewingCandidature?.lettreMotivation">
+                <h4><i class="ri-mail-line"></i> Lettre de motivation</h4>
+                <div class="view-text">{{ viewingCandidature?.lettreMotivation }}</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeViewModal()">Fermer</button>
+            <button class="btn-primary" (click)="openEditModal(viewingCandidature); closeViewModal()">
+                <i class="ri-edit-line"></i> Modifier
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL MODIFICATION ==================== -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="modal-container modal-edit" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-left">
+                <div class="header-icon"><i class="ri-edit-box-line"></i></div>
+                <div class="header-text">
+                    <h3>Modifier ma candidature</h3>
+                    <p>Mettez à jour vos informations</p>
+                </div>
+            </div>
+            <button class="modal-close" (click)="closeEditModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="info-card">
+                <div class="status-badge-large" [ngClass]="getStatusClass(editingCandidature?.statut)">
+                    {{ getStatusLabel(editingCandidature?.statut) }}
+                </div>
+                <div class="info-details">
+                    <span><i class="ri-hashtag"></i> #{{ editingCandidature?.id }}</span>
+                    <span><i class="ri-calendar-line"></i> {{ formatDate(editingCandidature?.dateEnvoi) }}</span>
+                </div>
+            </div>
+
+            <form class="edit-form">
+                <div class="form-section">
+                    <h4><i class="ri-user-settings-line"></i> Informations personnelles</h4>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Nom complet</label>
+                            <input type="text" class="form-control" [(ngModel)]="editingCandidature.nomComplet" name="editNomComplet">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" [(ngModel)]="editingCandidature.email" name="editEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" class="form-control" [(ngModel)]="editingCandidature.telephone" name="editTelephone">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="ri-graduation-cap-line"></i> Formation</h4>
+                    <textarea class="form-control" rows="3" [(ngModel)]="editingCandidature.formation" name="editFormation" placeholder="Détaillez votre parcours académique..."></textarea>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="ri-briefcase-line"></i> Expérience</h4>
+                    <textarea class="form-control" rows="4" [(ngModel)]="editingCandidature.experience" name="editExperience" placeholder="Décrivez vos expériences professionnelles..."></textarea>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="ri-flashlight-line"></i> Compétences</h4>
+                    <div class="skills-tags">
+                        <span class="skill-tag" *ngFor="let skill of getSkillsArray(editingCandidature?.competences); let i=index">
+                            {{ skill }}
+                            <i class="ri-close-line" (click)="removeSkillFromEdit(i)"></i>
+                        </span>
+                    </div>
+                    <div class="add-skill">
+                        <input type="text" class="form-control" [(ngModel)]="editSkillInput" name="editSkillInput" placeholder="Ajouter une compétence" (keyup.enter)="addSkillToEdit()">
+                        <button type="button" class="btn-add-small" (click)="addSkillToEdit()">+</button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="ri-mail-send-line"></i> Lettre de motivation</h4>
+                    <textarea class="form-control" rows="5" [(ngModel)]="editingCandidature.lettreMotivation" name="editLettreMotivation" placeholder="Votre lettre de motivation..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeEditModal()">Annuler</button>
+            <button class="btn-primary" (click)="updateCandidature()" [disabled]="isUpdating">
+                {{ isUpdating ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+        </div>
+    </div>
+</div>

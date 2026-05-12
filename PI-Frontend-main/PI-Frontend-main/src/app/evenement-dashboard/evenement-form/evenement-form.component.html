@@ -1,0 +1,150 @@
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>Ajouter un Événement</h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">Accueil</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/evenements">Événements</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Ajouter
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evenement Form Area -->
+<div class="evenement-form-area ptb-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-12">
+
+                <!-- Succès -->
+                <div class="alert alert-success" *ngIf="success">
+                    <i class="ri-check-line"></i> Événement publié avec succès !
+                </div>
+
+                <!-- Erreur -->
+                <div class="alert alert-danger" *ngIf="error">
+                    <i class="ri-close-line"></i> Erreur lors de la publication !
+                </div>
+
+                <div class="form-box">
+                    <div class="form-box-header">
+                        <h3>Informations de l'événement</h3>
+                        <p>Remplissez tous les champs obligatoires pour publier l'événement.</p>
+                    </div>
+
+                    <form [formGroup]="form" (ngSubmit)="publier()">
+                        <div class="row">
+
+                            <!-- Titre -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Titre</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="titre"
+                                        placeholder="Titre de l'événement"
+                                        [class.is-invalid]="titre?.invalid && titre?.touched"
+                                        [class.is-valid]="titre?.valid && titre?.touched"
+                                    >
+                                    <div class="error-msg" *ngIf="titre?.invalid && titre?.touched">
+                                        <i class="ri-error-warning-line"></i>
+                                        <span *ngIf="titre?.errors?.['required']">Le titre est obligatoire</span>
+                                        <span *ngIf="titre?.errors?.['minlength']">Minimum 3 caractères</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Date et Heure -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Date et heure</label>
+                                        <input
+                                            type="datetime-local"
+                                            class="form-control"
+                                            formControlName="dateHeure"
+                                            [class.is-invalid]="dateHeure?.invalid && dateHeure?.touched"
+                                            [class.is-valid]="dateHeure?.valid && dateHeure?.touched"
+                                        >
+                                        <div class="error-msg" *ngIf="dateHeure?.invalid && dateHeure?.touched">
+                                            <i class="ri-error-warning-line"></i>
+                                            <span *ngIf="dateHeure?.errors?.['required']">La date et l'heure sont obligatoires</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <!-- Lieu -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Lieu</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="lieu"
+                                        placeholder="Lieu de l'événement"
+                                        [class.is-invalid]="lieu?.invalid && lieu?.touched"
+                                        [class.is-valid]="lieu?.valid && lieu?.touched"
+                                    >
+                                    <div class="error-msg" *ngIf="lieu?.invalid && lieu?.touched">
+                                        <i class="ri-error-warning-line"></i>
+                                        <span *ngIf="lieu?.errors?.['required']">Le lieu est obligatoire</span>
+                                        <span *ngIf="lieu?.errors?.['minlength']">Minimum 2 caractères</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Type -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select
+                                        class="form-control"
+                                        formControlName="type"
+                                        [class.is-invalid]="type?.invalid && type?.touched"
+                                        [class.is-valid]="type?.valid && type?.touched"
+                                    >
+                                        <option value="">Choisir un type</option>
+                                        <option value="JOB_FAIR">Job Fair</option>
+                                        <option value="WORKSHOP">Workshop</option>
+                                        <option value="CONFERENCE">Conférence</option>
+                                        <option value="NETWORKING">Networking</option>
+                                    </select>
+                                    <div class="error-msg" *ngIf="type?.invalid && type?.touched">
+                                        <i class="ri-error-warning-line"></i>
+                                        <span *ngIf="type?.errors?.['required']">Le type est obligatoire</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons -->
+                            <div class="col-md-12">
+                                <div class="form-btns d-flex align-items-center gap-3">
+                                    <button type="submit" class="default-btn">
+                                        <i class="ri-check-line"></i> Publier
+                                    </button>
+                                    <button type="button" class="default-btn outline-btn" (click)="annuler()">
+                                        <i class="ri-close-line"></i> Annuler
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

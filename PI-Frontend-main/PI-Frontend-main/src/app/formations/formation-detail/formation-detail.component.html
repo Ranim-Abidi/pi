@@ -1,0 +1,163 @@
+<div class="page-banner-area">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1>{{ formation?.titre || 'Formation' }}</h1>
+      </div>
+      <div class="col-lg-4">
+        <ul class="ps-0 mb-0 list-unstyled">
+          <li class="d-inline-block position-relative"><a routerLink="/">Home</a></li>
+          <li class="d-inline-block position-relative"><a routerLink="/formations">Formations</a></li>
+          <li class="d-inline-block position-relative">Détails</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="formation-detail-area">
+  <div class="container">
+
+    <div class="text-center py-5" *ngIf="loading">
+      <span class="text-muted">Chargement...</span>
+    </div>
+
+    <div *ngIf="!loading && formation">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-12">
+
+          <div class="detail-main-card">
+            <div class="detail-banner" [ngClass]="getCatClass(formation.categorie)">
+              <span class="banner-emoji">{{ getIconEmoji(formation.categorie) }}</span>
+            </div>
+
+            <div class="detail-card-body">
+              <div class="detail-back-btn-wrapper">
+                <a [routerLink]="returnUrl" class="voir-btn">
+                  <i class="ri-arrow-left-line"></i> Retour
+                </a>
+              </div>
+
+              <h1 class="detail-title">{{ formation.titre }}</h1>
+
+              <div class="detail-meta">
+                <span><i class="ri-folder-line"></i> {{ formation.categorie }}</span>
+                <span><i class="ri-global-line"></i> {{ formation.plateforme }}</span>
+                <span><i class="ri-time-line"></i> {{ formation.duree }}</span>
+              </div>
+
+              <div class="badges-row">
+                <span class="detail-badge" [ngClass]="getNiveauBadge(formation.niveau)">
+                  {{ formation.niveau }}
+                </span>
+                <span class="detail-badge"
+                  [ngClass]="formation.statut === 'Disponible' ? 'badge-green' : 'badge-amber'">
+                  {{ formation.statut }}
+                </span>
+                <span class="detail-badge badge-blue">{{ formation.plateforme }}</span>
+              </div>
+
+              <div class="action-zone">
+
+                <ng-container *ngIf="!isAdmin && !inscrit">
+                  <button type="button" class="btn-inscrire" (click)="sInscrire()"
+                    [disabled]="inscribing || formation.statut === 'Bientôt'">
+                    <i class="ri-bookmark-line me-2"></i>
+                    <ng-container *ngIf="formation.statut === 'Bientôt'">
+                      Formation bientôt disponible
+                    </ng-container>
+                    <ng-container *ngIf="formation.statut !== 'Bientôt'">
+                      {{ inscribing ? 'Inscription en cours...' : "S'inscrire à cette formation" }}
+                    </ng-container>
+                  </button>
+                </ng-container>
+
+                <ng-container *ngIf="!isAdmin && inscrit">
+                  <div class="inscrit-badge">
+                    <i class="ri-checkbox-circle-fill"></i>
+                    Vous êtes inscrit à cette formation
+                  </div>
+                  <button type="button" class="btn-acceder" (click)="openAccessModal()">
+                    <i class="ri-play-circle-line"></i>
+                    Accéder à la formation
+                  </button>
+                  <a routerLink="/candidates-dashboard/mes-formations" class="btn-mes-formations">
+                    <i class="ri-book-open-line"></i>
+                    Voir ma progression
+                  </a>
+                </ng-container>
+
+                <div class="d-flex gap-2 flex-wrap" *ngIf="isAdmin">
+                  <a [routerLink]="['/formations/admin/edit', formation.id]" class="btn-modifier">
+                    <i class="ri-edit-line"></i> Modifier
+                  </a>
+                  <a [routerLink]="['/formations/admin', formation.id, 'participants']"
+                    class="btn-modifier btn-outline-action">
+                    <i class="ri-group-line"></i> Participants
+                  </a>
+                  <a [routerLink]="['/formations/admin', formation.id, 'feedbacks']"
+                    class="btn-modifier btn-outline-action">
+                    <i class="ri-chat-3-line"></i> Feedbacks
+                  </a>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal-overlay" *ngIf="showAccessModal" (click)="closeAccessModal()">
+            <div class="modal-choice-card" (click)="$event.stopPropagation()">
+
+              <div class="modal-choice-header">
+                <h3>Comment souhaitez-vous accéder à la formation ?</h3>
+                <button class="modal-close-btn" (click)="closeAccessModal()">
+                  <i class="ri-close-line"></i>
+                </button>
+              </div>
+
+              <div class="modal-choice-body">
+
+                <div class="choice-card" (click)="choisirVideo()">
+                  <div class="choice-icon choice-icon-video">
+                    <i class="ri-play-circle-fill"></i>
+                  </div>
+                  <div class="choice-info">
+                    <h4>Formation vidéo</h4>
+                    <p>Regardez le cours en vidéo avec un éditeur de code interactif côte à côte.</p>
+                  </div>
+                  <i class="ri-arrow-right-line choice-arrow"></i>
+                </div>
+
+                <div class="choice-card" (click)="choisirFormationEcrite()">
+                  <div class="choice-icon choice-icon-ecrite">
+                    <i class="ri-book-read-fill"></i>
+                  </div>
+                  <div class="choice-info">
+                    <h4>Source documentation </h4>
+                    <p>Lisez le cours avec des exemples interactifs et des exercices pratiques.</p>
+                  </div>
+                  <i class="ri-arrow-right-line choice-arrow"></i>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <div class="competences-card" *ngIf="formation.competences?.length">
+            <h3>Compétences acquises</h3>
+            <ul class="competences-list">
+              <li *ngFor="let c of formation.competences">{{ c.nom }}</li>
+            </ul>
+          </div>
+
+          <div class="feedback-wrapper">
+            <app-feedback-candidat [formationId]="formation.id"></app-feedback-candidat>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,233 @@
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>Détails de l'Événement</h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">Accueil</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/evenements">Événements</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Détails
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evenement Detail Area -->
+<div class="evenement-detail-area ptb-100">
+    <div class="container">
+
+        <!-- Loading -->
+        <div class="text-center py-5" *ngIf="loading">
+            <p class="text-muted">Chargement...</p>
+        </div>
+
+        <!-- Erreur -->
+        <div class="alert alert-danger" *ngIf="error">
+            <i class="ri-error-warning-line"></i> Erreur lors du chargement !
+        </div>
+
+        <div *ngIf="!loading && !error">
+            <div class="row">
+
+                <!-- Colonne principale -->
+                <div class="col-lg-8 col-md-12">
+
+                    <!-- Card infos événement -->
+                    <div class="detail-main-box">
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <div class="d-sm-flex align-items-center">
+                                <div class="event-logo">
+                                    <i class="ri-calendar-event-line"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h2 class="fw-semibold mb-1">{{ evenement.titre }}</h2>
+                                    <span class="type-badge">{{ evenement.type }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul class="info-list ps-0 mb-0 list-unstyled">
+                            <li class="position-relative">
+                                <i class="ri-map-pin-line"></i>
+                                <span class="d-block">Lieu</span>
+                                <strong>{{ evenement.lieu }}</strong>
+                            </li>
+                           <li class="position-relative">
+                                <i class="ri-calendar-line"></i>
+                                <span class="d-block">Date et heure</span>
+                                <strong>{{ evenement.dateHeure | date:'dd MMMM yyyy HH:mm' }}</strong>
+                            </li>
+                            <li class="position-relative">
+                                <i class="ri-bookmark-line"></i>
+                                <span class="d-block">Type</span>
+                                <strong>{{ evenement.type }}</strong>
+                            </li>
+                            <li class="position-relative">
+                                <i class="ri-user-line"></i>
+                                <span class="d-block">Organisateur</span>
+                                <strong>{{ evenement.nomOrganisateur }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Participants confirmés -->
+                    <div class="section-box" *ngIf="participations.length > 0">
+                        <div class="section-box-header">
+                            <h3>
+                                Participants confirmés
+                                <span class="count-badge">{{ participations.length }}</span>
+                            </h3>
+                        </div>
+                        <div class="participants-list">
+                            <div class="participant-item d-sm-flex align-items-center justify-content-between"
+                                 *ngFor="let p of participations">
+                                <div class="d-sm-flex align-items-center">
+                                    <div class="participant-avatar">
+                                        <i class="ri-user-line"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h4 class="fw-semibold mb-1">{{ p.nomCandidat }}</h4>
+                                        <span class="statut-confirme">
+                                            <i class="ri-check-circle-line"></i>
+                                            {{ p.statut }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="inscription-date">
+                                    <i class="ri-calendar-line"></i>
+                                    Inscrit le {{ formatDate(p.dateInscription) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aucun participant -->
+                    <div class="section-box" *ngIf="participations.length === 0 && !loading">
+                        <div class="empty-state text-center py-4">
+                            <i class="ri-user-line"></i>
+                            <p>Aucun participant confirmé pour cet événement.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feedbacks -->
+                    <div class="section-box">
+                        <div class="section-box-header d-flex align-items-center justify-content-between">
+                            <h3>
+                                Feedbacks reçus
+                                <span class="count-badge">{{ totalFeedbacks }}</span>
+                            </h3>
+                            <!-- Note moyenne -->
+                            <div class="moyenne-wrapper" *ngIf="totalFeedbacks > 0">
+                                <div class="moyenne-note">{{ noteMoyenne }}</div>
+                                <div class="moyenne-etoiles">
+                                    <span *ngFor="let star of getEtoiles(5)"
+                                          class="star"
+                                          [class.active]="star <= noteMoyenne">★</span>
+                                </div>
+                                <div class="moyenne-label">Note moyenne</div>
+                            </div>
+                        </div>
+
+                        <!-- Liste feedbacks -->
+                        <div class="feedback-list" *ngIf="feedbacks.length > 0">
+                            <div class="feedback-item" *ngFor="let f of feedbacks">
+                                <div class="feedback-item-header d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="candidat-avatar">
+                                            {{ f.nomCandidat ? f.nomCandidat.charAt(0).toUpperCase() : 'C' }}
+                                        </div>
+                                        <div>
+                                            <p class="candidat-nom mb-0">{{ f.nomCandidat || 'Candidat' }}</p>
+                                            <p class="feedback-date mb-0">{{ formatDate(f.date) }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="note-stars">
+                                        <span *ngFor="let star of getEtoiles(5)"
+                                              class="star"
+                                              [class.active]="star <= f.note">★</span>
+                                        <span class="note-num">{{ f.note }}/5</span>
+                                    </div>
+                                </div>
+                                <p class="feedback-commentaire">{{ f.commentaire }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Aucun feedback -->
+                        <div class="empty-state text-center py-4" *ngIf="feedbacks.length === 0">
+                            <i class="ri-chat-3-line"></i>
+                            <p>Aucun feedback pour cet événement.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bouton retour -->
+                    <div class="mt-4">
+                        <button class="default-btn" (click)="retour()">
+                            <i class="ri-arrow-left-line"></i> Retour
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-md-12">
+                    <aside class="sidebar-area">
+                        <div class="box">
+                            <h3>Résumé</h3>
+                            <ul class="information ps-0 mb-0 list-unstyled">
+                                <li>
+                                    <span class="fw-medium">Titre :</span>
+                                    {{ evenement.titre }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Type :</span>
+                                    {{ evenement.type }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Lieu :</span>
+                                    {{ evenement.lieu }}
+                                </li>
+                              <li>
+                                    <span class="fw-medium">Date :</span>
+                                    {{ evenement.dateHeure | date:'dd/MM/yyyy HH:mm' }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Participants :</span>
+                                    {{ participations.length }}
+                                </li>
+                                <li>
+                                    <span class="fw-medium">Feedbacks :</span>
+                                    {{ totalFeedbacks }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="box" *ngIf="totalFeedbacks > 0">
+                            <h3>Note globale</h3>
+                            <div class="text-center">
+                                <div class="sidebar-note">{{ noteMoyenne }}<span>/5</span></div>
+                                <div class="sidebar-stars">
+                                    <span *ngFor="let star of getEtoiles(5)"
+                                          class="star"
+                                          [class.active]="star <= noteMoyenne">★</span>
+                                </div>
+                                <p class="text-muted" style="font-size: 13px; margin-top: 6px;">
+                                    Basé sur {{ totalFeedbacks }} avis
+                                </p>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

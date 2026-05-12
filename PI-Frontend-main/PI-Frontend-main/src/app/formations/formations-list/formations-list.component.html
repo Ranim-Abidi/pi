@@ -1,0 +1,479 @@
+<div class="page-banner-area">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8 col-md-12"><h1>Liste Formations</h1></div>
+      <div class="col-lg-4 col-md-12">
+        <ul class="ps-0 mb-0 list-unstyled">
+          <li class="d-inline-block position-relative"><a routerLink="/">Home</a></li>
+          <li class="d-inline-block position-relative"><a routerLink="/candidates-dashboard/mes-formations">Mes formations</a></li>
+          <li class="d-inline-block position-relative">Liste Formations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="formations-area">
+
+  <div class="formations-hero">
+    <div class="container">
+      <div class="row align-items-center hero-content">
+        <div class="col-lg-7 col-md-12">
+          <h1 class="hero-title">Découvrez nos formations</h1>
+          <p class="hero-subtitle">Développez vos compétences avec des experts</p>
+          <div class="hero-search">
+            <div class="search-input-wrap">
+              <i class="ri-search-line"></i>
+              <input type="text" placeholder="Rechercher une formation..."
+                [(ngModel)]="searchTerm" (ngModelChange)="applySearch()" name="searchTerm">
+            </div>
+            <button type="button" class="search-btn" (click)="applySearch()">Rechercher</button>
+          </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-flex justify-content-end">
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-value">{{ totalCount }}</span>
+              <span class="stat-label">Formations</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">4</span>
+              <span class="stat-label">Niveaux</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-value">100%</span>
+              <span class="stat-label">En ligne</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+
+    <ng-container *ngIf="isAdmin; else publicLayout">
+      <div class="row justify-content-between">
+
+        <div class="col-lg-8 col-md-12">
+
+          <div class="formations-filters d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'all'" (click)="onTypeChange('all')">Tout</button>
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'formation'" (click)="onTypeChange('formation')">Formations</button>
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'parcours'" (click)="onTypeChange('parcours')">Parcours complets</button>
+            </div>
+            <div class="filters-row d-flex gap-3">
+              <select class="form-select form-select-sm premium-select" [(ngModel)]="activeFilter" (change)="applySearch()" style="width: auto;">
+                <option *ngFor="let f of filters" [value]="f">
+                  {{ f === 'Toutes' ? 'Tous les niveaux' : f }}
+                </option>
+              </select>
+              <select class="form-select form-select-sm premium-select" (change)="onBadgeChange($any($event.target).value)">
+                <option *ngFor="let b of badges" [value]="b">{{ b || 'Tous les badges' }}</option>
+              </select>
+              <select class="form-select form-select-sm premium-select" (change)="onCategorieChange($any($event.target).value)">
+                <option *ngFor="let c of categories" [value]="c">{{ c || 'Toutes les catégories' }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="top-section" *ngIf="topFormations.length">
+            <div class="top-header">
+              <div class="top-label">
+                <div class="top-label-accent"></div>
+                <div><div class="top-label-title">Top formations du moment</div></div>
+              </div>
+              <div class="top-header-actions">
+                <button type="button" class="refresh-btn" (click)="refreshStatistics()" [disabled]="refreshing">
+                  <i class="ri-refresh-line"></i>
+                  {{ refreshing ? 'Actualisation...' : 'Rafraîchir statistiques' }}
+                </button>
+                <span class="top-refresh-info d-none d-sm-inline"><i class="ri-time-line"></i> Mis à jour automatiquement</span>
+              </div>
+            </div>
+            <div class="top-grid">
+               <div class="top-card" *ngFor="let top of topFormations; let i = index" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2" [routerLink]="['/formations', top.formationId]">
+                <div class="tc-top-row">
+                  <span class="rank-pill" [ngClass]="getRankClass(i)">
+                    <ng-container *ngIf="getRankLabel(i)">{{ getRankLabel(i) }} · </ng-container>#{{ i + 1 }}
+                  </span>
+                </div>
+                <div class="tc-title">{{ top.titre }}</div>
+                <div class="tc-badge" *ngIf="top.badge">
+                  <span class="badge" [class]="getBadgeClass(top.badge)">{{ getBadgeIcon(top.badge) }} {{ top.badge }}</span>
+                </div>
+                <div class="tc-stats">
+                  <span class="stat-pill stat-rating" *ngIf="getTopNoteMoyenne(top)">
+                    <span class="stat-dot dot-gold"></span>
+                    <span class="stat-note-value">{{ getTopNoteMoyenne(top) }}</span>
+                    <span class="stat-note-max">/5</span>
+                  </span>
+                  <span class="stat-pill stat-participants">
+                    <span class="stat-dot dot-blue"></span>
+                    {{ getTopParticipants(top) }} inscrits
+                  </span>
+                </div>
+               </div>
+            </div>
+          </div>
+
+          <div class="empty-state" *ngIf="loading"><p>Chargement des formations...</p></div>
+          <div class="empty-state" *ngIf="!loading && unifiedFiltered.length === 0">
+            <div class="empty-icon">📚</div>
+            <p>Aucun contenu trouvé.</p>
+          </div>
+
+          <div class="row g-4" *ngIf="!loading && unifiedFiltered.length">
+            <div class="col-lg-6 col-md-6" *ngFor="let item of unifiedFiltered">
+              <div class="formation-card">
+                <div class="card-top-banner position-relative" 
+                     [ngClass]="getCatClass(item.categorie)"
+                     [style.background-image]="item.imageUrl ? 'url(' + item.imageUrl + ')' : ''"
+                     [style.background-size]="'cover'"
+                     [style.background-position]="'center'">
+                  
+                  <span class="cat-emoji" *ngIf="!item.imageUrl">
+                    {{ item.type === 'parcours' ? '🎯' : getIconEmoji(item.categorie) || '💻' }}
+                  </span>
+                  <span class="statut-badge" [ngClass]="getStatutClass(item.statut || 'Disponible')">{{ item.statut || 'Disponible' }}</span>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-plateforme">{{ item.plateforme }}</div>
+                  <h3 class="card-title">
+                    <a [routerLink]="item.type === 'parcours' ? ['/formations/parcours', item.id] : ['/formations', item.id]">
+                      {{ item.titre }}
+                    </a>
+                  </h3>
+                  <div class="card-meta">
+                    <span><i class="ri-folder-line"></i> {{ item.categorie }}</span>
+                    <span><i class="ri-time-line"></i> {{ item.duree }}</span>
+                  </div>
+
+                  <div class="card-rating mt-2">
+                    <span style="color:#f1c40f;font-size:1.1rem">
+                      <i class="ri-star-fill" *ngFor="let s of [1,2,3,4,5]" 
+                         [style.color]="(item.noteMoyenne || 0) >= s ? '#f1c40f' : '#e5e7eb'"></i>
+                    </span>
+                    <span class="text-muted ms-2" style="font-size:.9rem">
+                      {{ (item.noteMoyenne || 0) | number:'1.1-1' }} ({{ (item.type === 'formation' ? ratings[item.id]?.total : 0) || 0 }})
+                    </span>
+                  </div>
+
+                  <div class="card-badge-row mt-2" *ngIf="item.badge">
+                    <span class="badge" [class]="getBadgeClass(item.badge)">
+                      {{ getBadgeIcon(item.badge) }} {{ item.badge }}
+                    </span>
+                  </div>
+                  <div class="card-badge-row mt-2" *ngIf="!item.badge && item.noteMoyenne >= 4">
+                     <span class="badge badge-green">👍 Bien noté</span>
+                  </div>
+
+
+                </div>
+
+                <div class="card-footer">
+                  <span class="niveau-badge" [ngClass]="getNiveauClass(item.niveau || 'Débutant')">
+                    {{ item.niveau }}
+                  </span>
+                  <a [routerLink]="item.type === 'parcours' ? ['/formations/parcours', item.id] : ['/formations', item.id]" class="voir-btn">
+                     Voir détails <i class="ri-arrow-right-line"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+          <div class="sidebar-area">
+            <div class="sidebar-card">
+              <h3>Administration</h3>
+              <p>Gérez les formations de la plateforme.</p>
+              <a routerLink="/formations/admin" class="sidebar-btn btn-primary">Gérer les formations</a>
+              <a routerLink="/formations/admin/create" class="sidebar-btn btn-outline">Ajouter une formation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #publicLayout>
+      <div class="row">
+        <div class="col-12">
+          <div class="formations-filters d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'all' && !isRecommandationMode && !isGapAnalysisMode" (click)="onTypeChange('all')">Tout</button>
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'formation' && !isRecommandationMode && !isGapAnalysisMode" (click)="onTypeChange('formation')">Formations</button>
+              <button type="button" class="filter-chip" [class.active]="contentTypeFilter === 'parcours' && !isRecommandationMode && !isGapAnalysisMode" (click)="onTypeChange('parcours')">Parcours complets</button>
+              <!-- BOUTON RECOMMANDATIONS ML -->
+              <button type="button"
+                      class="filter-chip"
+                      [class.active]="isRecommandationMode"
+                      (click)="activerRecommandations()">
+               Pour vous
+              </button>
+
+              <button type="button"
+                      class="filter-chip"
+                      [class.active]="isGapAnalysisMode"
+                      (click)="activerGapAnalysis()">
+               Analyse Carrière
+              </button>
+            </div>
+            <div class="filters-row d-flex gap-3" *ngIf="!isRecommandationMode && !isGapAnalysisMode">
+              <select class="form-select form-select-sm premium-select" [(ngModel)]="activeFilter" (change)="applySearch()" style="width: auto;">
+                <option *ngFor="let f of filters" [value]="f">{{ f === 'Toutes' ? 'Tous les niveaux' : f }}</option>
+              </select>
+              <select class="form-select form-select-sm premium-select" (change)="onBadgeChange($any($event.target).value)">
+                <option *ngFor="let b of badges" [value]="b">{{ b || 'Tous les badges' }}</option>
+              </select>
+              <select class="form-select form-select-sm premium-select" (change)="onCategorieChange($any($event.target).value)">
+                <option *ngFor="let c of categories" [value]="c">{{ c || 'Toutes les catégories' }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SECTION SKILL GAP ANALYSIS -->
+          <div class="career-analysis-panel mb-5" *ngIf="isGapAnalysisMode">
+            <div class="analysis-card p-4 rounded-4 shadow-sm" style="background: white; border: 1px solid #e0e0e0;">
+              <div class="row align-items-center">
+                <div class="col-md-7">
+                  <h2 class="h4 mb-3">🎯 Quel est votre métier cible ?</h2>
+                  <p class="text-muted">L'IA analysera vos compétences actuelles et vous dira exactement ce qu'il vous manque pour réussir.</p>
+                  
+                  <div class="d-flex gap-2 mb-3">
+                    <select class="form-select premium-select" [(ngModel)]="selectedTargetJob" style="max-width: 300px;">
+                      <option *ngFor="let job of targetJobs" [value]="job">{{job}}</option>
+                    </select>
+                    <button class="btn px-4" (click)="analyzeGap()" [disabled]="loadingGap" 
+                            style="background-color: #0965A4; color: white; border-radius: 12px; font-weight: 600; border: none; padding: 10px 24px; transition: all 0.2s;">
+                      <span *ngIf="!loadingGap">Analyser mon profil</span>
+                      <span *ngIf="loadingGap" class="spinner-border spinner-border-sm me-2"></span>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-5 text-center" *ngIf="gapResult">
+                  <div class="match-circle d-inline-block p-4 rounded-circle mb-2" 
+                       [style.background]="'rgba(0, 184, 148, 0.1)'"
+                       style="border: 4px solid #00b894;">
+                    <span class="h1 fw-bold mb-0" style="color: #00b894;">{{gapResult.match_percentage}}%</span>
+                  </div>
+                  <p class="mb-0 fw-semibold text-muted">Matching avec {{gapResult.job_title}}</p>
+                </div>
+              </div>
+
+              <!-- RESULTATS -->
+              <div class="row mt-4" *ngIf="gapResult">
+                <div class="col-md-6">
+                  <h5 class="mb-3 text-success">✅ Vos points forts</h5>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2" *ngFor="let s of gapResult.matching_skills">{{s.skill}}</span>
+                    <span class="text-muted" *ngIf="gapResult.matching_skills.length === 0">Aucune compétence correspondante détectée.</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="mb-3 text-danger">🚩 Vos lacunes à combler</h5>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2" *ngFor="let s of gapResult.missing_skills">{{s.skill}}</span>
+                    <span class="text-muted" *ngIf="gapResult.missing_skills.length === 0">Félicitations ! Vous avez toutes les compétences.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FORMATIONS SUGGEREES -->
+              <div class="mt-5" *ngIf="gapResult && gapResult.recommended_formations?.length > 0">
+                <h5 class="mb-4">🎓 Formations suggérées pour combler vos lacunes</h5>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                  <div class="col" *ngFor="let rec of gapResult.recommended_formations">
+                    <div class="card h-100 formation-card premium-card border-0 shadow-sm p-3">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">{{rec.formation.categorie}}</span>
+                        <span class="badge bg-success text-white small">IA Suggestion</span>
+                      </div>
+                      <h6 class="card-title fw-bold mb-2 text-truncate">{{rec.formation.titre}}</h6>
+                      <p class="small text-muted mb-3">{{rec.raisons[0]}}</p>
+                      <a [routerLink]="['/formations', rec.formation.id]" class="btn btn-outline-primary btn-sm w-100 rounded-pill">Voir le cours</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-container *ngIf="!isRecommandationMode && !isGapAnalysisMode">
+            <div class="top-section" *ngIf="topFormations.length">
+              <div class="top-header">
+                <div class="top-label">
+                  <div class="top-label-accent"></div>
+                  <div><div class="top-label-title">Top formations du moment</div></div>
+                </div>
+                <div class="top-header-actions">
+                  <button type="button" class="refresh-btn" (click)="refreshStatistics()" [disabled]="refreshing">
+                    <i class="ri-refresh-line"></i>
+                    {{ refreshing ? 'Actualisation...' : 'Rafraîchir statistiques' }}
+                  </button>
+                  <span class="top-refresh-info d-none d-sm-inline"><i class="ri-time-line"></i> Mis à jour automatiquement</span>
+                </div>
+              </div>
+              <div class="top-grid">
+                 <div class="top-card" *ngFor="let top of topFormations; let i = index" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2" [routerLink]="['/formations', top.formationId]">
+                  <div class="tc-top-row">
+                    <span class="rank-pill" [ngClass]="getRankClass(i)">
+                      <ng-container *ngIf="getRankLabel(i)">{{ getRankLabel(i) }} · </ng-container>#{{ i + 1 }}
+                    </span>
+                  </div>
+                  <div class="tc-title">{{ top.titre }}</div>
+                  <div class="tc-badge" *ngIf="top.badge">
+                    <span class="badge" [class]="getBadgeClass(top.badge)">{{ getBadgeIcon(top.badge) }} {{ top.badge }}</span>
+                  </div>
+                  <div class="tc-stats">
+                    <span class="stat-pill stat-rating" *ngIf="getTopNoteMoyenne(top)">
+                      <span class="stat-dot dot-gold"></span>
+                      <span class="stat-note-value">{{ getTopNoteMoyenne(top) }}</span>
+                      <span class="stat-note-max">/5</span>
+                    </span>
+                    <span class="stat-pill stat-participants">
+                      <span class="stat-dot dot-blue"></span>
+                      {{ getTopParticipants(top) }} inscrits
+                    </span>
+                  </div>
+                 </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ======= SECTION RECOMMANDATIONS ML ======= -->
+          <div *ngIf="isRecommandationMode" style="margin-bottom: 32px;">
+
+            <div *ngIf="loadingRecommandations" style="text-align: center; padding: 60px 0;">
+              <div style="display: inline-block; width: 48px; height: 48px; border: 4px solid #a29bfe; border-top-color: #6c5ce7; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <p style="margin-top: 16px; color: #6c5ce7; font-weight: 600;">L'IA analyse votre profil...</p>
+            </div>
+
+            <div *ngIf="!loadingRecommandations && recommandations.length === 0" style="text-align: center; padding: 60px 0;">
+              <div style="font-size: 64px;">🤖</div>
+              <p style="color: #6b7280; margin-top: 12px;">Aucune recommandation disponible. Ajoutez des compétences à votre profil pour de meilleures suggestions !</p>
+            </div>
+
+            <div *ngIf="!loadingRecommandations && recommandations.length > 0">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <div style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); width: 4px; height: 28px; border-radius: 4px;"></div>
+                <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;">
+                  Formations recommandées pour vous 🤖
+                </h3>
+                <span style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 2px 10px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                  {{ recommandations.length }} résultats
+                </span>
+              </div>
+
+              <div class="row g-4 justify-content-center">
+                <div class="col-lg-4 col-md-6 col-sm-12" *ngFor="let rec of recommandations">
+                  <div class="formation-card" style="border: 2px solid #a29bfe; position: relative;">
+
+                    <!-- Badge match % -->
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 10;
+                                background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+                                color: white; padding: 4px 10px; border-radius: 20px;
+                                font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(108,92,231,.4);">
+                      🤖 Match {{ rec.score_match | number:'1.0-0' }}%
+                    </div>
+
+                    <div class="card-top-banner position-relative"
+                         [ngClass]="getCatClass(rec.formation.categorie)"
+                         [style.background-image]="rec.formation.imageUrl ? 'url(' + rec.formation.imageUrl + ')' : ''"
+                         [style.background-size]="'cover'"
+                         [style.background-position]="'center'">
+                      <span class="cat-emoji" *ngIf="!rec.formation.imageUrl">
+                        {{ getIconEmoji(rec.formation.categorie) || '💻' }}
+                      </span>
+                      <span class="statut-badge" [ngClass]="getStatutClass(rec.formation.statut || 'Disponible')">{{ rec.formation.statut || 'Disponible' }}</span>
+                    </div>
+
+                    <div class="card-body">
+                      <div class="card-plateforme">{{ rec.formation.plateforme }}</div>
+                      <h3 class="card-title">
+                        <a [routerLink]="['/formations', rec.formation.id]">{{ rec.formation.titre }}</a>
+                      </h3>
+                      <div class="card-meta">
+                        <span><i class="ri-folder-line"></i> {{ rec.formation.categorie }}</span>
+                        <span><i class="ri-time-line"></i> {{ rec.formation.duree }}</span>
+                      </div>
+                    </div>
+
+                    <div class="card-footer">
+                      <span class="niveau-badge" [ngClass]="getNiveauClass(rec.formation.niveau || 'Débutant')">{{ rec.formation.niveau }}</span>
+                      <a [routerLink]="['/formations', rec.formation.id]" class="voir-btn">
+                        Voir détails <i class="ri-arrow-right-line"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ======= FIN RECOMMANDATIONS ML ======= -->
+
+          <div class="row g-4 justify-content-center" *ngIf="!loading && unifiedFiltered.length && !isRecommandationMode && !isGapAnalysisMode">
+            <div class="col-lg-4 col-md-6 col-sm-12" *ngFor="let item of unifiedFiltered">
+              <div class="formation-card">
+                <div class="card-top-banner position-relative" 
+                     [ngClass]="getCatClass(item.categorie)"
+                     [style.background-image]="item.imageUrl ? 'url(' + item.imageUrl + ')' : ''"
+                     [style.background-size]="'cover'"
+                     [style.background-position]="'center'">
+                  
+                  <span class="cat-emoji" *ngIf="!item.imageUrl">
+                     {{ item.type === 'parcours' ? '🎯' : getIconEmoji(item.categorie) || '💻' }}
+                  </span>
+                  <span class="statut-badge" [ngClass]="getStatutClass(item.statut || 'Disponible')">{{ item.statut || 'Disponible' }}</span>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-plateforme">{{ item.plateforme }}</div>
+                  <h3 class="card-title">
+                    <a [routerLink]="item.type === 'parcours' ? ['/formations/parcours', item.id] : ['/formations', item.id]">
+                      {{ item.titre }}
+                    </a>
+                  </h3>
+                  <div class="card-meta">
+                    <span><i class="ri-folder-line"></i> {{ item.categorie }}</span>
+                    <span><i class="ri-time-line"></i> {{ item.duree }}</span>
+                  </div>
+
+                  <div class="card-rating mt-2">
+                    <span style="color:#f1c40f;font-size:1.1rem">
+                      <i class="ri-star-fill" *ngFor="let s of [1,2,3,4,5]" 
+                         [style.color]="(item.noteMoyenne || 0) >= s ? '#f1c40f' : '#e5e7eb'"></i>
+                    </span>
+                    <span class="text-muted ms-2" style="font-size:.9rem">
+                      {{ (item.noteMoyenne || 0) | number:'1.1-1' }} ({{ (item.type === 'formation' ? ratings[item.id]?.total : 0) || 0 }})
+                    </span>
+                  </div>
+
+                  <div class="card-badge-row mt-2" *ngIf="item.badge">
+                    <span class="badge" [class]="getBadgeClass(item.badge)">
+                      {{ getBadgeIcon(item.badge) }} {{ item.badge }}
+                    </span>
+                  </div>
+
+                </div>
+
+                <div class="card-footer">
+                  <span class="niveau-badge" [ngClass]="getNiveauClass(item.niveau || 'Débutant')">
+                    {{ item.niveau }}
+                  </span>
+                  <a [routerLink]="item.type === 'parcours' ? ['/formations/parcours', item.id] : ['/formations', item.id]" class="voir-btn">
+                     Voir détails <i class="ri-arrow-right-line"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
+</div>

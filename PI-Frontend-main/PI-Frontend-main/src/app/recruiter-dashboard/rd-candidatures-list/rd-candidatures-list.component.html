@@ -1,0 +1,161 @@
+<div class="candidate-list-container">
+  <div class="list-header">
+    <h2 class="title">Candidatures par offre</h2>
+    <p class="subtitle">Chaque offre du recruteur affiche ici les candidatures reçues</p>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-group">
+      <div class="filter-item">
+        <label for="statut-filter">Filtrer par statut:</label>
+        <select id="statut-filter" [(ngModel)]="selectedStatut" (change)="applyFilters()" class="form-select">
+          <option *ngFor="let statut of statuts" [value]="statut">
+            {{ getStatusLabel(statut) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="search-input">Rechercher:</label>
+        <input id="search-input" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Nom, email ou entreprise..." class="form-input">
+      </div>
+
+      <button (click)="loadCandidatures()" class="btn btn-primary">
+        <i class="fas fa-sync-alt" [class.loading]="loading"></i> Rafraîchir
+      </button>
+    </div>
+
+    <div class="results-info">
+      <p>{{ visibleOfferCount }} offre(s) affichée(s) - {{ visibleCandidatureCount }} candidature(s) visible(s)</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Chargement des offres et candidatures...</p>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="no-data error-state">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="!loading && !errorMessage && filteredOfferGroups.length === 0" class="no-data">
+    <p>Aucune offre trouvée</p>
+  </div>
+
+  <section class="offer-card" *ngFor="let group of filteredOfferGroups">
+    <div class="offer-header">
+      <div>
+        <h3>{{ getOfferTitle(group.offre) }}</h3>
+        <p>{{ getCompanyName(group.offre) }} - {{ getOfferLocation(group.offre) }}</p>
+      </div>
+      <div class="offer-meta">
+        <span class="offer-badge">{{ group.candidatures.length }} candidature(s)</span>
+        <span class="offer-salary">{{ getOfferSalary(group.offre) }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="group.candidatures.length === 0" class="no-candidature-box">
+      Aucune candidature pour cette offre.
+    </div>
+
+    <div *ngIf="group.candidatures.length > 0" class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Email</th>
+            <th>Date d'envoi</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidature of group.candidatures">
+            <td>
+              <strong>{{ getCandidateName(candidature) }}</strong>
+            </td>
+            <td>{{ candidature.email || candidature.candidat?.email || 'N/A' }}</td>
+            <td>{{ candidature.dateEnvoi | date: 'short' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadge(candidature.statut)">
+                {{ getStatusLabel(candidature.statut) }}
+              </span>
+            </td>
+            <td>
+              <div class="actions">
+                <button (click)="showDetails(candidature, group.offre)" class="btn btn-sm btn-info">
+                  <i class="fas fa-eye"></i> Voir
+                </button>
+                <button (click)="openInterviewCreation(candidature, group.offre)" class="btn btn-sm btn-primary">
+                  <i class="fas fa-calendar-plus"></i> Créer entretien
+                </button>
+                <button (click)="accepterCandidature(candidature)" class="btn btn-sm btn-success">
+                  <i class="fas fa-check"></i> Accepter
+                </button>
+                <button (click)="refuserCandidature(candidature)" class="btn btn-sm btn-danger">
+                  <i class="fas fa-times"></i> Refuser
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div *ngIf="showDetailModal && selectedCandidature" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>Détail de la candidature</h3>
+          <p>{{ getOfferTitle(selectedOffre) }}</p>
+        </div>
+        <button type="button" class="close-btn" (click)="closeDetailModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Candidat</span>
+            <strong>{{ getCandidateName(selectedCandidature) }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email</span>
+            <strong>{{ selectedCandidature.email || selectedCandidature.candidat?.email || 'N/A' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Téléphone</span>
+            <strong>{{ selectedCandidature.telephone || selectedCandidature.candidat?.telephone || 'N/A' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Statut</span>
+            <strong>
+              <span class="badge" [ngClass]="getStatusBadge(selectedCandidature.statut)">
+                {{ getStatusLabel(selectedCandidature.statut) }}
+              </span>
+            </strong>
+          </div>
+          <div class="detail-item detail-full">
+            <span class="detail-label">Description</span>
+            <strong>{{ selectedCandidature.description || selectedCandidature.lettreMotivation || 'N/A' }}</strong>
+          </div>
+          <div class="detail-item detail-full">
+            <span class="detail-label">Compétences</span>
+            <strong>{{ selectedCandidature.competences || 'N/A' }}</strong>
+          </div>
+          <div class="detail-item detail-full">
+            <span class="detail-label">Date d'envoi</span>
+            <strong>{{ selectedCandidature.dateEnvoi | date: 'full' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailModal()">Fermer</button>
+        <button type="button" class="btn btn-success" (click)="accepterCandidature(selectedCandidature)">Accepter</button>
+        <button type="button" class="btn btn-danger" (click)="refuserCandidature(selectedCandidature)">Refuser</button>
+      </div>
+    </div>
+  </div>
+</div>

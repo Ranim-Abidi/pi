@@ -1,0 +1,197 @@
+<section class="emotion-detector">
+    <div class="panel-head">
+        <div class="title-block">
+            <h3>Analyse en direct</h3>
+            <p class="subtitle">
+                Expressions (face-api) et voix en direct depuis le flux
+                navigateur (caméra + micro), aligné sur la salle Jitsi. L’iframe
+                Jitsi ne fournit pas le flux : une deuxième autorisation
+                navigateur peut être demandée pour les mêmes appareils.
+            </p>
+        </div>
+        <div class="badges">
+            <span
+                class="badge"
+                [class.badge-live]="isAnalyzing"
+                [class.badge-wait]="!isAnalyzing"
+            >
+                {{ isAnalyzing ? "Actif" : "Arrêté" }}
+            </span>
+            <span class="badge badge-mode">Caméra + micro (navigateur)</span>
+        </div>
+    </div>
+
+    <div class="backend-row" *ngIf="entretienId > 0">
+        <div class="backend-pill" [ngClass]="'state-' + backendState">
+            <span class="dot"></span>
+            <ng-container [ngSwitch]="backendState">
+                <span *ngSwitchCase="'off'"
+                    >API émotion : inactif (id entretien manquant)</span
+                >
+                <span *ngSwitchCase="'starting'">Connexion API…</span>
+                <span *ngSwitchCase="'live'">
+                    Synchronisé (
+                    <ng-container
+                        *ngIf="
+                            serverAnalysis?.status === 'COMPLETED';
+                            else running
+                        "
+                    >
+                        TERMINÉ
+                    </ng-container>
+                    <ng-template #running>
+                        {{ serverAnalysis?.status || "—" }}
+                    </ng-template>
+                    )
+                </span>
+                <span *ngSwitchCase="'error'">Erreur API</span>
+            </ng-container>
+        </div>
+        <span
+            class="frames-count"
+            *ngIf="serverAnalysis?.processedFrames != null"
+        >
+            {{ serverAnalysis?.processedFrames }} frame(s) côté serveur
+        </span>
+    </div>
+    <p class="error-line" *ngIf="backendErrorMessage">
+        {{ backendErrorMessage }}
+    </p>
+
+    <div class="layout-inner">
+        <div class="preview-card">
+            <div class="preview-label">Source analysée</div>
+            <video
+                #videoElement
+                class="analysis-video"
+                width="320"
+                height="240"
+                autoplay
+                muted
+                playsinline
+            ></video>
+        </div>
+
+        <canvas
+            #canvasElement
+            class="hidden-canvas"
+            width="320"
+            height="240"
+        ></canvas>
+
+        <div class="live-column">
+            <h4>Instantané (local)</h4>
+            <div
+                class="face-pill"
+                [class.yes]="faceDetected"
+                [class.no]="!faceDetected"
+            >
+                Visage : {{ faceDetected ? "Détecté" : "Non détecté" }}
+            </div>
+
+            <div class="bar-list" *ngIf="currentEmotions as e">
+                <div
+                    class="bar-row"
+                    *ngFor="
+                        let key of [
+                            'joy',
+                            'sadness',
+                            'anger',
+                            'fear',
+                            'surprise',
+                            'neutral',
+                        ]
+                    "
+                >
+                    <span class="bar-name">{{ emotionLabel(key) }}</span>
+                    <div class="bar-track">
+                        <div
+                            class="bar-fill"
+                            [ngClass]="trackClass(key)"
+                            [style.width.%]="$any(e)[key]"
+                        ></div>
+                    </div>
+                    <span class="bar-pct"
+                        >{{ $any(e)[key] | number: "1.0-0" }}%</span
+                    >
+                </div>
+            </div>
+            <p class="empty-hint" *ngIf="!currentEmotions">
+                En attente du premier visage…
+            </p>
+
+            <h4>Voix (local)</h4>
+            <div class="voice-grid" *ngIf="currentVoice as v">
+                <div class="voice-cell">
+                    <span>Stress</span
+                    ><strong>{{ v.stress | number: "1.0-0" }}</strong>
+                </div>
+                <div class="voice-cell">
+                    <span>Confiance</span
+                    ><strong>{{ v.confidence | number: "1.0-0" }}</strong>
+                </div>
+                <div class="voice-cell">
+                    <span>Volume</span
+                    ><strong>{{ v.volumeLevel | number: "1.0-0" }}</strong>
+                </div>
+                <div class="voice-cell">
+                    <span>Pitch</span
+                    ><strong>{{ v.pitch | number: "1.0-0" }} Hz</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="server-column" *ngIf="serverAnalysis as sa">
+            <h4>Agrégats (serveur)</h4>
+            <p class="server-meta">
+                Dominante :
+                <strong>{{ serverDominantLabel(sa.dominantEmotion) }}</strong> ·
+                Engagement :
+                <strong>{{ sa.engagementScore | number: "1.0-0" }}</strong> ·
+                Stress moy. :
+                <strong>{{ sa.averageStressLevel | number: "1.0-0" }}</strong>
+            </p>
+            <div class="bar-list muted">
+                <div class="bar-row">
+                    <span class="bar-name">Joie moy.</span>
+                    <div class="bar-track">
+                        <div
+                            class="bar-fill fill-joy"
+                            [style.width.%]="sa.averageJoy"
+                        ></div>
+                    </div>
+                    <span class="bar-pct"
+                        >{{ sa.averageJoy | number: "1.0-0" }}%</span
+                    >
+                </div>
+                <div class="bar-row">
+                    <span class="bar-name">Neutre moy.</span>
+                    <div class="bar-track">
+                        <div
+                            class="bar-fill fill-neutral"
+                            [style.width.%]="sa.averageNeutral"
+                        ></div>
+                    </div>
+                    <span class="bar-pct"
+                        >{{ sa.averageNeutral | number: "1.0-0" }}%</span
+                    >
+                </div>
+                <div class="bar-row">
+                    <span class="bar-name">Conf. vocale moy.</span>
+                    <div class="bar-track">
+                        <div
+                            class="bar-fill fill-confidence"
+                            [style.width.%]="sa.averageConfidence"
+                        ></div>
+                    </div>
+                    <span class="bar-pct"
+                        >{{ sa.averageConfidence | number: "1.0-0" }}%</span
+                    >
+                </div>
+            </div>
+            <p class="assessment" *ngIf="sa.overallAssessment as text">
+                {{ text }}
+            </p>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,508 @@
+<div class="freelance-wrapper">
+  <!-- Dynamic Badge based on Mode -->
+  <div class="fl-espace-badge">
+    {{ mode === 'CLIENT_FREELANCE' ? 'Portail Recruteur (Client)' : 'Espace Freelance' }}
+  </div>
+
+  <div class="fl-page-header">
+    <div>
+      <h1 class="fl-title">
+        {{ mode === 'CLIENT_FREELANCE' ? 'Hub Client & Recrutement' : 'Tableau de Bord Freelance' }}
+      </h1>
+      <p class="fl-subtitle">
+        {{ mode === 'CLIENT_FREELANCE' ? 'Gérez vos offres et recrutez les meilleurs talents.' : 'Trouvez des missions adaptées à vos compétences.' }}
+      </p>
+    </div>
+    <div class="fl-header-actions">
+      <div class="fl-notif-wrap">
+        <button class="fl-notif-btn" type="button" (click)="toggleNotificationsPanel()">
+          <span class="fl-notif-icon">🔔</span>
+          <span class="fl-notif-count" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
+        </button>
+
+        <div class="fl-notif-panel" *ngIf="showNotificationsPanel" (click)="$event.stopPropagation()">
+          <div class="fl-notif-head">
+            <strong>Notifications</strong>
+            <button class="fl-btn-ghost" type="button" (click)="markAllNotificationsAsRead()">Tout lire</button>
+          </div>
+          <div class="fl-notif-empty" *ngIf="notifications.length === 0">Aucune notification.</div>
+          <button type="button"
+                  class="fl-notif-item"
+                  *ngFor="let n of notifications"
+                  [class.unread]="!n.isRead"
+                  (click)="markNotificationAsRead(n)">
+            <span class="fl-notif-dot" [class]="'tone-' + getNotificationTone(n.type)"></span>
+            <span class="fl-notif-msg">{{ n.message }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="fl-mode-toggle">
+        <button class="fl-toggle-btn" [class.fl-active]="mode === 'FREELANCER'" (click)="switchToFreelancerMode()">
+          &lt;/&gt; Freelancer
+        </button>
+        <button class="fl-toggle-btn" [class.fl-active]="mode === 'CLIENT_FREELANCE'"
+                [class.fl-disabled]="!canSwitchToClient" (click)="switchToClientMode()">
+          🏢 Client
+        </button>
+      </div>
+      <button class="fl-back-btn" (click)="goBackToCandidate()">← Espace Candidat</button>
+    </div>
+  </div>
+
+  <div *ngIf="showNotificationsPanel" class="fl-notif-backdrop" (click)="closeNotificationsPanel()"></div>
+
+  <div *ngIf="uiNotice"
+       [class.fl-success-inline]="uiNoticeType === 'success'"
+       [class.fl-error-banner]="uiNoticeType === 'error'"
+       style="margin-bottom: 14px;">
+    {{ uiNotice }}
+  </div>
+  <div class="fl-success-inline" *ngIf="emailVerified || identityStatus === 'VERIFIED'" style="margin-bottom: 10px;">
+    ✓ Verified badge actif — Email: {{ emailVerified ? 'Vérifié' : 'Non vérifié' }}, Identité: {{ identityStatus }}
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--  FREELANCER VIEW                                                -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="mode === 'FREELANCER'">
+
+    <!-- Live KPI Stats Row -->
+    <div class="fl-stats-row" *ngIf="freelancerStats">
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">🏅</span>
+        <div class="fl-stat-label">Niveau</div>
+        <div class="fl-stat-value">{{ freelancerStats.freelancerLevel }}</div>
+        <div class="fl-stat-sub">{{ freelancerStats.freelancerPoints }} pts</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">📊</span>
+        <div class="fl-stat-label">Taux d'Approbation</div>
+        <div class="fl-stat-value">{{ freelancerStats.approvalPercent }}%</div>
+        <div class="fl-stat-sub">{{ freelancerStats.acceptedCandidatures }}/{{ freelancerStats.totalCandidatures }} acceptées</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">⏳</span>
+        <div class="fl-stat-label">En Attente</div>
+        <div class="fl-stat-value">{{ freelancerStats.pendingCandidatures }}</div>
+        <div class="fl-stat-sub">candidatures</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">💰</span>
+        <div class="fl-stat-label">Revenus</div>
+        <div class="fl-stat-value">{{ freelancerStats.totalEarnings | number:'1.0-0' }}</div>
+        <div class="fl-stat-sub">TND total</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">✅</span>
+        <div class="fl-stat-label">Taux de Réussite</div>
+        <div class="fl-stat-value">{{ freelancerStats.completionSuccessPercent || 0 }}%</div>
+        <div class="fl-stat-sub">missions finalisées</div>
+      </div>
+    </div>
+
+    <!-- Quick access cards -->
+    <div class="fl-cards-grid">
+      <div class="fl-info-card" routerLink="/freelance/projects" (click)="router.navigate(['/freelance/projects'])">
+        <span class="fl-card-icon">&#128196;</span>
+        <div>
+          <div class="fl-card-title">Missions disponibles</div>
+          <div class="fl-card-sub">Parcourir et postuler aux offres</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" routerLink="/freelance/mes-candidatures" (click)="router.navigate(['/freelance/mes-candidatures'])">
+        <span class="fl-card-icon">&#9993;</span>
+        <div>
+          <div class="fl-card-title">Mes candidatures</div>
+          <div class="fl-card-sub">Suivre mes demandes en cours</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" routerLink="/freelance/workspace" (click)="router.navigate(['/freelance/workspace'])">
+        <span class="fl-card-icon">💼</span>
+        <div>
+          <div class="fl-card-title" style="color: var(--fl-primary);">Mes Contrats & Chat</div>
+          <div class="fl-card-sub">Gérer vos missions actuelles et escrow</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" (click)="openContractsAndLegal()">
+        <span class="fl-card-icon">📁</span>
+        <div>
+          <div class="fl-card-title" style="color: var(--fl-primary);">Contrats & Juridique</div>
+          <div class="fl-card-sub">Contrats et documents PDF</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" routerLink="/freelance/scheduler" (click)="router.navigate(['/freelance/scheduler'])">
+        <span class="fl-card-icon">&#128197;</span>
+        <div>
+          <div class="fl-card-title">Mon Calendrier</div>
+          <div class="fl-card-sub">Planifier entretiens & deadlines</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- Upcoming Events Grid -->
+    <div class="fl-section-title" *ngIf="upcomingEvents.length > 0">
+      <span>📅</span> Prochains RDV & Deadlines
+    </div>
+    <div class="fl-features-grid" *ngIf="upcomingEvents.length > 0" style="margin-bottom: 28px;">
+      <div class="fl-feature-card fl-feature-clickable"
+           *ngFor="let ev of upcomingEvents"
+           (click)="selectEventFromDash(ev)">
+        <div class="fl-feature-icon">{{ getEventTypeIcon(ev.type) }}</div>
+        <div class="fl-feature-title">{{ ev.title }}</div>
+        <div class="fl-feature-sub">
+          {{ getEventTimeLabel(ev.startDate) }}
+          <br>
+          <small>{{ ev.status === 'SCHEDULED' ? 'Planifié' : 'Confirmé' }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI-Powered Features -->
+    <div class="fl-section-title">
+      <span>🤖</span> Intelligence Artificielle
+    </div>
+    <div class="fl-features-grid">
+      <div class="fl-feature-card fl-feature-clickable" (click)="openSmartMatching()">
+        <div class="fl-feature-icon">🎯</div>
+        <div class="fl-feature-title">Smart Matching IA</div>
+        <div class="fl-feature-sub">Missions recommandées par le modèle all-MiniLM-L6</div>
+        <span class="fl-feature-action">Analyser →</span>
+      </div>
+      <div class="fl-feature-card fl-feature-clickable" (click)="openApprovalInsights()">
+        <div class="fl-feature-icon">📈</div>
+        <div class="fl-feature-title">Taux d'Approbation</div>
+        <div class="fl-feature-sub" *ngIf="freelancerStats">
+          {{ freelancerStats.approvalPercent }}% — {{ freelancerStats.freelancerLevel }}
+        </div>
+        <div class="fl-feature-sub" *ngIf="!freelancerStats">Chargement...</div>
+        <span class="fl-feature-action">Mes candidatures →</span>
+      </div>
+      <div class="fl-feature-card fl-feature-clickable" (click)="openFinancialDashboard()">
+        <div class="fl-feature-icon">💳</div>
+        <div class="fl-feature-title">Dashboard Financier</div>
+        <div class="fl-feature-sub" *ngIf="freelancerStats">
+          {{ freelancerStats.totalEarnings | number:'1.0-0' }} TND gagnés
+        </div>
+        <div class="fl-feature-sub" *ngIf="!freelancerStats">Chargement...</div>
+        <span class="fl-feature-action">Voir paiements →</span>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--  CLIENT VIEW                                                    -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="mode === 'CLIENT_FREELANCE'">
+
+    <!-- Live KPI Stats Row -->
+    <div class="fl-stats-row" *ngIf="clientStats">
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">📋</span>
+        <div class="fl-stat-label">Missions Postées</div>
+        <div class="fl-stat-value">{{ clientStats.totalMissionsPosted }}</div>
+        <div class="fl-stat-sub">{{ clientStats.openMissions }} ouvertes</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">👥</span>
+        <div class="fl-stat-label">Candidatures Reçues</div>
+        <div class="fl-stat-value">{{ clientStats.totalIncomingCandidatures }}</div>
+        <div class="fl-stat-sub">{{ clientStats.pendingIncomingCandidatures }} en attente</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">💰</span>
+        <div class="fl-stat-label">Budget Total</div>
+        <div class="fl-stat-value">{{ clientStats.totalBudgetAllocated | number:'1.0-0' }}</div>
+        <div class="fl-stat-sub">TND alloués</div>
+      </div>
+      <div class="fl-stat-card">
+        <span class="fl-stat-icon">📈</span>
+        <div class="fl-stat-label">Taux de Réussite</div>
+        <div class="fl-stat-value">{{ clientStats.completionSuccessPercent || 0 }}%</div>
+        <div class="fl-stat-sub">missions fermées</div>
+      </div>
+    </div>
+
+    <!-- Quick access cards -->
+    <div class="fl-cards-grid">
+      <div class="fl-info-card" routerLink="/freelance/client/post" (click)="router.navigate(['/freelance/client/post'])">
+        <span class="fl-card-icon">&#10133;</span>
+        <div>
+          <div class="fl-card-title" style="color: var(--fl-primary);">Poster une mission</div>
+          <div class="fl-card-sub">Créez une nouvelle offre en 2 min</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" (click)="goToClientMissions()">
+        <span class="fl-card-icon">&#128188;</span>
+        <div>
+          <div class="fl-card-title">Gérer mes missions</div>
+          <div class="fl-card-sub">Visualiser, modifier, supprimer</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" routerLink="/freelance/scheduler" (click)="router.navigate(['/freelance/scheduler'])">
+        <span class="fl-card-icon">&#128197;</span>
+        <div>
+          <div class="fl-card-title">Calendrier</div>
+          <div class="fl-card-sub">Planifier entretiens & suivis</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+      <div class="fl-info-card" routerLink="/freelance/workspace" (click)="router.navigate(['/freelance/workspace'])">
+        <span class="fl-card-icon">💼</span>
+        <div>
+          <div class="fl-card-title" style="color: var(--fl-primary);">Contrats & Chat</div>
+          <div class="fl-card-sub">Gérer les paiements (Escrow) et vos équipes</div>
+        </div>
+        <span class="fl-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- Upcoming Events Grid (Client) -->
+    <div class="fl-section-title" *ngIf="upcomingEvents.length > 0">
+      <span>📅</span> Agenda Recrutement
+    </div>
+    <div class="fl-features-grid" *ngIf="upcomingEvents.length > 0" style="margin-bottom: 28px;">
+      <div class="fl-feature-card fl-feature-clickable"
+           *ngFor="let ev of upcomingEvents"
+           (click)="selectEventFromDash(ev)">
+        <div class="fl-feature-icon">{{ getEventTypeIcon(ev.type) }}</div>
+        <div class="fl-feature-title">{{ ev.title }}</div>
+        <div class="fl-feature-sub">
+          {{ getEventTimeLabel(ev.startDate) }}
+          <br>
+          <small>Participant: {{ ev.participantNom || 'À définir' }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI-Powered Features -->
+    <div class="fl-section-title">
+      <span>🤖</span> IA & Pilotage Recrutement
+    </div>
+    <div class="fl-features-grid">
+      <div class="fl-feature-card fl-feature-clickable" (click)="openTalentRecommendations()">
+        <div class="fl-feature-icon">🧠</div>
+        <div class="fl-feature-title">Recommandations IA</div>
+        <div class="fl-feature-sub">Trouver les meilleurs talents par embedding sémantique</div>
+        <span class="fl-feature-action">Analyser →</span>
+      </div>
+      <div class="fl-feature-card fl-feature-clickable" (click)="openIncomingCandidatures()">
+        <div class="fl-feature-icon">👁️</div>
+        <div class="fl-feature-title">Candidatures Entrantes</div>
+        <div class="fl-feature-sub" *ngIf="clientStats">
+          {{ clientStats.pendingIncomingCandidatures }} talents en attente de réponse
+        </div>
+        <div class="fl-feature-sub" *ngIf="!clientStats">Chargement...</div>
+        <span class="fl-feature-action">Gérer →</span>
+      </div>
+      <div class="fl-feature-card fl-feature-clickable" (click)="openBudgetOverview()">
+        <div class="fl-feature-icon">💵</div>
+        <div class="fl-feature-title">Budget Alloué</div>
+        <div class="fl-feature-sub" *ngIf="clientStats">
+          {{ clientStats.totalBudgetAllocated | number:'1.0-0' }} TND sur {{ clientStats.totalMissionsPosted }} missions
+        </div>
+        <div class="fl-feature-sub" *ngIf="!clientStats">Chargement...</div>
+        <span class="fl-feature-action">Finances →</span>
+      </div>
+      <div class="fl-feature-card fl-feature-clickable" (click)="openContractsAndLegal()">
+        <div class="fl-feature-icon">📁</div>
+        <div class="fl-feature-title">Contrats & Juridique</div>
+        <div class="fl-feature-sub">Gestion des contrats sémantiques</div>
+        <span class="fl-feature-action">Docs →</span>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--  AI MATCH RESULTS PANEL (shared between both modes)             -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="fl-ai-panel" *ngIf="showMatchPanel">
+    <div class="fl-ai-panel-header">
+      <h2 class="fl-section-title">{{ matchPanelTitle }}</h2>
+      <button class="fl-back-btn" (click)="closeMatchPanel()">✕ Fermer</button>
+    </div>
+
+    <div *ngIf="matchLoading" class="fl-loading">
+      <span class="fl-ai-spinner"></span> Analyse IA en cours (modèle all-MiniLM-L6-v2)...
+    </div>
+
+    <div *ngIf="!matchLoading && matchResults.length === 0" class="fl-empty">
+      Aucun résultat trouvé. Essayez de postuler à plus de missions pour enrichir votre profil IA.
+    </div>
+
+    <div class="fl-ai-results" *ngIf="!matchLoading && matchResults.length > 0">
+      <div class="fl-ai-result-card" *ngFor="let r of matchResults; let i = index">
+        <div class="fl-ai-rank">#{{ i + 1 }}</div>
+        <div class="fl-ai-result-content">
+          <div class="fl-ai-result-title"
+               [class.fl-clickable]="r.titre"
+               (click)="r.titre ? navigateToMission(r.id) : null">
+            {{ r.titre || r.nom || 'Talent #' + r.id }}
+          </div>
+          <div class="fl-ai-result-desc" *ngIf="r.description">
+            {{ r.description | slice:0:120 }}{{ r.description && r.description.length > 120 ? '...' : '' }}
+          </div>
+          <div class="fl-ai-skills" *ngIf="r.matchingSkills && r.matchingSkills.length > 0">
+            <span class="fl-skill-tag fl-skill-match" *ngFor="let s of r.matchingSkills">✓ {{ s }}</span>
+          </div>
+          <div class="fl-ai-skills" *ngIf="r.competences && r.competences.length > 0">
+            <span class="fl-skill-tag" *ngFor="let s of r.competences">{{ s }}</span>
+          </div>
+        </div>
+        <div class="fl-ai-score">
+          <div class="fl-ai-score-circle" [style.--score-color]="r.matchPercent >= 70 ? '#10b981' : r.matchPercent >= 40 ? '#f59e0b' : '#ef4444'">
+            <span class="fl-ai-score-value">{{ r.matchPercent }}%</span>
+          </div>
+          <div class="fl-ai-score-label">Match</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-smart-overlay" *ngIf="showOpsPanel" (click)="closeOpsPanel()">
+    <div class="fl-smart-panel" (click)="$event.stopPropagation()">
+      <div class="fl-smart-header">
+        <div>
+          <div class="fl-smart-kicker">Smart Insight Mode</div>
+          <h2 class="fl-smart-title">{{ opsPanelTitle }}</h2>
+          <div class="fl-smart-headline" *ngIf="!opsLoading">{{ getOpsHeadline() }}</div>
+        </div>
+        <button class="fl-back-btn" (click)="closeOpsPanel()">✕ Fermer</button>
+      </div>
+
+      <div *ngIf="opsLoading" class="fl-loading">
+        <span class="fl-ai-spinner"></span> Chargement des insights...
+      </div>
+
+      <div class="fl-ai-results" *ngIf="!opsLoading && opsCards.length > 0">
+        <div class="fl-ai-result-card" *ngFor="let c of opsCards">
+          <div class="fl-ai-result-content">
+            <div class="fl-ai-result-title">{{ c.title }}</div>
+            <div class="fl-ai-result-desc">{{ c.subtitle }}</div>
+          </div>
+          <div class="fl-ai-score">
+          <div class="fl-ai-score-pill">
+            <span class="fl-ai-score-value">{{ c.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-ops-actions" *ngIf="!opsLoading && opsActions.length > 0">
+        <button class="fl-btn fl-btn-secondary fl-btn-sm"
+                *ngFor="let action of opsActions"
+                (click)="runOpsAction(action.id)">
+          {{ action.label }}
+        </button>
+      </div>
+
+      <!-- Contracts & Legal folder content: invoices -->
+      <div class="fl-ops-invoices" *ngIf="!opsLoading && opsPanelKey === 'contracts_legal'">
+        <div class="fl-docs-hub">
+          <div class="fl-docs-summary">
+            <div class="fl-docs-stat">
+              <span class="label">Contrats</span>
+              <strong>{{ dashboardContracts.length }}</strong>
+            </div>
+            <div class="fl-docs-stat">
+              <span class="label">Factures PDF</span>
+              <strong>{{ dashboardInvoices.length }}</strong>
+            </div>
+          </div>
+
+          <div class="fl-docs-toggle" role="tablist" aria-label="Filtrer les documents">
+            <button class="fl-docs-toggle-btn"
+                    [class.active]="legalDocsView === 'contracts'"
+                    (click)="setLegalDocsView('contracts')">
+              📄 Contrats
+            </button>
+            <button class="fl-docs-toggle-btn"
+                    [class.active]="legalDocsView === 'invoices'"
+                    (click)="setLegalDocsView('invoices')">
+              🧾 Factures
+            </button>
+          </div>
+
+          <div class="fl-docs-sections" *ngIf="legalDocsView === 'contracts'">
+            <div class="fl-docs-section-head">
+              <span>📄</span>
+              <strong>Contrats</strong>
+            </div>
+            <div class="fl-docs-grid" *ngIf="dashboardContracts.length > 0">
+              <div class="fl-doc-card" *ngFor="let c of dashboardContracts">
+                <div class="fl-doc-card-top">
+                  <div>
+                    <div class="fl-doc-title">{{ c.missionTitre }}</div>
+                    <div class="fl-doc-sub">Contrat #{{ c.id }}</div>
+                  </div>
+                  <span class="fl-doc-status" [ngClass]="'status-' + (c.status || '').toLowerCase()">{{ c.status }}</span>
+                </div>
+                <div class="fl-doc-meta">
+                  <span>{{ c.clientNom }} ↔ {{ c.freelancerNom }}</span>
+                  <strong>{{ c.amount }} TND</strong>
+                </div>
+                <div class="fl-doc-actions">
+                  <button class="fl-btn fl-btn-secondary" (click)="downloadContractPdf(c)">
+                    Télécharger Contrat PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="fl-empty" *ngIf="dashboardContracts.length === 0">
+              Aucun contrat disponible pour le moment.
+            </div>
+          </div>
+
+          <div class="fl-docs-sections" *ngIf="legalDocsView === 'invoices'">
+            <div class="fl-docs-section-head">
+              <span>🧾</span>
+              <strong>Facturation & Historique</strong>
+            </div>
+            <div class="fl-docs-grid" *ngIf="dashboardInvoices.length > 0">
+              <div class="fl-doc-card" *ngFor="let inv of dashboardInvoices">
+                <div class="fl-doc-card-top">
+                  <div>
+                    <div class="fl-doc-title">{{ inv.invoiceNumber }}</div>
+                    <div class="fl-doc-sub">{{ inv.createdAt | date:'short' }}</div>
+                  </div>
+                  <span class="fl-doc-status status-paid">{{ inv.status }}</span>
+                </div>
+                <div class="fl-doc-meta">
+                  <span>Facture #{{ inv.id }}</span>
+                  <strong>{{ inv.totalAmount }} TND</strong>
+                </div>
+                <div class="fl-doc-actions">
+                  <button class="fl-btn fl-btn-secondary" (click)="downloadInvoicePdf(inv.id)">
+                    Télécharger PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="fl-empty" *ngIf="dashboardInvoices.length === 0">
+              Aucune facture générée pour le moment.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-empty" *ngIf="!opsLoading && opsCards.length === 0 && opsPanelKey !== 'contracts_legal'">
+        Aucune donnée disponible.
+      </div>
+
+      <div class="fl-ops-tips" *ngIf="!opsLoading && opsTips.length > 0">
+        <div class="fl-ops-tip-title">💡 Recommended Next Steps</div>
+        <div class="fl-ops-tip-item" *ngFor="let tip of opsTips">{{ tip }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>

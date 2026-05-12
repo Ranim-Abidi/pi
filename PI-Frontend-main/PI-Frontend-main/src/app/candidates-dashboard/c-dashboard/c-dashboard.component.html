@@ -1,0 +1,160 @@
+<!-- Title -->
+<div class="breadcrumb-title">
+    <h1 class="mb-0 fw-semibold">
+        Hello, {{ userName }}!
+    </h1>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoadingStats" class="loading-container text-center">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading your statistics...</p>
+</div>
+
+<!-- Stats Cards -->
+<div *ngIf="!isLoadingStats" class="stats-grid">
+    <!-- Applications Stats -->
+    <div class="stat-card gradient-blue">
+        <div class="stat-icon">
+            <i class="ri-briefcase-line"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.totalApplications ?? 0 }}</h4>
+            <p>Applied Jobs</p>
+            <span class="stat-badge success" *ngIf="stats && stats.applicationSuccessRate > 0">
+                {{ stats.applicationSuccessRate }}% Success
+            </span>
+        </div>
+    </div>
+
+    <!-- Accepted Applications -->
+    <div class="stat-card gradient-green">
+        <div class="stat-icon">
+            <i class="ri-check-double-line"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.acceptedApplications ?? 0 }}</h4>
+            <p>Accepted</p>
+            <span class="stat-detail">out of {{ stats?.totalApplications ?? 0 }}</span>
+        </div>
+    </div>
+
+    <!-- Formations Stats -->
+    <div class="stat-card gradient-orange">
+        <div class="stat-icon">
+            <i class="ri-book-line"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.totalFormations ?? 0 }}</h4>
+            <p>Formations</p>
+            <span class="stat-badge info" *ngIf="stats && stats.formationCompletionRate > 0">
+                {{ stats.formationCompletionRate }}% Done
+            </span>
+        </div>
+    </div>
+
+    <!-- Profile Completeness -->
+    <div class="stat-card gradient-purple">
+        <div class="stat-icon">
+            <i class="ri-user-fill"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.profileCompleteness ?? 0 }}%</h4>
+            <p>Profile Complete</p>
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="stats?.profileCompleteness ?? 0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competences -->
+    <div class="stat-card gradient-red">
+        <div class="stat-icon">
+            <i class="ri-star-line"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.competencesCount ?? 0 }}</h4>
+            <p>Competences</p>
+            <span class="stat-detail">Added to profile</span>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="stat-card gradient-cyan">
+        <div class="stat-icon">
+            <i class="ri-message-2-line"></i>
+        </div>
+        <div class="stat-content">
+            <h4>{{ stats?.messagesCount ?? 0 }}</h4>
+            <p>Messages</p>
+            <span class="stat-detail">Total conversations</span>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div *ngIf="!isLoadingStats" class="charts-section">
+    <!-- Row 1: Application Success Rate & Profile Completeness -->
+    <div class="row">
+        <div class="col-xxl-6 col-md-12">
+            <div class="chart-card">
+                <h3 class="chart-title">Applications Success Rate</h3>
+                <apx-chart
+                    [series]="applicationsSuccessChart.series!"
+                    [chart]="applicationsSuccessChart.chart!"
+                    [labels]="applicationsSuccessChart.labels!"
+                    [colors]="applicationsSuccessChart.colors!"
+                    [dataLabels]="applicationsSuccessChart.dataLabels!"
+                    [plotOptions]="applicationsSuccessChart.plotOptions!"
+                ></apx-chart>
+            </div>
+        </div>
+
+        <div class="col-xxl-6 col-md-12">
+            <div class="chart-card">
+                <h3 class="chart-title">Profile Completeness</h3>
+                <apx-chart
+                    [series]="profileCompletenessChart.series!"
+                    [chart]="profileCompletenessChart.chart!"
+                    [labels]="profileCompletenessChart.labels!"
+                    [colors]="profileCompletenessChart.colors!"
+                    [dataLabels]="profileCompletenessChart.dataLabels!"
+                    [plotOptions]="profileCompletenessChart.plotOptions!"
+                ></apx-chart>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Formations Completion & Application Breakdown -->
+    <div class="row">
+        <div class="col-xxl-6 col-md-12">
+            <div class="chart-card">
+                <h3 class="chart-title">Formations Completion</h3>
+                <apx-chart
+                    [series]="formationsChart.series!"
+                    [chart]="formationsChart.chart!"
+                    [labels]="formationsChart.labels!"
+                    [colors]="formationsChart.colors!"
+                    [dataLabels]="formationsChart.dataLabels!"
+                    [plotOptions]="formationsChart.plotOptions!"
+                ></apx-chart>
+            </div>
+        </div>
+
+        <div class="col-xxl-6 col-md-12">
+            <div class="chart-card">
+                <h3 class="chart-title">Applications Breakdown</h3>
+                <apx-chart
+                    [series]="applicationsBreakdownChart.series!"
+                    [chart]="applicationsBreakdownChart.chart!"
+                    [labels]="applicationsBreakdownChart.labels!"
+                    [colors]="applicationsBreakdownChart.colors!"
+                    [dataLabels]="applicationsBreakdownChart.dataLabels!"
+                    [plotOptions]="applicationsBreakdownChart.plotOptions!"
+                ></apx-chart>
+            </div>
+        </div>
+    </div>
+</div>

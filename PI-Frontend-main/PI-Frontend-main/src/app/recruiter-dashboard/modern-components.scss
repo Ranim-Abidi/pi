@@ -1,0 +1,561 @@
+/**
+ * Modern Professional Dashboard Components
+ * LinkedIn-inspired design patterns for recruiter dashboard
+ */
+
+// ============================================================
+// Statistics & Metrics
+// ============================================================
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--linkedin-border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: default;
+
+    // Left color indicator bar
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--linkedin-blue);
+    }
+
+    // Light background accent
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, rgba(10, 102, 194, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    &:hover {
+        box-shadow: var(--linkedin-shadow-lg);
+        border-color: var(--linkedin-blue);
+        transform: translateY(-2px);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--linkedin-text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--linkedin-blue);
+        margin: 0;
+        line-height: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-change {
+        font-size: 12px;
+        color: var(--linkedin-text-light);
+        margin-top: 8px;
+        position: relative;
+        z-index: 1;
+
+        &.positive {
+            color: #28A745;
+        }
+
+        &.negative {
+            color: #DC3545;
+        }
+    }
+}
+
+// ============================================================
+// List Items & Rows
+// ============================================================
+
+.list-item, .row-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid var(--linkedin-border);
+    transition: var(--transition);
+    cursor: pointer;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: #FAFAF9;
+    }
+
+    .item-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--linkedin-gray);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-weight: 600;
+        color: var(--linkedin-blue);
+        font-size: 14px;
+    }
+
+    .item-content {
+        flex: 1;
+
+        .item-title {
+            font-weight: 600;
+            color: var(--linkedin-dark);
+            margin: 0 0 4px 0;
+            font-size: 13px;
+        }
+
+        .item-subtitle {
+            font-size: 12px;
+            color: var(--linkedin-text-light);
+            margin: 0;
+        }
+    }
+
+    .item-action {
+        margin-left: 12px;
+    }
+}
+
+// ============================================================
+// Badge & Status Indicators
+// ============================================================
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+
+    &.badge-primary {
+        background: rgba(10, 102, 194, 0.1);
+        color: var(--linkedin-blue);
+    }
+
+    &.badge-success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28A745;
+    }
+
+    &.badge-warning {
+        background: rgba(255, 193, 7, 0.1);
+        color: #FFC107;
+    }
+
+    &.badge-danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: #DC3545;
+    }
+
+    &.badge-secondary {
+        background: rgba(80, 80, 80, 0.1);
+        color: var(--linkedin-text-light);
+    }
+
+    &.outline {
+        background: transparent;
+        border: 1px solid currentColor;
+    }
+}
+
+// ============================================================
+// Progress Indicators
+// ============================================================
+
+.progress-bar-container {
+    width: 100%;
+    height: 4px;
+    background: var(--linkedin-border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 8px 0;
+
+    .progress-bar {
+        height: 100%;
+        background: var(--linkedin-blue);
+        transition: var(--transition);
+        border-radius: 2px;
+
+        &.success {
+            background: #28A745;
+        }
+
+        &.warning {
+            background: #FFC107;
+        }
+
+        &.danger {
+            background: #DC3545;
+        }
+    }
+}
+
+// ============================================================
+// Modals & Dialogs
+// ============================================================
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--linkedin-shadow-xl);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--linkedin-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h2 {
+            margin: 0;
+            color: var(--linkedin-dark);
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--linkedin-text-light);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: var(--transition);
+
+            &:hover {
+                background: var(--linkedin-gray);
+                color: var(--linkedin-dark);
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--linkedin-border);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+}
+
+// ============================================================
+// Tabs
+// ============================================================
+
+.tabs-container {
+    border-bottom: 1px solid var(--linkedin-border);
+    display: flex;
+    gap: 0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    color: var(--linkedin-text);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 2px solid transparent;
+    position: relative;
+
+    &:hover {
+        color: var(--linkedin-blue);
+        background: var(--linkedin-gray);
+    }
+
+    &.active {
+        color: var(--linkedin-blue);
+        border-bottom-color: var(--linkedin-blue);
+    }
+}
+
+// ============================================================
+// Search & Filter
+// ============================================================
+
+.search-box {
+    position: relative;
+
+    input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid var(--linkedin-border);
+        border-radius: 6px;
+        font-size: 13px;
+        transition: var(--transition);
+
+        &:focus {
+            outline: none;
+            border-color: var(--linkedin-blue);
+            box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+        }
+
+        &::placeholder {
+            color: var(--linkedin-text-light);
+        }
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--linkedin-text-light);
+        font-size: 14px;
+    }
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--linkedin-gray);
+    border: 1px solid var(--linkedin-border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--linkedin-text);
+    margin-right: 8px;
+    transition: var(--transition);
+    cursor: pointer;
+
+    &:hover {
+        background: #EFEFEB;
+        border-color: #CBCBCB;
+    }
+
+    &.active {
+        background: rgba(10, 102, 194, 0.1);
+        border-color: var(--linkedin-blue);
+        color: var(--linkedin-blue);
+    }
+
+    .remove-icon {
+        cursor: pointer;
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+// ============================================================
+// Empty States
+// ============================================================
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--linkedin-text-light);
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--linkedin-text);
+        margin-bottom: 8px;
+    }
+
+    .empty-description {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+
+    .empty-action {
+        margin-top: 16px;
+    }
+}
+
+// ============================================================
+// Loading States
+// ============================================================
+
+.skeleton-loader {
+    background: linear-gradient(
+        90deg,
+        var(--linkedin-gray) 0%,
+        #F5F5F5 50%,
+        var(--linkedin-gray) 100%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--linkedin-border);
+    border-top-color: var(--linkedin-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ============================================================
+// Tooltips
+// ============================================================
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+
+    .tooltip-text {
+        visibility: hidden;
+        background: var(--linkedin-dark);
+        color: white;
+        text-align: center;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        opacity: 0;
+        transition: var(--transition);
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--linkedin-dark);
+        }
+    }
+
+    &:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+// ============================================================
+// Utility Classes
+// ============================================================
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-muted {
+    color: var(--linkedin-text-light);
+}
+
+.text-primary {
+    color: var(--linkedin-blue);
+}
+
+.bg-light {
+    background: var(--linkedin-gray);
+}
+
+.rounded {
+    border-radius: 8px;
+}
+
+.rounded-full {
+    border-radius: 50%;
+}
+
+.shadow {
+    box-shadow: var(--linkedin-shadow);
+}
+
+.shadow-lg {
+    box-shadow: var(--linkedin-shadow-lg);
+}
+
+.gap-sm {
+    gap: 8px;
+}
+
+.gap-md {
+    gap: 16px;
+}
+
+.gap-lg {
+    gap: 24px;
+}

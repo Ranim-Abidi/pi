@@ -1,0 +1,228 @@
+// =============================================
+// EVENEMENT FORM — style Jove template
+// =============================================
+
+.evenement-form-area {
+    background-color: var(--whiteColor);
+}
+
+// ── Card formulaire ───────────────────────────────────────────────────────────
+.form-box {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-top: 10px;
+
+    .form-box-header {
+        padding: 25px 30px;
+        border-bottom: 1px solid var(--borderColor);
+        background-color: #f5f9fc;
+
+        h3 {
+            font-size: 20px;
+            margin-bottom: 6px;
+            color: var(--headingColor);
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--bodyColor);
+            margin: 0;
+        }
+    }
+
+    form {
+        padding: 30px;
+    }
+}
+
+// ── Groupes de champs ─────────────────────────────────────────────────────────
+.form-group {
+    margin-bottom: 25px;
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--headingColor);
+        font-size: var(--fontSize);
+
+        .required {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+    }
+
+    .form-control {
+        height: 55px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: var(--fontSize);
+        color: var(--headingColor);
+        border: 1px solid #e0e6e9;
+        background-color: #f3f4f6;
+        box-shadow: unset !important;
+        transition: var(--transition);
+        width: 100%;
+
+        &::placeholder {
+            color: var(--bodyColor);
+            transition: var(--transition);
+        }
+
+        &:focus {
+            border-color: var(--primaryColor);
+            background-color: var(--whiteColor);
+            outline: none;
+
+            &::placeholder {
+                color: transparent;
+            }
+        }
+
+        &.is-invalid {
+            border-color: #ef4444;
+            background-color: #fff5f5;
+        }
+
+        &.is-valid {
+            border-color: #10b981;
+        }
+    }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 12px;
+        padding-right: 40px;
+    }
+}
+
+// ── Messages d'erreur ─────────────────────────────────────────────────────────
+.error-msg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #ef4444;
+
+    i { font-size: 14px; flex-shrink: 0; }
+
+    &.server-error {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 5px;
+        padding: 6px 10px;
+        color: #dc2626;
+    }
+}
+
+// ── Boutons ───────────────────────────────────────────────────────────────────
+.form-btns {
+    padding-top: 5px;
+
+    .default-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 13px 30px;
+        border-radius: 5px;
+        font-size: var(--fontSize);
+        font-weight: 600;
+        color: var(--whiteColor);
+        background-color: var(--primaryColor);
+        border: 1px solid var(--primaryColor);
+        cursor: pointer;
+        transition: var(--transition);
+
+        i { font-size: 16px; }
+
+        &:hover:not(:disabled) {
+            background-color: var(--secondaryColor);
+            border-color: var(--secondaryColor);
+        }
+
+        &:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        &.outline-btn {
+            background-color: transparent;
+            color: var(--headingColor);
+            border-color: var(--borderColor);
+
+            &:hover {
+                background-color: #f4f7fb;
+                border-color: var(--primaryColor);
+                color: var(--primaryColor);
+            }
+        }
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .form-box {
+        .form-box-header {
+            padding: 20px;
+            h3 { font-size: 17px; }
+        }
+        form { padding: 20px; }
+    }
+    .form-group {
+        margin-bottom: 18px;
+        .form-control {
+            height: 48px;
+            font-size: 14px;
+            padding: 10px 14px;
+        }
+    }
+    .form-btns {
+        flex-direction: column;
+        .default-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .form-box {
+        .form-box-header {
+            padding: 22px 25px;
+            h3 { font-size: 18px; }
+        }
+        form { padding: 25px; }
+    }
+    .form-group {
+        .form-control {
+            height: 50px;
+            font-size: 15px;
+        }
+    }
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+
+    .form-group {
+        .form-control { height: 52px; }
+    }
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

@@ -1,0 +1,123 @@
+<div class="skill-gap-container">
+  <div class="header-section">
+    <h2>Analyseur de Compétences Sémantique</h2>
+    <p class="subtitle">Utilisez l'IA pour identifier vos gaps et optimiser votre parcours de formation</p>
+  </div>
+
+  <div class="input-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="skills">Vos compétences actuelles</label>
+        <textarea id="skills" 
+                  [(ngModel)]="inputSkills" 
+                  placeholder="Ex: Python, JavaScript, Docker, Gestion de projet..."
+                  rows="3"></textarea>
+        <small>Séparez vos compétences par des virgules</small>
+      </div>
+
+      <div class="form-group">
+        <label for="job">Métier cible</label>
+        <select id="job" [(ngModel)]="selectedJob">
+          <option *ngFor="let job of careerList" [value]="job">{{ job }}</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-analyze" (click)="analyze()" [disabled]="loading">
+      <span *ngIf="!loading">Lancer l'analyse intelligente ↗</span>
+      <span *ngIf="loading">Analyse en cours...</span>
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="result" class="results-section">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Score de Match</div>
+        <div class="stat-value" [style.color]="getScoreColor(result.match_percentage)">
+          {{ result.match_percentage }}%
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Compétences Acquises</div>
+        <div class="stat-value text-success">{{ result.matching_skills.length }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Gaps Identifiés</div>
+        <div class="stat-value text-danger">{{ result.missing_skills.length }}</div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-card">
+      <div class="progress-info">
+        <span class="job-title">Progression vers : {{ result.job_title }}</span>
+        <span class="engine-info">Moteur : {{ result.model_used }}</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" 
+             [style.width.%]="result.match_percentage"
+             [style.background-color]="getScoreColor(result.match_percentage)">
+        </div>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <!-- Validated Skills -->
+      <div class="details-card" *ngIf="result.matching_skills.length > 0">
+        <h3>Compétences Validées</h3>
+        <div class="skills-list">
+          <div *ngFor="let m of result.matching_skills" 
+               class="skill-tag"
+               [style.background-color]="getImportanceColor(m.weight).bg"
+               [style.border-color]="getImportanceColor(m.weight).border"
+               [style.color]="getImportanceColor(m.weight).text">
+            <strong>{{ m.skill }}</strong>
+            <span class="alias" *ngIf="m.candidate_skill.toLowerCase() !== m.skill.toLowerCase()">
+              ← {{ m.candidate_skill }}
+            </span>
+            <span class="stars">★{{ m.weight }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Missing Skills -->
+      <div class="details-card" *ngIf="result.missing_skills.length > 0">
+        <h3>Lacunes à Combler</h3>
+        <div class="missing-list">
+          <div *ngFor="let m of result.missing_skills" class="missing-item">
+            <span class="skill-name">{{ m.skill }}</span>
+            <div class="importance-badge" 
+                 [style.background-color]="getImportanceColor(m.weight).bg"
+                 [style.color]="getImportanceColor(m.weight).text">
+              {{ m.importance }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="recommendations-card" *ngIf="result.recommended_formations?.length > 0">
+      <h3>Formations Recommandées</h3>
+      <div class="formations-grid">
+        <div *ngFor="let f of result.recommended_formations" class="formation-item">
+          <div class="formation-header">
+            <span class="formation-id">ID #{{ f.formation_id }}</span>
+            <span class="match-badge">{{ f.score_match }}% Match</span>
+          </div>
+          <ul class="reasons">
+            <li *ngFor="let r of f.raisons">{{ r }}</li>
+          </ul>
+          <div class="covered-skills" *ngIf="f.competences_couvertes?.length > 0">
+            <span *ngFor="let skill of f.competences_couvertes" class="mini-tag">{{ skill }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

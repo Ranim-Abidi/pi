@@ -1,0 +1,14 @@
+[
+  {
+    "input": "domaine:INFORMATIQUE | categorie:TECHNIQUE | niveau:Senior | type:QCU | theme:React hooks",
+    "output": "{\"contenu\":\"Quel hook mémorise une valeur calculée entre les rendus ?\",\"type\":\"QCU\",\"points\":5,\"theme\":\"React hooks\",\"choix\":[{\"texte\":\"useMemo\",\"correcte\":true,\"ordre\":1},{\"texte\":\"useCallback\",\"correcte\":false,\"ordre\":2},{\"texte\":\"useRef\",\"correcte\":false,\"ordre\":3},{\"texte\":\"useState\",\"correcte\":false,\"ordre\":4}]}"
+  },
+  {
+    "input": "domaine:INFORMATIQUE | categorie:TECHNIQUE | niveau:Junior | type:VF | theme:Java POO",
+    "output": "{\"contenu\":\"Une classe abstraite peut être instanciée directement en Java.\",\"type\":\"VF\",\"points\":3,\"theme\":\"Java POO\",\"choix\":[{\"texte\":\"Vrai\",\"correcte\":false,\"ordre\":1},{\"texte\":\"Faux\",\"correcte\":true,\"ordre\":2}]}"
+  },
+  {
+    "input": "domaine:BUSINESS | categorie:MANAGERIAL | niveau:Senior | type:QCM | theme:Leadership",
+    "output": "{\"contenu\":\"Quelles pratiques caractérisent un bon leadership agile ?\",\"type\":\"QCM\",\"points\":10,\"theme\":\"Leadership\",\"choix\":[{\"texte\":\"Autonomie des équipes\",\"correcte\":true,\"ordre\":1},{\"texte\":\"Contrôle quotidien strict\",\"correcte\":false,\"ordre\":2},{\"texte\":\"Feedback continu\",\"correcte\":true,\"ordre\":3},{\"texte\":\"Décisions centralisées\",\"correcte\":false,\"ordre\":4}]}"
+  }
+]

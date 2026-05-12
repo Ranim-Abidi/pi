@@ -1,0 +1,434 @@
+// =============================================
+// EVENEMENT DETAIL — style Jove template
+// =============================================
+
+.evenement-detail-area {
+    background-color: var(--whiteColor);
+}
+
+// ── Card principale détails ───────────────────────────────────────────────────
+.detail-main-box {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 25px;
+
+    .event-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        background-color: #f4f7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i {
+            font-size: 38px;
+            color: var(--primaryColor);
+        }
+    }
+
+    h2 {
+        font-size: 22px;
+        color: var(--headingColor);
+    }
+
+    .type-badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primaryColor);
+        background-color: #f4f7fb;
+        border-radius: 30px;
+        padding: 4px 14px 5px;
+    }
+
+    // Liste infos style contact-info
+    .info-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 1px solid var(--borderColor);
+
+        li {
+            padding-left: 32px;
+            color: var(--bodyColor);
+
+            i {
+                left: 0;
+                top: 2px;
+                line-height: 1;
+                font-size: 20px;
+                position: absolute;
+                color: var(--primaryColor);
+            }
+
+            span {
+                font-size: 12px;
+                color: var(--bodyColor);
+                margin-bottom: 3px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+
+            strong {
+                display: block;
+                font-size: 15px;
+                color: var(--headingColor);
+            }
+        }
+    }
+}
+
+// ── Sections (participants + feedbacks) ───────────────────────────────────────
+.section-box {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 25px;
+
+    .section-box-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--borderColor);
+        background-color: #f5f9fc;
+
+        h3 {
+            font-size: 18px;
+            color: var(--headingColor);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    background-color: var(--primaryColor);
+    color: var(--whiteColor);
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+// ── Participants ──────────────────────────────────────────────────────────────
+.participants-list {
+    padding: 10px 0;
+}
+
+.participant-item {
+    padding: 18px 25px;
+    border-bottom: 1px solid var(--borderColor);
+    transition: var(--transition);
+
+    &:last-child { border-bottom: none; }
+
+    &:hover { background-color: #f9fbfc; }
+
+    .participant-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #f4f7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i {
+            font-size: 22px;
+            color: var(--primaryColor);
+        }
+    }
+
+    h4 {
+        font-size: 15px;
+        color: var(--headingColor);
+    }
+
+    .statut-confirme {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a6b3c;
+
+        i { margin-right: 4px; }
+    }
+
+    .inscription-date {
+        font-size: 13px;
+        color: var(--bodyColor);
+
+        i {
+            margin-right: 5px;
+            color: var(--primaryColor);
+        }
+    }
+}
+
+// ── Note moyenne ──────────────────────────────────────────────────────────────
+.moyenne-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    .moyenne-note {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--headingColor);
+        line-height: 1;
+    }
+
+    .moyenne-label {
+        font-size: 11px;
+        color: var(--bodyColor);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+}
+
+// ── Étoiles ───────────────────────────────────────────────────────────────────
+.star {
+    font-size: 18px;
+    color: #d1d5db;
+
+    &.active { color: #f9a825; }
+}
+
+.moyenne-etoiles .star { font-size: 16px; }
+
+// ── Feedbacks ─────────────────────────────────────────────────────────────────
+.feedback-list {
+    padding: 10px 0;
+}
+
+.feedback-item {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--borderColor);
+
+    &:last-child { border-bottom: none; }
+
+    .feedback-item-header { margin-bottom: 12px; }
+
+    .candidat-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primaryColor);
+        color: var(--whiteColor);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .candidat-nom {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--headingColor);
+    }
+
+    .feedback-date {
+        font-size: 12px;
+        color: var(--bodyColor);
+    }
+
+    .note-stars {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        .note-num {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--headingColor);
+            margin-left: 6px;
+        }
+    }
+
+    .feedback-commentaire {
+        font-size: 14px;
+        color: var(--bodyColor);
+        background-color: #f5f9fc;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 0;
+        line-height: 1.6;
+    }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+    padding: 30px;
+
+    i {
+        font-size: 36px;
+        color: #d1d5db;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    p {
+        color: var(--bodyColor);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+// ── Sidebar (réutilise le style Jove natif) ───────────────────────────────────
+.sidebar-area {
+    background-color: #f5f9fc;
+    border-radius: 10px;
+
+    .box {
+        padding: 25px 30px;
+        border-bottom: 1px solid var(--borderColor);
+
+        &:last-child { border-bottom: none; }
+
+        h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--headingColor);
+        }
+
+        .information {
+            li {
+                font-size: 14px;
+                margin-bottom: 14px;
+                color: var(--bodyColor);
+
+                &:last-child { margin-bottom: 0; }
+
+                .fw-medium {
+                    color: var(--headingColor);
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        .sidebar-note {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--primaryColor);
+            line-height: 1;
+
+            span {
+                font-size: 18px;
+                color: var(--bodyColor);
+            }
+        }
+
+        .sidebar-stars {
+            margin-top: 8px;
+
+            .star { font-size: 22px; }
+        }
+    }
+}
+
+// ── Bouton retour ─────────────────────────────────────────────────────────────
+.default-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 28px;
+    border-radius: 5px;
+    font-size: var(--fontSize);
+    font-weight: 600;
+    color: var(--whiteColor);
+    background-color: var(--primaryColor);
+    border: 1px solid var(--primaryColor);
+    cursor: pointer;
+    transition: var(--transition);
+
+    i { font-size: 16px; }
+
+    &:hover {
+        background-color: var(--secondaryColor);
+        border-color: var(--secondaryColor);
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .detail-main-box {
+        padding: 20px;
+        border-radius: 10px;
+
+        h2 { font-size: 18px; }
+
+        .event-logo {
+            width: 60px;
+            height: 60px;
+            i { font-size: 28px; }
+        }
+
+        .info-list {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+
+    .section-box {
+        border-radius: 10px;
+
+        .section-box-header { padding: 15px 20px; }
+    }
+
+    .participant-item,
+    .feedback-item { padding: 15px 20px; }
+
+    .sidebar-area {
+        margin-top: 25px;
+        border-radius: 5px;
+
+        .box { padding: 20px; }
+    }
+
+    .moyenne-wrapper .moyenne-note { font-size: 22px; }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .detail-main-box {
+        padding: 25px;
+
+        .info-list { grid-template-columns: 1fr 1fr; }
+    }
+
+    .sidebar-area {
+        margin-top: 25px;
+
+        .box { padding: 20px 25px; }
+    }
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+
+    .sidebar-area .box { padding: 20px 25px; }
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

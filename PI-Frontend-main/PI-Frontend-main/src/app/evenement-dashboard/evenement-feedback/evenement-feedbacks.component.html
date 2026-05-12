@@ -1,0 +1,157 @@
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>Feedbacks reçus</h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">Accueil</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/evenements">Événements</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Feedbacks
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedbacks Area -->
+<div class="feedbacks-area ptb-100">
+    <div class="container">
+
+        <!-- Loading -->
+        <div class="text-center py-5" *ngIf="isLoading">
+            <p class="text-muted">Chargement...</p>
+        </div>
+
+        <div *ngIf="!isLoading">
+
+            <!-- Stats globales -->
+            <div class="row mb-4">
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#e3f2fd;">
+                            <i class="ri-chat-3-line" style="color:#1565c0;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ totalFeedbacks }}</h3>
+                            <p>Total feedbacks</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fff8e1;">
+                            <i class="ri-star-line" style="color:#f9a825;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>
+                                {{ noteMoyenneGlobale }}
+                                <span class="stat-sur">/5</span>
+                            </h3>
+                            <p>Note moyenne</p>
+                            <div class="etoiles-stat">
+                                <span *ngFor="let star of getEtoiles(5)"
+                                      class="star"
+                                      [class.active]="star <= noteMoyenneGlobale">★</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Filtre par événement -->
+            <div class="filtre-section mb-4">
+                <p class="filtre-label">
+                    <i class="ri-filter-line"></i> Filtrer par événement :
+                </p>
+                <div class="filtre-btns">
+                    <button class="filtre-btn"
+                            [class.actif]="evenementSelectionne === null"
+                            (click)="filtrerParEvenement(null)">
+                        Tous
+                    </button>
+                    <button class="filtre-btn"
+                            *ngFor="let e of evenements"
+                            [class.actif]="evenementSelectionne === e.id"
+                            (click)="filtrerParEvenement(e.id)">
+                        {{ e.titre }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Liste feedbacks -->
+            <div class="section-box" *ngIf="feedbacks.length > 0">
+                <div class="section-box-header">
+                    <h3>
+                        Avis reçus
+                        <span class="count-badge">{{ feedbacks.length }}</span>
+                    </h3>
+                </div>
+
+                <div class="feedbacks-list">
+                    <div class="feedback-item" *ngFor="let f of feedbacks">
+
+                        <div class="feedback-item-header d-sm-flex align-items-center justify-content-between">
+
+                            <!-- Candidat info -->
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar">
+                                    {{ f.nomCandidat ? f.nomCandidat.charAt(0).toUpperCase() : 'C' }}
+                                </div>
+                                <div>
+                                    <p class="candidat-nom mb-0">{{ f.nomCandidat || 'Candidat' }}</p>
+                                    <p class="feedback-evenement mb-0">
+                                        <i class="ri-calendar-event-line"></i>
+                                        {{ f.titreEvenement }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Note -->
+                            <div class="note-section d-flex align-items-center gap-2">
+                                <div class="etoiles">
+                                    <span *ngFor="let star of getEtoiles(5)"
+                                          class="star"
+                                          [class.active]="star <= f.note">★</span>
+                                </div>
+                                <span class="note-num" [class]="getNoteClass(f.note)">
+                                    {{ f.note }}/5
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- Commentaire -->
+                        <p class="feedback-commentaire">{{ f.commentaire }}</p>
+
+                        <!-- Date -->
+                        <p class="feedback-date mb-0">
+                            <i class="ri-time-line"></i>
+                            {{ formatDate(f.date) }}
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aucun feedback -->
+            <div class="empty-state text-center" *ngIf="feedbacks.length === 0">
+                <i class="ri-chat-3-line"></i>
+                <h4>Aucun feedback reçu</h4>
+                <p>Aucun feedback reçu pour vos événements pour le moment.</p>
+            </div>
+
+        </div>
+    </div>
+</div>

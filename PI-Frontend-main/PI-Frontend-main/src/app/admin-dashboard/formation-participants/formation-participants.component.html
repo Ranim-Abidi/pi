@@ -1,0 +1,111 @@
+<div class="participants-area">
+  <div class="container pb-5">
+
+    <div class="stats-row" *ngIf="!loading && inscriptions.length">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ inscriptions.length }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">📖</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getCount('EnCours') }}</span>
+          <span class="stat-label">En cours</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getCount('Terminé') }}</span>
+          <span class="stat-label">Terminés</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">❌</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getCount('Abandonné') }}</span>
+          <span class="stat-label">Abandonnés</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card">
+
+      <div class="table-card-header">
+        <h3>
+          <i class="ri-group-line"></i>
+          Liste des participants
+          <span *ngIf="!loading">({{ inscriptions.length }})</span>
+        </h3>
+        <a routerLink="/admin-dashboard/formations" class="back-btn">
+          <i class="ri-arrow-left-line"></i> Retour
+        </a>
+      </div>
+
+      <div class="empty-state" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <p>Chargement des participants...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && inscriptions.length === 0">
+        <div class="empty-icon">👥</div>
+        <p>Aucun participant pour cette formation.</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading && inscriptions.length">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidat</th>
+              <th>Date inscription</th>
+              <th>Statut</th>
+              <th>Progression</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ins of inscriptions">
+              <td class="td-candidat">
+                <div class="candidat-avatar">
+                  {{ (ins.candidat?.nom || 'C')[0].toUpperCase() }}
+                </div>
+                <div class="candidat-info">
+                  <span class="candidat-nom">{{ ins.candidat?.nom || 'Candidat #' + ins.candidat?.id }}</span>
+                  <span class="candidat-warning" *ngIf="!ins.candidat?.nom || !ins.candidat?.email" title="Données incomplètes dans le profil">⚠️</span>
+                </div>
+              </td>
+              <td>
+                <ng-container *ngIf="getInscriptionDate(ins) as date; else noDate">
+                  {{ date | date:'dd/MM/yyyy' }}
+                </ng-container>
+                <ng-template #noDate>-</ng-template>
+              </td>
+              <td>
+                <span class="tag" [ngClass]="{
+                  'tag-green': ins.statut === 'Terminé',
+                  'tag-blue':  ins.statut === 'EnCours',
+                  'tag-amber': ins.statut === 'Abandonné'
+                }">
+                  {{ ins.statut === 'EnCours' ? 'En cours' : ins.statut }}
+                </span>
+              </td>
+              <td class="td-progression">
+                <div class="progress-wrap">
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" [style.width.%]="ins.progression"></div>
+                  </div>
+                  <span class="progress-pct">{{ ins.progression }}%</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+

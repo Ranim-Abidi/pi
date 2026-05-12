@@ -1,0 +1,349 @@
+<div class="page-container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <h4>
+            <i class="ri-building-line"></i>
+            Liste des Partenaires
+        </h4>
+        <span class="badge-count">{{ partenaires.length }} partenaires</span>
+    </div>
+
+    <!-- BARRE DE RECHERCHE -->
+    <div class="search-bar">
+        <div class="search-wrapper">
+            <i class="ri-search-line search-icon"></i>
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Rechercher par nom, email, téléphone ou type..."
+                [(ngModel)]="searchTerm"
+            />
+            <button
+                *ngIf="searchTerm"
+                class="clear-btn"
+                type="button"
+                (click)="searchTerm = ''">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLEAU -->
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Type</th>
+                        <th>Offres</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of filteredPartenaires; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td><strong>{{ p.nom }}</strong></td>
+                        <td>{{ p.email }}</td>
+                        <td>{{ p.telephone }}</td>
+                        <td>
+                            <span class="type-badge"
+                                [class.entreprise]="p.type === 'ENTREPRISE'"
+                                [class.universite]="p.type !== 'ENTREPRISE'">
+                                {{ p.type }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <button class="btn btn-voir"
+                                        (click)="voirOffres(p.id)">
+                                    <i class="ri-eye-line"></i> Voir Offres
+                                </button>
+                                <button class="btn btn-ajouter"
+                                        (click)="ajouterOffre(p)">
+                                    <i class="ri-add-line"></i> Ajouter Offre
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <button class="btn btn-modifier"
+                                        (click)="modifier(p)">
+                                    <i class="ri-edit-line"></i>
+                                </button>
+                                <button class="btn btn-supprimer"
+                                        (click)="supprimer(p.id)">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredPartenaires.length === 0">
+                        <td colspan="7" class="empty-row">
+                            <i class="ri-inbox-line"></i>
+                            <p>{{ searchTerm ? 'Aucun résultat pour "' + searchTerm + '"' : 'Aucun partenaire trouvé' }}</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- POPUP MODIFIER -->
+<div class="popup-overlay" *ngIf="isModifPopupOpen">
+    <div class="popup-box">
+        <div class="popup-header">
+            <h5>
+                <i class="ri-edit-line"></i>
+                Modifier Partenaire
+            </h5>
+            <button class="close-btn" (click)="closeModifPopup()">✕</button>
+        </div>
+        <div class="popup-body">
+            <form (ngSubmit)="saveModif()" #modifForm="ngForm" novalidate>
+
+                <!-- Nom -->
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-user-line input-icon"></i>
+                        <input type="text"
+                               [(ngModel)]="partenaireModif.nom"
+                               name="nom"
+                               #nom="ngModel"
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[a-zA-ZÀ-ÿ\s\-]+"
+                               placeholder="Nom du partenaire"
+                               [class.input-error]="nom.invalid && nom.touched"
+                               [class.input-success]="nom.valid && nom.touched">
+                    </div>
+                    <div class="error-box" *ngIf="nom.invalid && nom.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="nom.errors?.['required']">Le nom est obligatoire</span>
+                        <span *ngIf="nom.errors?.['minlength']">Minimum 2 caractères</span>
+                        <span *ngIf="nom.errors?.['maxlength']">Maximum 50 caractères</span>
+                        <span *ngIf="nom.errors?.['pattern']">Le nom ne doit pas contenir de chiffres</span>
+                    </div>
+                    <div class="success-box" *ngIf="nom.valid && nom.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Nom valide</span>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label>Email *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-mail-line input-icon"></i>
+                        <input type="email"
+                               [(ngModel)]="partenaireModif.email"
+                               name="email"
+                               #email="ngModel"
+                               required
+                               email
+                               placeholder="Email"
+                               [class.input-error]="email.invalid && email.touched"
+                               [class.input-success]="email.valid && email.touched">
+                    </div>
+                    <div class="error-box" *ngIf="email.invalid && email.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="email.errors?.['required']">L'email est obligatoire</span>
+                        <span *ngIf="email.errors?.['email']">Format invalide (ex: contact&#64;gmail.com)</span>
+                    </div>
+                    <div class="success-box" *ngIf="email.valid && email.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Email valide</span>
+                    </div>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-phone-line input-icon"></i>
+                        <input type="text"
+                               [(ngModel)]="partenaireModif.telephone"
+                               name="telephone"
+                               #telephone="ngModel"
+                               required
+                               pattern="[0-9]{8}"
+                               placeholder="Téléphone"
+                               [class.input-error]="telephone.invalid && telephone.touched"
+                               [class.input-success]="telephone.valid && telephone.touched">
+                    </div>
+                    <div class="error-box" *ngIf="telephone.invalid && telephone.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="telephone.errors?.['required']">Le téléphone est obligatoire</span>
+                        <span *ngIf="telephone.errors?.['pattern']">Seulement 8 chiffres </span>
+                    </div>
+                    <div class="success-box" *ngIf="telephone.valid && telephone.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Téléphone valide</span>
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group">
+                    <label>Type *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-building-line input-icon"></i>
+                        <select [(ngModel)]="partenaireModif.type"
+                                name="type"
+                                #type="ngModel"
+                                required
+                                [class.input-error]="type.invalid && type.touched"
+                                [class.input-success]="type.valid && type.touched">
+                            <option value="">-- Choisir un type --</option>
+                            <option value="ENTREPRISE">Entreprise</option>
+                            <option value="UNIVERSITE">Université</option>
+                        </select>
+                    </div>
+                    <div class="error-box" *ngIf="type.invalid && type.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="type.errors?.['required']">Le type est obligatoire</span>
+                    </div>
+                    <div class="success-box" *ngIf="type.valid && type.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Type sélectionné</span>
+                    </div>
+                </div>
+
+                <div class="popup-footer">
+                    <button type="button" class="btn-annuler" (click)="closeModifPopup()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn-modifier" [disabled]="modifForm.invalid">
+                        <i class="ri-save-line"></i>
+                        Modifier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- POPUP CRÉER OFFRE -->
+<div class="popup-overlay" *ngIf="isOffrePopupOpen">
+    <div class="popup-box">
+        <div class="popup-header offre">
+            <h5>
+                <i class="ri-file-add-line"></i>
+                Créer une Offre
+            </h5>
+            <button class="close-btn" (click)="closeOffrePopup()">✕</button>
+        </div>
+        <div class="popup-body">
+            <div class="partenaire-info">
+                <i class="ri-building-line"></i>
+                Partenaire : <strong>{{ partenaireSelectionne?.nom }}</strong>
+            </div>
+            <form (ngSubmit)="saveOffre()" #offreForm="ngForm" novalidate>
+
+                <!-- Titre -->
+                <div class="form-group">
+                    <label>Titre *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-file-text-line input-icon"></i>
+                        <input type="text"
+                               [(ngModel)]="newOffre.titre"
+                               name="titre"
+                               #titre="ngModel"
+                               required
+                               minlength="3"
+                               maxlength="100"
+                               pattern="[a-zA-ZÀ-ÿ\s\-0-9]*[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-0-9]*"
+                               placeholder="Ex: Développeur Angular"
+                               [class.input-error]="titre.invalid && titre.touched"
+                               [class.input-success]="titre.valid && titre.touched">
+                    </div>
+                    <div class="error-box" *ngIf="titre.invalid && titre.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="titre.errors?.['required']">Le titre est obligatoire</span>
+                        <span *ngIf="titre.errors?.['minlength']">Minimum 3 caractères</span>
+                        <span *ngIf="titre.errors?.['maxlength']">Maximum 100 caractères</span>
+                        <span *ngIf="titre.errors?.['pattern']">Le titre doit contenir au moins une lettre</span>
+                    </div>
+                    <div class="success-box" *ngIf="titre.valid && titre.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Titre valide</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label>Description *</label>
+                    <div class="textarea-wrapper">
+                        <i class="ri-align-left input-icon"></i>
+                        <textarea [(ngModel)]="newOffre.description"
+                                  name="description"
+                                  #description="ngModel"
+                                  required
+                                  minlength="10"
+                                  pattern="[a-zA-ZÀ-ÿ\s\-0-9]*[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-0-9]*"
+                                  placeholder="Description de l'offre..."
+                                  rows="3"
+                                  [class.input-error]="description.invalid && description.touched"
+                                  [class.input-success]="description.valid && description.touched">
+                        </textarea>
+                    </div>
+                    <div class="error-box" *ngIf="description.invalid && description.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="description.errors?.['required']">La description est obligatoire</span>
+                        <span *ngIf="description.errors?.['minlength']">Minimum 10 caractères</span>
+                        <span *ngIf="description.errors?.['pattern']">La description doit contenir au moins une lettre</span>
+                    </div>
+                    <div class="success-box" *ngIf="description.valid && description.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Description valide</span>
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group">
+                    <label>Type *</label>
+                    <div class="input-wrapper">
+                        <i class="ri-list-check input-icon"></i>
+                        <select [(ngModel)]="newOffre.type"
+                                name="typeOffre"
+                                #typeOffre="ngModel"
+                                required
+                                [class.input-error]="typeOffre.invalid && typeOffre.touched"
+                                [class.input-success]="typeOffre.valid && typeOffre.touched">
+                            <option value="EMPLOI">Emploi</option>
+                            <option value="STAGE">Stage</option>
+                        </select>
+                    </div>
+                    <div class="error-box" *ngIf="typeOffre.invalid && typeOffre.touched">
+                        <i class="ri-error-warning-line"></i>
+                        <span *ngIf="typeOffre.errors?.['required']">Le type est obligatoire</span>
+                    </div>
+                    <div class="success-box" *ngIf="typeOffre.valid && typeOffre.touched">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Type sélectionné</span>
+                    </div>
+                </div>
+
+                <div class="popup-footer">
+                    <button type="button"
+                            class="btn-annuler"
+                            (click)="closeOffrePopup()">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                            class="btn-save offre"
+                            [disabled]="offreForm.invalid">
+                        <i class="ri-save-line"></i>
+                        Créer Offre
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

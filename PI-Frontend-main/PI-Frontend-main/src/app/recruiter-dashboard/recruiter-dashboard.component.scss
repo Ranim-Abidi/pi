@@ -1,0 +1,501 @@
+// Recruiter Dashboard - Modern Clean Design (Candidate Style)
+// Color Variables
+:root {
+  --primaryColor: #4a90e2;      // Light Blue
+  --bodyColor: #505050;          // Text
+  --headingColor: #1f2937;       // Dark Text
+  --whiteColor: #ffffff;         // White
+  --lightBg: #f5f9fc;            // Light Background
+  --transition: all 0.3s ease;
+}
+
+.recruiter-layout {
+    min-height: 100vh;
+    background-color: #f5f9fc;
+}
+
+.main-content {
+    overflow: hidden;
+    min-height: 100vh;
+    background-color: #f5f9fc;
+    padding: {
+        top: 130px;
+        left: 300px;
+        right: 30px;
+        bottom: 30px;
+    };
+}
+
+/* Max width 767px */
+@media only screen and (max-width : 767px) {
+
+    .main-content {
+        padding: {
+            top: 105px;
+            left: 15px;
+            right: 15px;
+            bottom: 25px;
+        };
+    }
+
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width : 576px) and (max-width : 767px) {}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width : 768px) and (max-width : 991px) {
+
+    .main-content {
+        padding: {
+            top: 105px;
+            left: 25px;
+            right: 25px;
+            bottom: 25px;
+        };
+    }
+
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width : 992px) and (max-width : 1199px) {
+
+    .main-content {
+        padding: {
+            top: 110px;
+            left: 25px;
+            right: 25px;
+            bottom: 25px;
+        };
+    }
+
+}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {
+
+    .main-content {
+        padding-left: 360px;
+    }
+
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+    color: #1f2937;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+}
+
+p {
+    color: #505050;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// Cards
+.card, .widget-box, .panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        border-color: #d1d5db;
+    }
+
+    .card-header {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+
+        h4 {
+            margin: 0;
+            color: #1f2937;
+        }
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+}
+
+// Stats Cards
+.stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+        border-color: #4a90e2;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #4a90e2;
+        margin-bottom: 8px;
+    }
+
+    .stat-change {
+        font-size: 12px;
+        color: #6b7280;
+
+        &.positive {
+            color: #059669;
+        }
+
+        &.negative {
+            color: #dc2626;
+        }
+    }
+}
+
+// Buttons
+.btn {
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+
+    &.btn-primary {
+        background: #4a90e2;
+        color: white;
+        border: none;
+
+        &:hover {
+            background: #3b7ab8;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+    }
+
+    &.btn-secondary {
+        background: white;
+        color: #4a90e2;
+        border: 1px solid #e5e7eb;
+
+        &:hover {
+            background: #f9fafb;
+            border-color: #4a90e2;
+        }
+    }
+}
+
+.recruiter-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    height: 75px !important;
+    background: #f4f8fc !important;
+    color: #1f2937 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.recruiter-sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 75px !important;
+    bottom: 0 !important;
+    width: 260px !important;
+    z-index: 900 !important;
+    background: linear-gradient(180deg, #5b9ff5 0%, #4a90e2 100%) !important;
+    overflow-y: auto !important;
+    padding: 24px 0 !important;
+}
+
+.main-content {
+    margin-top: 75px !important;
+    margin-left: 260px !important;
+    padding: 32px 36px 100px !important;
+    min-height: calc(100vh - 75px) !important;
+    background: #f7f9fc !important;
+    max-width: calc(100% - 260px) !important;
+    overflow-x: hidden !important;
+}
+
+.recruiter-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 260px !important;
+    right: 0 !important;
+    height: 60px !important;
+    padding: 16px 36px !important;
+    background: white !important;
+    border-top: 1px solid #e5e7eb !important;
+    color: #6b7280 !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 13px !important;
+}
+
+@media (max-width: 768px) {
+    .recruiter-sidebar {
+        transform: translateX(-260px);
+        transition: transform 0.3s ease;
+        width: 260px;
+    }
+
+    .recruiter-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 85px 20px 120px;
+        max-width: 100%;
+    }
+
+    .recruiter-footer {
+        left: 0;
+        right: 0;
+    }
+    
+    .recruiter-header {
+        height: 70px;
+    }
+}
+
+
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-dark);
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+h4 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+p {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+// Cards and containers
+.card, .widget-box, .panel {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    background: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: var(--card-shadow-hover);
+        border-color: #d1d5db;
+    }
+}
+
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    background: #fafbfc;
+    border-radius: 12px 12px 0 0;
+    
+    h4 {
+        margin: 0;
+        color: var(--text-dark);
+    }
+}
+
+.card-body {
+    padding: 24px;
+}
+
+// Buttons
+.btn {
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: var(--transition);
+    text-transform: none;
+    letter-spacing: normal;
+    padding: 10px 24px;
+    border: none;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    &-primary, &-success, &-info, &.default-btn {
+        background: var(--linkedin-blue);
+        color: white;
+        border: 1px solid var(--linkedin-blue);
+
+        &:hover {
+            background: var(--linkedin-dark);
+            border-color: var(--linkedin-dark);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    &-secondary {
+        background: white;
+        color: var(--linkedin-blue);
+        border: 1px solid var(--linkedin-blue);
+
+        &:hover {
+            background: var(--linkedin-light);
+            border-color: var(--linkedin-blue);
+        }
+    }
+
+    &-outline-secondary {
+        background: transparent;
+        color: var(--linkedin-text-light);
+        border: 1px solid var(--linkedin-border);
+
+        &:hover {
+            background: var(--linkedin-gray);
+            border-color: var(--linkedin-text-light);
+            color: var(--linkedin-text);
+        }
+    }
+}
+
+// Forms
+.form-control, .form-select {
+    border: 1px solid var(--linkedin-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--linkedin-text);
+    background: white;
+    transition: var(--transition);
+    box-shadow: none;
+
+    &:focus {
+        border-color: var(--linkedin-blue);
+        box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+        color: var(--linkedin-text);
+    }
+
+    &::placeholder {
+        color: var(--linkedin-text-light);
+    }
+}
+
+.form-label {
+    color: var(--linkedin-text);
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+// Tables
+.table {
+    font-size: 13px;
+    border-collapse: collapse;
+
+    thead th {
+        border-bottom: 2px solid var(--linkedin-border);
+        background: var(--linkedin-gray);
+        font-weight: 600;
+        color: var(--linkedin-text);
+        padding: 12px 16px;
+        text-align: left;
+    }
+
+    tbody td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #F3F2EF;
+        vertical-align: middle;
+    }
+
+    tbody tr {
+        transition: var(--transition);
+
+        &:hover {
+            background: #FAFAF9;
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .recruiter-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 64px 1fr 0px;
+    }
+
+    .recruiter-sidebar {
+        width: 260px;
+        transform: translateX(-260px);
+        transition: var(--transition);
+
+        &.active {
+            transform: translateX(0);
+        }
+    }
+
+    .main-content {
+        margin-left: 0;
+        grid-column: 1 / -1;
+        padding: 16px;
+    }
+
+    .recruiter-footer {
+        margin-left: 0;
+    }
+}
+

@@ -1,0 +1,2 @@
+﻿  searchType: 'simple' | 'advanced' | 'company' | 'popular' = 'simple';
+  searchTypes: Array<'simple' | 'advanced' | 'company' | 'popular'> = ['simple', 'advanced', 'company', 'popular'];

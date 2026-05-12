@@ -1,0 +1,274 @@
+﻿<div class="recherche-avancee-container">
+  <!-- En-tête -->
+  <div class="recherche-header">
+    <h1>🔍 Recherche Avancée d'Offres d'Emploi</h1>
+    <p class="subtitle">Trouvez l'offre parfaite avec nos filtres avancés basés sur les mots-clés, la localisation, le salaire et bien plus</p>
+  </div>
+
+  <!-- Sélection du type de recherche -->
+  <div class="search-type-selector">
+    <div class="search-type-buttons">
+      <button
+        *ngFor="let type of searchTypes"
+        [class.active]="searchType === type"
+        (click)="searchType = type"
+        class="type-btn">
+        <span *ngIf="type === 'simple'">🔎 Recherche Simple</span>
+        <span *ngIf="type === 'advanced'">⚙️ Recherche Avancée</span>
+        <span *ngIf="type === 'company'">🏢 Par Entreprise</span>
+        <span *ngIf="type === 'popular'">⭐ Les Plus Populaires</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulaire de recherche -->
+  <div class="search-form">
+    <!-- Recherche Simple -->
+    <div *ngIf="searchType === 'simple'" class="search-section simple-search">
+      <div class="form-group">
+        <label>Mot-clé de recherche</label>
+        <div class="input-group">
+          <input
+            type="text"
+            [(ngModel)]="keyword"
+            (keyup)="onKeywordChange()"
+            placeholder="Ex: Java Developer, Angular, Tunis..."
+            class="form-control">
+          <button (click)="performSearch()" class="search-btn">Rechercher</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recherche Avancée -->
+    <div *ngIf="searchType === 'advanced'" class="search-section advanced-search">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Mot-clé</label>
+          <input
+            type="text"
+            [(ngModel)]="keyword"
+            placeholder="Ex: Developer, Designer..."
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Localisation</label>
+          <input
+            type="text"
+            [(ngModel)]="location"
+            list="locations-list"
+            placeholder="Ex: Tunis, Sfax..."
+            class="form-control">
+          <datalist id="locations-list">
+            <option *ngFor="let loc of ['Tunis', 'Sfax', 'Sousse', 'Ariana', 'Ben Arous']" [value]="loc"></option>
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label>Type de Contrat</label>
+          <select [(ngModel)]="typeContrat" class="form-control">
+            <option value="">-- Tous --</option>
+            <option *ngFor="let type of contractTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Salaire Min (TND)</label>
+          <input
+            type="number"
+            [(ngModel)]="minSalaire"
+            (change)="validateSalaryRange()"
+            placeholder="Ex: 50"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Salaire Max (TND)</label>
+          <input
+            type="number"
+            [(ngModel)]="maxSalaire"
+            (change)="validateSalaryRange()"
+            placeholder="Ex: 150"
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="performSearch()" class="search-btn primary">🔍 Recherche Avancée</button>
+        <button (click)="resetSearch()" class="reset-btn">↻ Réinitialiser</button>
+      </div>
+    </div>
+
+    <!-- Recherche par Entreprise -->
+    <div *ngIf="searchType === 'company'" class="search-section company-search">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom de l'Entreprise *</label>
+          <input
+            type="text"
+            [(ngModel)]="nomEntreprise"
+            placeholder="Ex: TechCorp, Matchy Khedma..."
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Mot-clé optionnel</label>
+          <input
+            type="text"
+            [(ngModel)]="keyword"
+            placeholder="Ex: Developer..."
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="performSearch()" class="search-btn primary">🏢 Rechercher par Entreprise</button>
+        <button (click)="resetSearch()" class="reset-btn">↻ Réinitialiser</button>
+      </div>
+    </div>
+
+    <!-- Les Plus Populaires -->
+    <div *ngIf="searchType === 'popular'" class="search-section popular-search">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre de résultats</label>
+          <input
+            type="number"
+            [(ngModel)]="topLimit"
+            min="1"
+            max="100"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Filtre optionnel (mot-clé)</label>
+          <input
+            type="text"
+            [(ngModel)]="keyword"
+            placeholder="Ex: Java..."
+            class="form-control">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="performSearch()" class="search-btn primary">⭐ Charger les Plus Populaires</button>
+        <button (click)="resetSearch()" class="reset-btn">↻ Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <strong>⚠️ Erreur:</strong> {{ errorMessage }}
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="loader-container">
+    <div class="spinner"></div>
+    <p>Recherche en cours...</p>
+  </div>
+
+  <!-- Filtres et Tri (si résultats) -->
+  <div *ngIf="!isLoading && filteredResults.length > 0" class="results-controls">
+    <div class="filter-section">
+      <input
+        type="text"
+        [(ngModel)]="filterByCompany"
+        (change)="applyFilters()"
+        placeholder="Filtrer par entreprise..."
+        class="form-control small">
+
+      <input
+        type="text"
+        [(ngModel)]="filterByLocation"
+        (change)="applyFilters()"
+        placeholder="Filtrer par localisation..."
+        class="form-control small">
+
+      <select [(ngModel)]="sortBy" (change)="applySort()" class="form-control small">
+        <option value="relevance">Tri: Pertinence</option>
+        <option value="date">Tri: Date (Récente)</option>
+        <option value="salary">Tri: Salaire (Élevé)</option>
+        <option value="candidatures">Tri: Popularité</option>
+      </select>
+    </div>
+
+    <div class="results-count">
+      Affichage <strong>{{ filteredResults.length }}</strong> résultat(s)
+    </div>
+  </div>
+
+  <!-- Tableau des résultats -->
+  <div *ngIf="!isLoading && filteredResults.length > 0" class="results-container">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Titre de l'Offre</th>
+          <th>Entreprise</th>
+          <th>Localisation</th>
+          <th>Type de Contrat</th>
+          <th>Salaire</th>
+          <th>Candidatures</th>
+          <th>Pertinence</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let offer of filteredResults" [class.high-relevance]="(offer.relevanceScore || 0) > 70">
+          <td>
+            <strong>{{ offer.titrOffre }}</strong>
+            <div class="matched-fields" *ngIf="offer.matchedFields">
+              📌 {{ offer.matchedFields }}
+            </div>
+          </td>
+          <td>{{ offer.entreprise }}</td>
+          <td>{{ offer.location }}</td>
+          <td><span class="badge badge-info">{{ offer.typeContrat }}</span></td>
+          <td>
+            <span class="salary-badge">{{ offer.salaire }} TND</span>
+          </td>
+          <td>
+            <div [class]="'candidatures-' + getCandidaturesClass(offer.nombreCandidatures)">
+              {{ offer.nombreCandidatures }}
+              <small>({{ getAcceptanceRate(offer.nombreCandidaturesAcceptees, offer.nombreCandidatures) }}% acceptées)</small>
+            </div>
+          </td>
+          <td>
+            <div class="relevance-score" *ngIf="offer.relevanceScore">
+              <div class="score-bar">
+                <div class="score-fill" [style.width.%]="offer.relevanceScore"></div>
+              </div>
+              <span class="score-text">{{ offer.relevanceScore.toFixed(0) }}%</span>
+            </div>
+          </td>
+          <td class="date-cell">{{ formatDate(offer.datePublication) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Détails au survol -->
+    <div class="offers-details">
+      <div *ngFor="let offer of filteredResults" class="offer-detail-card">
+        <h4>{{ offer.titrOffre }}</h4>
+        <p><strong>Entreprise:</strong> {{ offer.entreprise }}</p>
+        <p><strong>Recruteur:</strong> {{ offer.recruteurNom }} ({{ offer.recruteurEmail }})</p>
+        <p *ngIf="offer.highlightedText" class="highlighted-text">
+          <strong>Extrait:</strong> {{ offer.highlightedText }}
+        </p>
+        <p class="description">{{ offer.description | slice:0:150 }}...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message "Aucun résultat" -->
+  <div *ngIf="!isLoading && searchResults.length === 0 && keyword" class="no-results">
+    <p>😔 Aucune offre trouvée pour "<strong>{{ keyword }}</strong>"</p>
+    <p class="hint">Essayez avec d'autres mots-clés ou critères de recherche</p>
+  </div>
+
+  <!-- Message d'attente initiale -->
+  <div *ngIf="!isLoading && searchResults.length === 0 && !keyword && !nomEntreprise" class="empty-state">
+    <p>👋 Commencez votre recherche en utilisant les critères ci-dessus</p>
+  </div>
+</div>
+

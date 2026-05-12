@@ -1,0 +1,423 @@
+// =============================================
+// EVENEMENT CALENDRIER — style Jove template
+// =============================================
+
+.calendrier-area {
+    background-color: var(--whiteColor);
+}
+
+// ── Stat cards ────────────────────────────────────────────────────────────────
+.stat-card {
+    background-color: var(--whiteColor);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--borderColor);
+    transition: var(--transition);
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i { font-size: 26px; }
+    }
+
+    .stat-info {
+        h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--headingColor);
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        p {
+            font-size: 13px;
+            color: var(--bodyColor);
+            margin: 0;
+        }
+    }
+}
+
+// ── Légende ───────────────────────────────────────────────────────────────────
+.legend-card {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    .legend-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--headingColor);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i { color: var(--primaryColor); }
+    }
+
+    .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: var(--bodyColor);
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+// ── Calendrier card ───────────────────────────────────────────────────────────
+.calendar-card {
+    background-color: var(--whiteColor);
+    border: 1px solid var(--borderColor);
+    border-radius: 15px;
+    padding: 25px;
+    overflow: hidden;
+}
+
+// FullCalendar overrides
+:host ::ng-deep {
+    .fc-button-primary {
+        background-color: var(--primaryColor) !important;
+        border-color: var(--primaryColor) !important;
+        border-radius: 5px !important;
+        font-size: 13px !important;
+        padding: 6px 14px !important;
+        box-shadow: none !important;
+
+        &:hover {
+            background-color: var(--secondaryColor) !important;
+            border-color: var(--secondaryColor) !important;
+        }
+
+        &:focus { box-shadow: none !important; }
+    }
+
+    .fc-day-today {
+        background-color: #f4f7fb !important;
+    }
+
+    .fc-event {
+        cursor: pointer;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        border: none !important;
+    }
+
+    .fc-toolbar-title {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: var(--headingColor) !important;
+    }
+
+    .fc-col-header-cell {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: var(--bodyColor) !important;
+    }
+}
+
+// ── Modal overlay ─────────────────────────────────────────────────────────────
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-container {
+    background: var(--whiteColor);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid var(--borderColor);
+        background-color: #f5f9fc;
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .header-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                background-color: #e8f0fe;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                i {
+                    font-size: 20px;
+                    color: var(--primaryColor);
+                }
+            }
+
+            .header-text {
+                h3 {
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin: 0 0 2px;
+                    color: var(--headingColor);
+                }
+
+                p {
+                    font-size: 12px;
+                    margin: 0;
+                    color: var(--bodyColor);
+                }
+            }
+        }
+
+        .modal-close {
+            background: #f4f7fb;
+            border: 1px solid var(--borderColor);
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+
+            i { font-size: 18px; color: var(--bodyColor); }
+
+            &:hover {
+                background: var(--primaryColor);
+                border-color: var(--primaryColor);
+                i { color: var(--whiteColor); }
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-footer {
+        padding: 15px 25px;
+        border-top: 1px solid var(--borderColor);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+}
+
+// ── Liste détails modal ───────────────────────────────────────────────────────
+.detail-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    li {
+        background-color: #f5f9fc;
+        border-radius: 8px;
+        padding: 12px 12px 12px 38px;
+        color: var(--bodyColor);
+
+        i {
+            left: 12px;
+            top: 14px;
+            font-size: 16px;
+            position: absolute;
+            color: var(--primaryColor);
+        }
+
+        span {
+            font-size: 11px;
+            color: var(--bodyColor);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 3px;
+        }
+
+        strong {
+            display: block;
+            font-size: 14px;
+            color: var(--headingColor);
+        }
+    }
+}
+
+// ── Status badges ─────────────────────────────────────────────────────────────
+.participation-status {
+    margin-top: 15px;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+
+    i { font-size: 18px; flex-shrink: 0; }
+
+    &.confirme {
+        background: #f0fdf4;
+        color: #1a6b3c;
+        border-color: #bbf7d0;
+    }
+
+    &.attente {
+        background: #fffbeb;
+        color: #92400e;
+        border-color: #fde68a;
+    }
+
+    &.refuse {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    &.disponible {
+        background: #eff6ff;
+        color: var(--primaryColor);
+        border-color: #bfdbfe;
+    }
+}
+
+// ── Boutons modal ─────────────────────────────────────────────────────────────
+.default-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-size: var(--fontSize);
+    font-weight: 600;
+    color: var(--whiteColor);
+    background-color: var(--primaryColor);
+    border: 1px solid var(--primaryColor);
+    cursor: pointer;
+    transition: var(--transition);
+
+    i { font-size: 16px; }
+
+    &:hover {
+        background-color: var(--secondaryColor);
+        border-color: var(--secondaryColor);
+    }
+
+    &.outline-btn {
+        background-color: transparent;
+        color: var(--headingColor);
+        border-color: var(--borderColor);
+
+        &:hover {
+            background-color: #f4f7fb;
+            border-color: var(--primaryColor);
+            color: var(--primaryColor);
+        }
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+/* Max width 767px */
+@media only screen and (max-width: 767px) {
+
+    .stat-card {
+        padding: 15px;
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            i { font-size: 22px; }
+        }
+
+        .stat-info h3 { font-size: 20px; }
+    }
+
+    .legend-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .calendar-card { padding: 15px; }
+
+    .modal-container {
+        border-radius: 10px;
+
+        .modal-header { padding: 15px 20px; }
+        .modal-body   { padding: 20px; }
+        .modal-footer { padding: 12px 20px; }
+    }
+
+    .detail-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+
+    .stat-card {
+        padding: 18px;
+
+        .stat-info h3 { font-size: 22px; }
+    }
+
+    .calendar-card { padding: 20px; }
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width: 992px) and (max-width: 1199px) {}
+
+/* Min width 1200px to Max width 1399px */
+@media only screen and (min-width: 1200px) and (max-width: 1399px) {}
+
+/* Min width 1600px */
+@media only screen and (min-width: 1600px) {}

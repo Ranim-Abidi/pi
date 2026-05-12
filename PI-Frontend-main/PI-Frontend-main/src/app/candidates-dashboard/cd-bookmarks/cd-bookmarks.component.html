@@ -1,0 +1,154 @@
+<!-- src/app/candidates-dashboard/cd-bookmarks/cd-bookmarks.component.html -->
+<div class="bookmarks-container">
+  
+  <!-- Header Section -->
+  <div class="bookmarks-header">
+    <div class="header-content">
+      <h1>
+        <i class="ri-bookmark-line"></i>
+Offres qui vous correspondent      </h1>
+      <p>⭐ Les meilleures offres pour vous</p>
+    </div>
+    <div class="domain-info" *ngIf="detectedDomain">
+      <span class="domain-badge" [class]="'domain-' + detectedDomain">
+        {{ getDomainIcon(detectedDomain) }} Domaines filtrés: {{ detectedDomain }}
+      </span>
+    </div>
+  </div>
+<!-- Option 3: Bouton minimal -->
+<button class="refresh-btn-minimal" (click)="refreshProfile()">
+    <i class="ri-refresh-line"></i>
+    Actualiser
+</button>
+  <!-- Message de notification -->
+  <div *ngIf="message" class="notification" [ngClass]="{
+    'notification-success': messageType === 'success',
+    'notification-error': messageType === 'error'
+  }">
+    <i class="ri-information-line"></i>
+    <span>{{ message }}</span>
+    <button class="close-btn" (click)="message = ''">×</button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Analyse de votre profil et recherche des meilleures offres...</p>
+    <p class="loading-hint">✨ L'IA analyse vos compétences</p>
+  </div>
+
+  <!-- Offres Grid -->
+  <div *ngIf="!isLoading && bookmarkedOffers.length > 0" class="offres-grid">
+    <div class="offre-card" *ngFor="let offre of bookmarkedOffers; let i = index">
+      
+      <!-- Top match badge -->
+      <div class="top-badge" *ngIf="i === 0 && offre.scoreMatch && offre.scoreMatch >= 70">
+        <span>🏆</span> Meilleur match
+      </div>
+
+      <!-- Source Badge -->
+      <div class="source-badge" [ngClass]="offre.source === 'ml' ? 'badge-ml' : 'badge-static'">
+        {{ offre.source === 'ml' ? '🤖 IA - Recommandé' : '📦 Offre démo' }}
+      </div>
+
+      <!-- Domain Badge -->
+      <div class="domain-badge-card" [class]="'domain-' + offre.domaine">
+        {{ getDomainIcon(offre.domaine) }} {{ offre.domaine }}
+      </div>
+
+      <!-- Score Circle (ML seulement) -->
+      <div class="score-circle" *ngIf="offre.scoreMatch" [ngClass]="getScoreClass(offre.scoreMatch)">
+        <span class="score-value">{{ offre.scoreMatch }}%</span>
+        <span class="score-label">Compatibilité</span>
+      </div>
+
+      <!-- Contenu -->
+      <h3 class="offre-title">{{ offre.titre }}</h3>
+      
+      <p class="offre-entreprise">
+        <i class="ri-building-line"></i>
+        <span>{{ offre.entreprise }}</span>
+      </p>
+      
+      <p class="offre-location">
+        <i class="ri-map-pin-line"></i>
+        <span>{{ offre.location }}</span>
+      </p>
+      
+      <p class="offre-description">{{ offre.description | slice:0:120 }}{{ offre.description.length > 120 ? '...' : '' }}</p>
+
+      <!-- Détails contrat et salaire -->
+      <div class="offre-details">
+        <div class="detail-item">
+          <i class="ri-briefcase-line"></i>
+          <span>{{ offre.typeContrat || 'CDI' }}</span>
+        </div>
+        <div class="detail-item" *ngIf="offre.salary && offre.salary !== 'À négocier'">
+          <i class="ri-money-euro-circle-line"></i>
+          <span>{{ offre.salary }} DT/mois</span>
+        </div>
+      </div>
+
+      <!-- Compétences -->
+      <div class="offre-skills" *ngIf="offre.competencesRequises && offre.competencesRequises.length">
+        <div class="skills-label">
+          <i class="ri-code-line"></i> Compétences requises :
+        </div>
+        <div class="skills-list">
+          <span class="skill-tag" *ngFor="let skill of offre.competencesRequises.slice(0, 4)">
+            {{ skill }}
+          </span>
+          <span class="skill-more" *ngIf="offre.competencesRequises.length > 4">
+            +{{ offre.competencesRequises.length - 4 }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Raison du match (ML seulement) -->
+      <div class="match-reason" *ngIf="offre.raison && offre.source === 'ml'">
+        <i class="ri-lightbulb-flash-line"></i>
+        <span>{{ offre.raison }}</span>
+      </div>
+
+      <!-- Dates -->
+      <div class="offre-dates">
+        <span class="date-item">
+          <i class="ri-calendar-line"></i>
+          Publiée: {{ formatDate(offre.datePublication) }}
+        </span>
+        <span class="date-item">
+          <i class="ri-time-line"></i>
+          Limite: {{ formatDate(offre.dateLimite) }}
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="offre-actions">
+        <button class="btn-view" (click)="viewDetails(offre)">
+          <i class="ri-eye-line"></i> Voir détails
+        </button>
+        <button class="btn-remove" (click)="removeBookmark(offre)">
+          <i class="ri-delete-bin-line"></i> Retirer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && bookmarkedOffers.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="ri-bookmark-line"></i>
+    </div>
+    <h3>Aucune offre sauvegardée</h3>
+    <p>Vous n'avez pas encore ajouté d'offres à vos favoris.</p>
+    <p class="hint">💡 Astuce : Parcourez les offres et cliquez sur l'icône 🔖 pour les ajouter ici.</p>
+    <div class="empty-actions">
+      <button class="btn-browse" routerLink="/">
+        <i class="ri-home-line"></i> Parcourir les offres
+      </button>
+      <button class="btn-refresh" (click)="loadBookmarkedOffers()">
+        <i class="ri-refresh-line"></i> Actualiser
+      </button>
+    </div>
+  </div>
+</div>

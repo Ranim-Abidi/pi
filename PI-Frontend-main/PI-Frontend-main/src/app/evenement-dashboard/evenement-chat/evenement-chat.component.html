@@ -1,0 +1,86 @@
+<!-- evenement-chats.component.html -->
+<div class="chats-wrapper">
+    <div class="container-fluid px-4">
+
+        <!-- Hero -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="hero-badge">
+                        <i class="ri-chat-3-line"></i>
+                        Salons de discussion
+                    </span>
+                    <h1>Chats de vos événements</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <p>Chargement...</p>
+            </div>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!isLoading && evenements.length === 0" class="empty-state-modern">
+            <div class="empty-illustration">
+                <i class="ri-chat-off-line"></i>
+            </div>
+            <h3>Aucun événement trouvé</h3>
+            <p>Créez un événement pour voir son salon de discussion.</p>
+        </div>
+
+        <!-- Grid -->
+        <div class="chats-grid" *ngIf="!isLoading && evenements.length > 0">
+            <div class="chat-card" *ngFor="let e of evenements">
+
+                <div class="chat-card-header">
+                    <div class="chat-icon-wrapper">
+                        <i class="ri-calendar-event-line"></i>
+                    </div>
+                    <div class="chat-info">
+                        <h3>{{ e.titre }}</h3>
+                        <span class="event-type-badge">{{ e.type }}</span>
+                    </div>
+                    <span class="chat-statut" [class]="getChatStatutClass(e.chatOuvert)">
+                        <span class="statut-dot"></span>
+                        {{ getChatStatutLabel(e.chatOuvert) }}
+                    </span>
+                </div>
+
+                <div class="chat-card-body">
+                    <div class="info-row">
+                        <i class="ri-map-pin-line"></i>
+                        <span>{{ e.lieu }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="ri-calendar-line"></i>
+                        <span>{{ e.dateHeure | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="ri-time-line"></i>
+                        <span *ngIf="!e.chatOuvert">Chat disponible 24h avant l'événement</span>
+                        <span class="actif-label" *ngIf="e.chatOuvert">Salon actif — participants connectés</span>
+                    </div>
+                </div>
+
+                <div class="chat-card-footer">
+                    <button class="btn-card btn-rejoindre"
+                            *ngIf="e.chatOuvert"
+                            (click)="ouvrirChat(e.id)">
+                        <i class="ri-chat-3-line"></i>
+                        <span>Rejoindre le chat</span>
+                    </button>
+                    <button class="btn-card btn-ferme" *ngIf="!e.chatOuvert" disabled>
+                        <i class="ri-lock-line"></i>
+                        <span>Chat non disponible</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

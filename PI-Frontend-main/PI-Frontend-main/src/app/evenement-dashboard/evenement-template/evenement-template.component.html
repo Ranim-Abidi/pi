@@ -1,0 +1,78 @@
+<!-- Title -->
+<div class="breadcrumb-title">
+    <h1 class="mb-0 fw-semibold">
+        Dashboard Événements
+    </h1>
+</div>
+
+
+<!-- Stats -->
+<div class="row">
+    <div class="col-xxl-3 col-xl-6 col-lg-3 col-6">
+        <div class="single-stats-box d-md-flex align-items-center">
+            <div class="icon"><i class="ri-calendar-event-line"></i></div>
+            <div>
+                <h3>{{ totalEvenements }}</h3> <!-- ✅ dynamique -->
+                <span class="d-block">Total événements</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-3 col-xl-6 col-lg-3 col-6">
+        <div class="single-stats-box d-md-flex align-items-center">
+            <div class="icon"><i class="ri-user-line"></i></div>
+            <div>
+                <h3>0</h3>
+                <span class="d-block">Participants</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-3 col-xl-6 col-lg-3 col-6">
+        <div class="single-stats-box d-md-flex align-items-center">
+            <div class="icon"><i class="ri-map-pin-line"></i></div>
+            <div>
+                <h3>{{ totalVilles }}</h3> <!-- ✅ dynamique -->
+                <span class="d-block">Villes</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-3 col-xl-6 col-lg-3 col-6">
+        <div class="single-stats-box d-md-flex align-items-center">
+            <div class="icon"><i class="ri-trophy-line"></i></div>
+            <div>
+                <h3>{{ totalTypes }}</h3> <!-- ✅ dynamique -->
+                <span class="d-block">Types événements</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart + Notifications -->
+<div class="row">
+    <div class="col-xxl-7 col-md-12">
+        <div class="jove-card">
+            <h3 class="title">Évolution des participations</h3>
+            <div class="chart">
+               <p>Chart à venir</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Événements récents -->
+    <div class="col-xxl-5 col-md-12">
+        <div class="jove-card">
+            <h3 class="title">Événements récents</h3>
+            <ul class="mb-0 list-unstyled ps-0 notifications-list">
+                <li class="position-relative" *ngFor="let e of evenements">
+                    <div class="icon">
+                        <i class="ri-calendar-event-line"></i>
+                    </div>
+                    <span class="fw-semibold">{{ e.titre }}</span> —
+                    <span class="color">{{ e.lieu }}</span>
+                </li>
+                <li *ngIf="evenements.length === 0">
+                    Aucun événement trouvé.
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

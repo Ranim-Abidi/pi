@@ -1,0 +1,52 @@
+<div class="ecrite-page">
+
+  <div class="ecrite-header">
+    <div class="container">
+      <a [routerLink]="['/formations', formation?.id]" class="back-link">
+        <i class="ri-arrow-left-line"></i> Retour à la formation
+      </a>
+      <h2 *ngIf="formation">
+        <i class="ri-book-read-line"></i>
+        {{ formation.titre }} — Documentation
+      </h2>
+    </div>
+  </div>
+
+  <div class="ecrite-body">
+
+    <div class="text-center py-5" *ngIf="loading">
+      <div class="loading-spinner" style="margin:0 auto"></div>
+      <p class="text-muted mt-3">{{ sourceLabel || 'Chargement...' }}</p>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <div class="ecrite-subbar">
+        <div class="ecrite-tab active">
+          <i class="ri-book-read-line"></i>
+          {{ sourceLabel || 'Documentation' }}
+        </div>
+        <button
+          *ngFor="let r of docResults; let i = index"
+          class="ecrite-source-btn"
+          [class.active]="selectedIndex === i"
+          (click)="selectResult(i)"
+          type="button">
+          {{ r.source }}
+        </button>
+      </div>
+
+      <div class="ecrite-content"
+           [innerHTML]="safeHtml"
+           (click)="onProxyLinkClick($event)">
+      </div>
+    </ng-container>
+  </div>
+
+  <app-chatbot-formation
+    *ngIf="formation"
+    [formation]="formation"
+    [candidatId]="candidatId"
+    context="ecrite">
+  </app-chatbot-formation>
+
+</div>

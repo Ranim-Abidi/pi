@@ -1,0 +1,101 @@
+.card {
+    background-color: var(--matchy-bg-white);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--matchy-card-shadow);
+    border: 1px solid var(--matchy-bg-light);
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 8px 20px var(--matchy-card-shadow);
+    }
+
+    .card-header {
+        padding: 25px;
+        border-bottom: 2px solid var(--matchy-bg-light);
+        background: linear-gradient(135deg, var(--matchy-bg-white) 0%, var(--matchy-bg-light) 100%);
+
+        h4 {
+            margin: 0;
+            color: var(--matchy-blue-dark);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            &::before {
+                content: '';
+                width: 4px;
+                height: 24px;
+                background: linear-gradient(180deg, var(--matchy-orange) 0%, var(--matchy-orange-light) 100%);
+                border-radius: 2px;
+            }
+        }
+    }
+
+    .card-body {
+        padding: 25px;
+
+        p {
+            margin: 0;
+            color: var(--matchy-blue-light);
+            line-height: 1.6;
+        }
+
+        .profile-field {
+            margin-bottom: 20px;
+
+            label {
+                color: var(--matchy-blue-dark);
+                font-weight: 600;
+                margin-bottom: 8px;
+                display: block;
+            }
+
+            input,
+            textarea,
+            select {
+                border-color: #e8eef5;
+                color: var(--matchy-blue-light);
+                transition: all 0.3s ease;
+
+                &:focus {
+                    border-color: var(--matchy-orange);
+                    box-shadow: 0 0 0 0.2rem rgba(235, 111, 35, 0.15);
+                }
+
+                &::placeholder {
+                    color: #a8bace;
+                }
+            }
+        }
+
+        .btn {
+            &.btn-primary {
+                background-color: var(--matchy-orange);
+                border-color: var(--matchy-orange);
+                color: var(--matchy-bg-white);
+                font-weight: 600;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                    box-shadow: 0 4px 12px rgba(235, 111, 35, 0.25);
+                }
+            }
+
+            &.btn-secondary {
+                background-color: var(--matchy-blue-light);
+                border-color: var(--matchy-blue-light);
+                color: var(--matchy-bg-white);
+                font-weight: 600;
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                }
+            }
+        }
+    }
+}

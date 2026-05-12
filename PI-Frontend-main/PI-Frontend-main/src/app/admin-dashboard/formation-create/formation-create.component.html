@@ -1,0 +1,300 @@
+<div class="form-page-area">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-12">
+        <div class="form-card">
+
+          <div class="form-card-header">
+            <div class="form-icon">📚</div>
+            <div>
+              <h2>Nouvelle formation</h2>
+            </div>
+          </div>
+
+          <div class="form-card-body">
+            <form [formGroup]="form" (ngSubmit)="submit()">
+
+              <div class="alert-error" *ngIf="serverErrorMessage">
+                <i class="ri-error-warning-line"></i>
+                {{ serverErrorMessage }}
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">1</span> Informations générales
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required">Titre de la formation</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [class.is-invalid]="hasError('titre')"
+                  formControlName="titre"
+                  (input)="onTitreChange($any($event.target).value)"
+                  placeholder="Ex: Cours Angular débutant, Python Machine Learning...">
+                <div class="invalid-feedback" *ngIf="hasError('titre')">
+                  {{ getError('titre') }}
+                </div>
+
+                <div class="suggestions-loading" *ngIf="loading">
+                  <i class="ri-loader-4-line spin"></i>
+                  Recherche des meilleures playlists YouTube...
+                </div>
+
+                <div class="suggestions-list"
+                     *ngIf="suggestions.length > 0 && !suggestionSelected">
+                  <div class="suggestions-header">
+                    <i class="ri-youtube-line"
+                       style="color:#E24B4A;font-size:16px"></i>
+                    Playlists trouvées — cliquez pour sélectionner
+                  </div>
+                  <div class="suggestion-card"
+                       *ngFor="let s of suggestions"
+                       (click)="selectSuggestion(s)">
+                    <img [src]="s.thumbnail" [alt]="s.titre" class="thumb">
+                    <div class="suggestion-info">
+                      <strong class="suggestion-title">{{ s.titre }}</strong>
+                      <span class="channel">
+                        <i class="ri-youtube-line"></i> {{ s.chaineYoutube }}
+                      </span>
+                      <div class="suggestion-badges">
+                        <span class="badge cat">{{ s.categorie }}</span>
+                        <span class="badge niv">{{ s.niveau }}</span>
+                        <span class="badge videos">
+                          <i class="ri-time-line"></i> {{ getDureeBadge(s) }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="suggestion-arrow">
+                      <i class="ri-arrow-right-line"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label required">Catégorie</label>
+                    <select class="form-select"
+                            [class.is-invalid]="hasError('categorie')"
+                            formControlName="categorie">
+                      <option value="">-- Choisir --</option>
+                      <option value="Frontend">Frontend</option>
+                      <option value="Backend">Backend</option>
+                      <option value="IA">IA</option>
+                      <option value="Data">Data</option>
+                      <option value="DevOps">DevOps</option>
+                      <option value="Design">Design</option>
+                      <option value="Mobile">Mobile</option>
+                      <option value="Développement">Développement</option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="hasError('categorie')">
+                      {{ getError('categorie') }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label required">Plateforme</label>
+                    <select class="form-select"
+                            [class.is-invalid]="hasError('plateforme')"
+                            formControlName="plateforme">
+                      <option value="">-- Choisir --</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="Udemy">Udemy</option>
+                      <option value="Coursera">Coursera</option>
+                      <option value="OpenClassrooms">OpenClassrooms</option>
+                      <option value="LinkedIn Learning">LinkedIn Learning</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="hasError('plateforme')">
+                      {{ getError('plateforme') }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">2</span> Configuration
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">Niveau</label>
+                    <select class="form-select"
+                            [class.is-invalid]="hasError('niveau')"
+                            formControlName="niveau">
+                      <option value="Débutant">Débutant</option>
+                      <option value="Intermédiaire">Intermédiaire</option>
+                      <option value="Avancé">Avancé</option>
+                      <option value="Expert">Expert</option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="hasError('niveau')">
+                      {{ getError('niveau') }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <select class="form-select" formControlName="statut">
+                      <option value="Disponible">Disponible</option>
+                      <option value="Bientôt">Bientôt</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label required">Durée</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [class.is-invalid]="hasError('duree')"
+                      formControlName="duree"
+                      placeholder="Ex : 12h">
+                    <div class="invalid-feedback" *ngIf="hasError('duree')">
+                      {{ getError('duree') }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-container>
+                <div class="form-section-title"
+                     [class.section-disabled]="form.get('statut')?.value === 'Bientôt'">
+                  <span class="section-number">3</span>
+                  Playlist YouTube
+                  <span class="optional-badge"
+                        *ngIf="form.get('statut')?.value === 'Bientôt'">
+                    Optionnel
+                  </span>
+                  <span class="required-badge"
+                        *ngIf="form.get('statut')?.value !== 'Bientôt'">
+                    Requis si pas de lien externe
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <input
+                      class="form-control"
+                      [class.is-invalid]="hasError('playlistId')"
+                      formControlName="playlistId"
+                      placeholder="Ex: PLxxxx (laisser vide si statut Bientôt)"
+                      style="flex:1">
+                    <a *ngIf="form.get('playlistId')?.value"
+                       [href]="'https://www.youtube.com/playlist?list='
+                               + form.get('playlistId')?.value"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn-preview-yt">
+                      <i class="ri-youtube-line"></i> Vérifier
+                    </a>
+                  </div>
+                  <div class="invalid-feedback" *ngIf="hasError('playlistId')">
+                    {{ getError('playlistId') }}
+                  </div>
+                </div>
+              </ng-container>
+
+              <div class="form-section-title"
+                   [class.section-disabled]="form.get('statut')?.value === 'Bientôt'">
+                <span class="section-number">4</span>
+                Lien externe
+                <span class="optional-badge">Optionnel</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  Lien externe
+                  <span class="text-muted" style="font-weight:400;font-size:0.8rem">
+                    (Udemy, Coursera...)
+                  </span>
+                </label>
+                <input
+                  type="url"
+                  class="form-control"
+                  [class.is-invalid]="hasError('lienExterne')"
+                  formControlName="lienExterne"
+                  placeholder="https://...">
+                <div class="invalid-feedback" *ngIf="hasError('lienExterne')">
+                  {{ getError('lienExterne') }}
+                </div>
+              </div>
+
+              <div class="alert-warning"
+                   *ngIf="form.errors?.['noContent']
+                          && form.touched
+                          && form.get('statut')?.value !== 'Bientôt'">
+                <i class="ri-alert-line"></i>
+                Les formations <strong>"Disponible"</strong> nécessitent
+                au moins un contenu : playlist YouTube ou lien externe.
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">5</span> Éditeur interactif
+              </div>
+
+              <div class="form-group">
+                <div class="editor-toggle-row">
+                  <div class="toggle-info">
+                    <label class="toggle-label">
+                      Activer l'éditeur de code
+                    </label>
+                    <small>Pour Frontend, Backend, IA, Data...</small>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" formControlName="hasEditor">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group" *ngIf="form.get('hasEditor')?.value">
+                <label>Template éditeur</label>
+                <select class="form-select" formControlName="stackBlitzUrl">
+                  <option *ngFor="let t of stackBlitzTemplates"
+                          [value]="t.value">{{ t.label }}</option>
+                </select>
+              </div>
+
+              <div class="form-section-title">
+                <span class="section-number">6</span> Documentation
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  URL documentation
+                  <span class="text-muted" style="font-weight:400;font-size:0.8rem">
+                    (optionnel)
+                  </span>
+                </label>
+                <input
+                  class="form-control"
+                  formControlName="writtenUrl"
+                  placeholder="Laisser vide — trouvée automatiquement depuis le titre">
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="cancel()">
+                  <i class="ri-arrow-left-line"></i> Annuler
+                </button>
+                <button type="submit" class="btn-submit" [disabled]="saving">
+                  <i class="ri-add-line"         *ngIf="!saving"></i>
+                  <i class="ri-loader-4-line spin" *ngIf="saving"></i>
+                  {{ saving ? 'Enregistrement...' : 'Ajouter la formation' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<div
+    class="sidebar-area"
+    [class.active]="classApplied"
+>
+    <ul class="ps-0 mb-0 list-unstyled">
+        <li>
+            <a routerLink="/recruiter-dashboard" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="ri-dashboard-line"></i>
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/post-job" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-add-circle-line"></i>
+                Publier une Offre
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/manage-jobs" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-file-list-line"></i>
+                Mes Offres
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/offre-statistiques" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-bar-chart-2-line"></i>
+                Statistiques des Offres
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/offre-recherche-avancee" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-search-2-line"></i>
+                Recherche Avancée
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/applicants" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-user-line"></i>
+                Applicants
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/candidatures" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-file-list-3-line"></i>
+                Liste Candidatures
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/messages" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-chat-1-line"></i>
+                Messages
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/profile" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-building-line"></i>
+                Company Profile
+            </a>
+        </li>
+        <li>
+            <a routerLink="/recruiter-dashboard/change-password" class="d-block position-relative" routerLinkActive="active">
+                <i class="ri-lock-line"></i>
+                Change Password
+            </a>
+        </li>
+        <li class="logout-item">
+            <button type="button" class="d-block position-relative logout-btn" (click)="logout()">
+                <i class="ri-logout-box-r-line"></i>
+                Logout
+            </button>
+        </li>
+    </ul>
+</div>
+
+<!-- Sidebar Button -->
+<div
+    class="sidebar-btn d-xl-none"
+    [class.active]="classApplied"
+>
+    <button (click)="toggleClass()">
+        <span>Menus</span>
+    </button>
+</div>

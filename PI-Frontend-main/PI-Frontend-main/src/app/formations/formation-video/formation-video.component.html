@@ -1,0 +1,37 @@
+<div class="video-page">
+  <div class="video-header">
+    <div class="container">
+      <button class="back-link" (click)="retour()">
+        <i class="ri-arrow-left-line"></i> Retour à la formation
+      </button>
+      <h2 *ngIf="formation">
+        <i class="ri-play-circle-line"></i>
+        {{ formation.titre }} — Formation vidéo
+      </h2>
+    </div>
+  </div>
+
+  <div class="text-center py-5" *ngIf="loading">
+    <span class="text-muted">Chargement...</span>
+  </div>
+
+  <div class="video-content" *ngIf="!loading && formation">
+    <div class="container-fluid px-0">
+      <app-formation-player
+        [formation]="formation"
+        [inscriptionId]="inscriptionId"
+        [candidatId]="candidatId"
+        [parcoursId]="parcoursId"
+        [niveau]="niveau"
+        [isAlreadyCompleted]="isAlreadyCompleted">
+      </app-formation-player>
+    </div>
+  </div>
+
+  <app-chatbot-formation
+    *ngIf="formation"
+    [formation]="formation"
+    [candidatId]="candidatId"
+    context="video">
+  </app-chatbot-formation>
+</div>

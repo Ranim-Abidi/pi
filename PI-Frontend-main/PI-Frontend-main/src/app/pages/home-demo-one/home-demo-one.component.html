@@ -1,0 +1,187 @@
+<!-- src/app/home-demo-one/home-demo-one.component.html -->
+<app-navbar />
+
+<app-homeone-banner />
+
+<!-- Section Offres d'emploi -->
+<section class="home-offres-area ptb-100">
+    <div class="container">
+        <div class="section-title">
+            <span class="sub-title">Offres d emploi</span>
+            <h2>Offres d emploi disponibles</h2>
+            <p>Decouvrez les offres actives et trouvez rapidement l opportunite qui vous correspond.</p>
+        </div>
+
+        <!-- OFFRES RECRUTEURS -->
+        <div class="offres-section">
+            <div class="section-header">
+                <h3><i class="ri-building-line"></i> Offres des recruteurs</h3>
+                <span class="section-line"></span>
+            </div>
+
+            <div class="home-offres-state" *ngIf="isLoadingOffres">
+                <div class="loading-spinner"></div>
+                <p>Chargement des offres des recruteurs...</p>
+            </div>
+
+            <div class="home-offres-state error" *ngIf="!isLoadingOffres && offresError">
+                {{ offresError }}
+            </div>
+
+            <div class="home-offres-grid" *ngIf="!isLoadingOffres && !offresError && offresDisponibles.length > 0">
+                <article class="home-offre-card recruiter-card" *ngFor="let item of offresDisponibles; trackBy: trackByOffreId">
+                    <div class="offre-card-header">
+                        <span class="offre-type type-recruiter">
+                            🏢 RECRUTEUR
+                        </span>
+                        <span class="offre-domain" [class]="'domain-' + getOffreDomaine(item)">
+                            {{ getDomainIcon(getOffreDomaine(item)) }} {{ getOffreDomaine(item) }}
+                        </span>
+                        <span class="offre-date">Publiée: {{ formatOffreDate(item.datePublication) }}</span>
+                    </div>
+
+                    <h3>{{ getOffreTitle(item) }}</h3>
+                    <p class="offre-company"><i class="ri-building-line"></i> {{ getOffreEntreprise(item) }}</p>
+                    <p class="offre-description">{{ getOffreDescription(item) }}</p>
+
+                    <div class="offre-details">
+                        <span class="detail-badge"><i class="ri-briefcase-line"></i> {{ getOffreTypeContrat(item) }}</span>
+                        <span class="detail-badge" *ngIf="getOffreSalary(item) !== 'À négocier'"><i class="ri-money-euro-circle-line"></i> {{ getOffreSalary(item) }} DT/mois</span>
+                    </div>
+
+                    <div class="offre-skills" *ngIf="getOffreCompetences(item).length > 0">
+                        <span class="skill-tag" *ngFor="let skill of getOffreCompetences(item).slice(0, 3)">
+                            {{ skill }}
+                        </span>
+                        <span class="skill-more" *ngIf="getOffreCompetences(item).length > 3">
+                            +{{ getOffreCompetences(item).length - 3 }}
+                        </span>
+                    </div>
+
+                    <div class="offre-card-footer">
+                        <span>
+                            <i class="ri-calendar-check-line"></i>
+                            Limite: {{ formatOffreDate(item.dateLimite) }}
+                        </span>
+                        <a [routerLink]="['/job-details', item.id]">Voir plus →</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="home-offres-state" *ngIf="!isLoadingOffres && !offresError && offresDisponibles.length === 0">
+                <p>Aucune offre recruteur disponible pour le moment.</p>
+            </div>
+        </div>
+
+        <!-- OFFRES STATIQUES (DÉMO) -->
+        <div class="offres-section demo-section">
+            <div class="section-header">
+                <h3><i class="ri-star-line"></i> Offres</h3>
+                <span class="section-line"></span>
+                <span class="demo-badge">🎯</span>
+            </div>
+
+            <div class="home-offres-state" *ngIf="isLoadingStaticOffres">
+                <div class="loading-spinner"></div>
+                <p>Chargement des offres de démonstration...</p>
+            </div>
+
+            <div class="home-offres-state error" *ngIf="!isLoadingStaticOffres && staticOffresError">
+                {{ staticOffresError }}
+            </div>
+
+            <div class="home-offres-grid" *ngIf="!isLoadingStaticOffres && !staticOffresError && offresStatiques.length > 0">
+                <article class="home-offre-card demo-card" *ngFor="let item of offresStatiques; trackBy: trackByStaticOffreId">
+                    <div class="offre-card-header">
+                        <span class="offre-type type-demo">
+                            📦 DÉMO
+                        </span>
+                        <span class="offre-domain" [class]="'domain-' + item.domaine">
+                            {{ getDomainIcon(item.domaine) }} {{ item.domaine }}
+                        </span>
+                        <span class="offre-date">Publiée: {{ formatOffreDate(item.datePublication) }}</span>
+                    </div>
+
+                    <h3>{{ item.titre }}</h3>
+                    <p class="offre-company"><i class="ri-building-line"></i> {{ item.entreprise }}</p>
+                    <p class="offre-location"><i class="ri-map-pin-line"></i> {{ item.location }}</p>
+                    <p class="offre-description">{{ getOffreDescription(item) }}</p>
+
+                    <div class="offre-details">
+                        <span class="detail-badge"><i class="ri-briefcase-line"></i> {{ item.typeContrat }}</span>
+                        <span class="detail-badge"><i class="ri-money-euro-circle-line"></i> {{ item.salary }} DT/mois</span>
+                    </div>
+
+                    <div class="offre-skills" *ngIf="item.competencesRequises.length > 0">
+                        <span class="skill-tag" *ngFor="let skill of item.competencesRequises.slice(0, 3)">
+                            {{ skill }}
+                        </span>
+                        <span class="skill-more" *ngIf="item.competencesRequises.length > 3">
+                            +{{ item.competencesRequises.length - 3 }}
+                        </span>
+                    </div>
+
+                    <div class="offre-card-footer">
+                        <span>
+                            <i class="ri-calendar-check-line"></i>
+                            Limite: {{ formatOffreDate(item.dateLimite) }}
+                        </span>
+                        <a [routerLink]="['/job-details']" [queryParams]="{id: item.id}">Voir plus →</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="home-offres-state" *ngIf="!isLoadingStaticOffres && !staticOffresError && offresStatiques.length === 0">
+                <p>Aucune offre de démonstration disponible pour le moment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Entretiens Tests -->
+<section class="public-tests-area ptb-100">
+    <div class="container">
+        <div class="section-title">
+            <span class="sub-title">Entretiens Test</span>
+            <h2>Passez nos entretiens tests en ligne</h2>
+            <p>Selectionnez un entretien, testez vos competences et comparez votre niveau en quelques minutes.</p>
+        </div>
+
+        <div class="public-tests-state" *ngIf="isLoadingPublicTests">
+            Chargement des entretiens tests...
+        </div>
+
+        <div class="public-tests-state error" *ngIf="!isLoadingPublicTests && publicTestsError">
+            {{ publicTestsError }}
+        </div>
+
+        <div class="public-tests-grid" *ngIf="!isLoadingPublicTests && !publicTestsError && publicTestEntretiens.length > 0">
+            <article class="public-test-card" *ngFor="let item of publicTestEntretiens; trackBy: trackByEntretienId">
+                <div class="test-cover">
+                    <img [src]="getEntretienPhoto(item)" [alt]="getEntretienTitle(item)">
+                    <span class="test-domaine">{{ getEntretienDomaine(item) }}</span>
+                </div>
+
+                <div class="test-body">
+                    <div class="test-date">
+                        <i class="ri-calendar-event-line"></i>
+                        {{ formatEntretienDate(item.dateEntretien) }}
+                    </div>
+
+                    <h3>{{ getEntretienTitle(item) }}</h3>
+                    <p>{{ getEntretienDescription(item) }}</p>
+
+                    <a class="test-action" [routerLink]="['/entretiens/test', item.id]">Commencer le test</a>
+                </div>
+            </article>
+        </div>
+
+        <div class="public-tests-state" *ngIf="!isLoadingPublicTests && !publicTestsError && publicTestEntretiens.length === 0">
+            Aucun entretien test disponible pour le moment.
+        </div>
+    </div>
+</section>
+
+<app-footer />
+
+<ngx-scrolltop />

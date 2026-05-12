@@ -1,0 +1,125 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    height: 64px;
+    background: #eff6ff;
+    border-bottom: 1px solid #bfdbfe;
+    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 999;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    justify-content: space-between;
+    margin-left: 0;
+}
+
+.header-title {
+    display: flex;
+    flex-direction: column;
+
+    .page-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e3a5f;
+        line-height: 1.2;
+    }
+
+    .breadcrumb {
+        font-size: 11px;
+        color: #93c5fd;
+
+        .sep { margin: 0 4px; }
+
+        .active-crumb {
+            color: #22c55e;
+            font-weight: 500;
+        }
+    }
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notif-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+
+    i { font-size: 18px; color: #3b82f6; }
+
+    &:hover { background: #bfdbfe; }
+
+    .notif-dot {
+        position: absolute;
+        top: 8px;
+        right: 9px;
+        width: 7px;
+        height: 7px;
+        background: #22c55e;
+        border-radius: 50%;
+        border: 2px solid #eff6ff;
+    }
+}
+
+.divider {
+    width: 1px;
+    height: 26px;
+    background: #bfdbfe;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e3a5f;
+            white-space: nowrap;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: #93c5fd;
+        }
+    }
+}

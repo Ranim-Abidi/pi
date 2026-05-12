@@ -1,0 +1,38 @@
+# JVM / Maven
+**/target/
+!**/.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / Angular
+**/node_modules/
+**/dist/
+**/.angular/cache/
+npm-debug.log*
+yarn-error.log*
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+
+# IDEs
+.idea/
+**/*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Secrets & local overrides
+.env
+.env.*
+**/application-local.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+coverage/

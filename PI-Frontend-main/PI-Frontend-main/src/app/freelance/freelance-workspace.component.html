@@ -1,0 +1,651 @@
+<div class="freelance-wrapper">
+  <!-- Mode Badge -->
+  <div class="fl-espace-badge">
+    {{ mode === 'CLIENT_FREELANCE' ? '🏢 Espace Client' : '💻 Espace Freelancer' }}
+  </div>
+
+  <div class="fl-page-header hero-section">
+    <div>
+      <h1 class="fl-title">Workspaces & Contrats</h1>
+      <p class="fl-subtitle">Gérez vos missions, paiements Escrow et discutez en direct.</p>
+    </div>
+    <div class="fl-header-actions">
+      <button class="fl-back-btn" *ngIf="selectedContract != null" (click)="goBack()">← Retour</button>
+      <button class="fl-back-btn" *ngIf="selectedContract == null" routerLink="/freelance">← Dashboard</button>
+    </div>
+  </div>
+
+  <div *ngIf="workspaceNotice"
+       [class.fl-success-inline]="workspaceNoticeType === 'success'"
+       [class.fl-error-banner]="workspaceNoticeType === 'error'"
+       style="margin-bottom: 12px;">
+    {{ workspaceNotice }}
+  </div>
+
+  <!-- LIST VIEW: When no contract is selected -->
+  <ng-container *ngIf="!selectedContract">
+    <div class="fl-section-title">
+      <span>📄</span> Mes Contrats
+    </div>
+    
+    <div *ngIf="myContracts.length === 0" class="fl-empty">
+      <p>Vous n'avez aucun contrat actif pour le moment.</p>
+    </div>
+
+    <div class="fl-features-grid" style="margin-bottom: 2rem;">
+      <div class="fl-feature-card fl-feature-clickable" *ngFor="let c of myContracts" (click)="selectContract(c)">
+        <div class="fl-feature-icon">
+          {{ c.status === 'ACTIVE' ? '🟢' : c.status === 'PROPOSED' ? '🟡' : c.status === 'COMPLETED' ? '🏆' : '⚪' }}
+        </div>
+        <div class="fl-feature-title">{{ c.missionTitre }}</div>
+        <div class="fl-feature-sub" style="margin-top: 8px;">
+          <strong>Client :</strong> {{ c.clientNom }} <br>
+          <strong>Freelancer :</strong> {{ c.freelancerNom }} <br>
+          <strong>Montant :</strong> {{ c.amount }} TND <br>
+          <span style="color: var(--fl-primary); font-weight: 500;">Status : {{ c.status }}</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- WORKSPACE VIEW: When a contract is selected -->
+  <div class="fl-workspace-container" *ngIf="selectedContract">
+    
+    <!-- Left Column: Contract & Escrow Details -->
+    <div class="fl-workspace-details">
+      <div class="fl-card-title">Détails du Contrat</div>
+      <div class="fl-contract-meta" id="contract-pdf-content">
+        <p><strong>Mission :</strong> {{ selectedContract.missionTitre }}</p>
+        <p><strong>Budget Convenu :</strong> <span class="fl-budget-badge">{{ selectedContract.amount }} TND</span></p>
+        <p><strong>Frais plateforme (10%) :</strong> {{ getPlatformFee() }} TND</p>
+        <p><strong>Net freelancer :</strong> {{ getFreelancerNet() }} TND</p>
+        
+        <div class="fl-smart-contract-block" *ngIf="selectedContract.smartContractHash">
+          <div class="sc-header">🔐 Smart Contract Vérifié</div>
+          <div class="sc-hash">Hash: {{ selectedContract.smartContractHash }}</div>
+          <div class="sc-terms">{{ selectedContract.terms }}</div>
+        </div>
+        <p *ngIf="!selectedContract.smartContractHash"><strong>Termes :</strong> {{ selectedContract.terms }}</p>
+
+        <!-- Contract completion ratings -->
+        <div class="fl-side-info-card"
+             *ngIf="selectedContract.status === 'COMPLETED'"
+             style="margin: 16px 0;">
+          <div class="fl-side-info-title">⭐ Ratings (Terminé)</div>
+
+          <div class="fl-side-info-item">
+            <span>Client → Freelancer</span>
+            <strong *ngIf="selectedContract.clientRating != null">
+              Note : {{ selectedContract.clientRating }}/5
+            </strong>
+            <ng-container *ngIf="selectedContract.clientRating == null">
+              <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+                <select [(ngModel)]="clientRatingDraft" class="fl-input" style="width: 130px;">
+                  <option *ngFor="let n of [1,2,3,4,5]" [ngValue]="n">{{ n }}</option>
+                </select>
+                <button class="fl-btn fl-btn-primary" (click)="submitClientRating()" style="width:auto; padding: 10px 14px;">
+                  Noter
+                </button>
+              </div>
+              <textarea class="fl-textarea"
+                        [(ngModel)]="clientRatingCommentDraft"
+                        rows="3"
+                        placeholder="Commentaire (optionnel)"
+                        style="margin-top:10px;"></textarea>
+            </ng-container>
+          </div>
+
+          <div class="fl-divider"></div>
+
+          <div class="fl-side-info-item">
+            <span>Freelancer → Client</span>
+            <strong *ngIf="selectedContract.freelancerRating != null">
+              Note : {{ selectedContract.freelancerRating }}/5
+            </strong>
+            <ng-container *ngIf="selectedContract.freelancerRating == null">
+              <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+                <select [(ngModel)]="freelancerRatingDraft" class="fl-input" style="width: 130px;">
+                  <option *ngFor="let n of [1,2,3,4,5]" [ngValue]="n">{{ n }}</option>
+                </select>
+                <button class="fl-btn fl-btn-primary" (click)="submitFreelancerRating()" style="width:auto; padding: 10px 14px;">
+                  Noter
+                </button>
+              </div>
+              <textarea class="fl-textarea"
+                        [(ngModel)]="freelancerRatingCommentDraft"
+                        rows="3"
+                        placeholder="Commentaire (optionnel)"
+                        style="margin-top:10px;"></textarea>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Digital Signatures Section -->
+        <div class="fl-signatures-grid" *ngIf="selectedContract.status !== 'PROPOSED'">
+          <div class="fl-signature-box">
+            <label>Signature Client</label>
+            <div class="digital-sign-display" [class.signed]="selectedContract.clientAccepted">
+              <img *ngIf="selectedContract.clientSignature" [src]="selectedContract.clientSignature" alt="Signature Client">
+              <span *ngIf="!selectedContract.clientSignature" class="cursive-placeholder">{{ selectedContract.clientNom }}</span>
+            </div>
+            <span class="sign-date" *ngIf="selectedContract.clientAccepted">Signé le {{ selectedContract.createdAt | date:'shortDate' }}</span>
+          </div>
+          <div class="fl-signature-box">
+            <label>Signature Freelancer</label>
+            <div class="digital-sign-display" [class.signed]="selectedContract.freelancerAccepted">
+              <img *ngIf="selectedContract.freelancerSignature" [src]="selectedContract.freelancerSignature" alt="Signature Freelancer">
+              <span *ngIf="!selectedContract.freelancerSignature" class="cursive-placeholder">{{ selectedContract.freelancerNom }}</span>
+            </div>
+            <span class="sign-date" *ngIf="selectedContract.freelancerAccepted">Signé le {{ selectedContract.createdAt | date:'shortDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-timeline-box" *ngIf="getAuditTimeline().length > 0">
+        <div class="fl-escrow-header">🗓️ Contract Timeline</div>
+        <div class="fl-timeline-list">
+          <div class="fl-timeline-item" *ngFor="let ev of getAuditTimeline()">
+            <div class="fl-timeline-dot" [ngClass]="'tone-' + ev.tone">{{ ev.icon }}</div>
+            <div class="fl-timeline-content">
+              <div class="fl-timeline-date" *ngIf="ev.dateText">{{ ev.dateText }}</div>
+              <div class="fl-timeline-label">{{ ev.label }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-pdf-actions" style="margin-top: 15px;">
+        <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="isExportingPDF" *ngIf="selectedContract.smartContractHash">
+          <span *ngIf="!isExportingPDF">📥 Télécharger Contrat (PDF)</span>
+          <span *ngIf="isExportingPDF">⏳ Génération du PDF...</span>
+        </button>
+      </div>
+
+      <div class="fl-escrow-box">
+        <div class="fl-escrow-header">💰 Sécurité Escrow</div>
+        <div class="fl-escrow-stats">
+          <div class="escrow-stat">
+            <label>En Attente (Escrow)</label>
+            <div class="escrow-value escrow-pending">{{ selectedContract.inEscrow || 0 }} TND</div>
+          </div>
+          <div class="escrow-stat">
+            <label>Déjà Payé (Released)</label>
+            <div class="escrow-value escrow-paid">{{ selectedContract.totalPaid || 0 }} TND</div>
+          </div>
+        </div>
+        
+        <div class="fl-financial-analytics" style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+          <apx-chart
+            [series]="chartOptions.series"
+            [chart]="chartOptions.chart"
+            [plotOptions]="chartOptions.plotOptions"
+            [labels]="chartOptions.labels"
+            [colors]="chartOptions.colors"
+            [stroke]="chartOptions.stroke"
+          ></apx-chart>
+        </div>
+
+        <!-- Actions Client -->
+        <div class="fl-contract-actions" *ngIf="mode === 'CLIENT_FREELANCE'">
+          <button class="fl-btn fl-btn-primary" 
+                  *ngIf="selectedContract.status === 'ACTIVE' && selectedContract.inEscrow < selectedContract.amount"
+                  (click)="fundEscrow(selectedContract.id)">
+            🔒 Financer Escrow
+          </button>
+
+          <button class="fl-btn fl-btn-outline" 
+                  *ngIf="selectedContract.status === 'PROPOSED' && !selectedContract.clientAccepted"
+                  (click)="acceptContract()">
+            ✍️ Signer le Contrat
+          </button>
+
+          <p *ngIf="selectedContract.clientAccepted && !selectedContract.freelancerAccepted" style="color: #10b981; font-weight: 500;">
+            ✓ Vous avez signé. En attente de la signature du freelancer.
+          </p>
+          
+          <button class="fl-btn fl-btn-success" 
+                  *ngIf="selectedContract.status === 'ACTIVE' && selectedContract.inEscrow > 0"
+                  (click)="releasePayment(selectedContract.id)">
+            ✅ Approuver & Payer
+          </button>
+          <button class="fl-btn fl-btn-secondary"
+                  *ngIf="selectedContract.status === 'ACTIVE'"
+                  (click)="pauseContract(selectedContract.id)">
+            ⏸️ Mettre en pause
+          </button>
+          <button class="fl-btn fl-btn-secondary"
+                  *ngIf="selectedContract.status === 'PAUSED'"
+                  (click)="resumeContract(selectedContract.id)">
+            ▶️ Reprendre
+          </button>
+          <button class="fl-btn fl-btn-danger"
+                  *ngIf="selectedContract.status !== 'COMPLETED' && selectedContract.status !== 'CANCELLED'"
+                  (click)="cancelContract(selectedContract.id)">
+            🛑 Annuler contrat
+          </button>
+        </div>
+
+        <!-- Actions Freelancer -->
+        <div class="fl-contract-actions" *ngIf="mode === 'FREELANCER'">
+          <button class="fl-btn fl-btn-primary" 
+                  *ngIf="selectedContract.status === 'PROPOSED' && !selectedContract.freelancerAccepted"
+                  (click)="acceptContract()">
+            🤝 Accepter le Contrat
+          </button>
+          <p *ngIf="selectedContract.freelancerAccepted && !selectedContract.clientAccepted" style="color: #10b981; font-weight: 500;">
+            ✓ Contrat signé ! En attente de la signature du client.
+          </p>
+          <p *ngIf="selectedContract.status === 'ACTIVE' && selectedContract.inEscrow > 0" style="color: #10b981; font-weight: 500;">
+            ✓ Fonds sécurisés. Vous pouvez travailler.
+          </p>
+          <button class="fl-btn fl-btn-secondary"
+                  *ngIf="selectedContract.status === 'ACTIVE'"
+                  (click)="pauseContract(selectedContract.id)">
+            ⏸️ Demander pause
+          </button>
+          <button class="fl-btn fl-btn-secondary"
+                  *ngIf="selectedContract.status === 'PAUSED'"
+                  (click)="resumeContract(selectedContract.id)">
+            ▶️ Reprendre
+          </button>
+        </div>
+      </div>
+
+      <div class="fl-milestones-box">
+        <div class="fl-escrow-header">🧾 Facturation & Historique</div>
+        <div class="fl-milestones-list">
+          <div *ngIf="invoicesForSelectedContract.length === 0" class="fl-empty-text">Aucune facture générée pour ce contrat pour le moment.</div>
+          <div class="fl-milestone-item" *ngFor="let inv of invoicesForSelectedContract">
+            <div class="m-header">
+              <span class="m-title">{{ inv.invoiceNumber }}</span>
+              <span class="m-status"> {{ inv.status }} </span>
+            </div>
+            <div class="m-footer">
+              <span class="m-amount">{{ inv.totalAmount }} TND</span>
+              <span class="m-date">{{ inv.createdAt | date:'short' }}</span>
+              <button class="fl-btn fl-btn-secondary" (click)="downloadInvoicePdf(inv.id)">Télécharger PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Milestones Section -->
+      <div class="fl-milestones-box">
+        <div class="fl-escrow-header">📍 Milestones Automatisés</div>
+        
+        <div class="fl-milestones-list">
+          <div *ngIf="!selectedContract.milestones || selectedContract.milestones.length === 0" class="fl-empty-text">
+            Aucun milestone défini.
+          </div>
+          <div class="fl-milestone-item" *ngFor="let m of selectedContract.milestones">
+            <div class="m-header">
+              <span class="m-title">{{ m.title }}</span>
+              <span class="m-status" [ngClass]="'status-' + m.status.toLowerCase()">{{ m.status }}</span>
+            </div>
+            <div class="m-desc">{{ m.description }}</div>
+            <div class="m-desc" *ngIf="m.submissionNote"><strong>Livrable :</strong> {{ m.submissionNote }}</div>
+            <div class="m-desc" *ngIf="m.deliveryUrl">
+              <strong>Lien :</strong>
+              <a [href]="m.deliveryUrl" target="_blank" rel="noopener noreferrer">{{ m.deliveryUrl }}</a>
+            </div>
+            <div class="m-desc" *ngIf="m.clientFeedback"><strong>Feedback client :</strong> {{ m.clientFeedback }}</div>
+            <div class="m-footer">
+              <span class="m-amount">{{ m.amount }} TND</span>
+              <span class="m-date" *ngIf="m.dueDate">Échéance: {{ m.dueDate | date:'shortDate' }}</span>
+              <span class="m-date" *ngIf="m.submittedAt">Soumis: {{ m.submittedAt | date:'short' }}</span>
+              <span class="m-date" *ngIf="m.approvedAt">Approuvé: {{ m.approvedAt | date:'short' }}</span>
+              <button class="fl-btn fl-btn-secondary fl-btn-sm" 
+                      *ngIf="mode === 'CLIENT_FREELANCE' && m.status === 'SUBMITTED'" 
+                      (click)="approveMilestone(m.id)" style="margin-left: 10px;">
+                ✅ Approuver
+              </button>
+              <span class="m-date" *ngIf="mode === 'CLIENT_FREELANCE' && m.status === 'APPROVED'" style="margin-left: 10px; color:#1d4ed8; font-weight:600;">
+                Paiement automatique après approbation
+              </span>
+              <button class="fl-btn fl-btn-secondary fl-btn-sm" 
+                      *ngIf="mode === 'CLIENT_FREELANCE' && m.status === 'SUBMITTED'" 
+                      (click)="requestRevision(m.id)" style="margin-left: 10px;">
+                🔄 Demander Révision
+              </button>
+              <button class="fl-btn fl-btn-primary fl-btn-sm"
+                      *ngIf="mode === 'FREELANCER' && (m.status === 'PENDING' || m.status === 'FUNDED' || m.status === 'CHANGES_REQUESTED')"
+                      (click)="submitMilestone(m.id)" style="margin-left: 10px;">
+                📤 Soumettre
+              </button>
+              <button class="fl-btn fl-btn-secondary fl-btn-sm"
+                      *ngIf="mode === 'FREELANCER' && m.status === 'SUBMITTED'"
+                      disabled style="margin-left: 10px; opacity: 0.9;">
+                ✅ Submitted
+              </button>
+              <button class="fl-btn fl-btn-success fl-btn-sm"
+                      *ngIf="mode === 'FREELANCER' && m.status === 'PAID'"
+                      disabled style="margin-left: 10px; opacity: 0.95;">
+                🎉 Done
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Add Milestone Form (Client Only) -->
+        <div class="fl-add-milestone-form" *ngIf="mode === 'CLIENT_FREELANCE'">
+          <h4>Ajouter un Milestone</h4>
+          <input type="text" [(ngModel)]="newMilestone.title" placeholder="Titre (ex: Phase 1: Design)" class="fl-input">
+          <input type="text" [(ngModel)]="newMilestone.description" placeholder="Description courte" class="fl-input">
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="number" [(ngModel)]="newMilestone.amount" placeholder="Montant" class="fl-input" style="flex: 1;">
+            <input type="date" [(ngModel)]="newMilestone.dueDate" class="fl-input" style="flex: 1;">
+          </div>
+          <button class="fl-btn fl-btn-secondary" style="margin-top: 10px; width: 100%;" (click)="addMilestone()">
+            + Créer Milestone
+          </button>
+        </div>
+      </div>
+
+      <!-- Dispute panel -->
+      <div class="fl-milestones-box">
+        <div class="fl-escrow-header">⚖️ Litiges</div>
+        <div class="fl-milestones-list">
+          <div *ngIf="disputes.length === 0" class="fl-empty-text">Aucun litige ouvert.</div>
+          <div class="fl-milestone-item" *ngFor="let d of disputes">
+            <div class="m-header">
+              <span class="m-title">{{ d.openedByName }}</span>
+              <span class="m-status">{{ d.status }}</span>
+            </div>
+            <div class="m-desc">{{ d.reason }}</div>
+            <div class="m-footer">
+              <span class="m-date">{{ d.createdAt | date:'short' }}</span>
+              <div class="fl-action-buttons">
+                <button class="fl-btn fl-btn-secondary fl-btn-sm" (click)="resolveDispute(d.id, 'CLIENT')">Résoudre Client</button>
+                <button class="fl-btn fl-btn-secondary fl-btn-sm" (click)="resolveDispute(d.id, 'FREELANCER')">Résoudre Freelancer</button>
+                <button class="fl-btn fl-btn-danger fl-btn-sm" (click)="resolveDispute(d.id, 'CLOSED')">Clore</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fl-add-milestone-form" *ngIf="selectedContract?.status !== 'COMPLETED' && selectedContract?.status !== 'CANCELLED'">
+          <h4>Ouvrir un litige</h4>
+          <input type="text" [(ngModel)]="disputeReason" class="fl-input" placeholder="Raison du litige">
+          <textarea [(ngModel)]="disputeEvidence" class="fl-textarea" rows="2" placeholder="Notes / preuves"></textarea>
+          <button class="fl-btn fl-btn-danger" style="margin-top:10px;width:100%;" (click)="openDispute()">Ouvrir le litige</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Live Chat (Optimized) -->
+    <div class="fl-workspace-chat">
+      <div class="fl-chat-header">
+        <div class="chat-header-info">
+          <span class="chat-icon">💬</span>
+          <div>
+            <div class="chat-title">Canal de Communication</div>
+            <div class="chat-subtitle" *ngIf="selectedRoom">
+              {{ selectedContract?.missionTitre }}
+            </div>
+          </div>
+        </div>
+        <div class="chat-status-dot" [class.active]="selectedRoom"></div>
+      </div>
+      
+      <div class="fl-chat-box" id="fl-chat-box">
+        <div *ngIf="!selectedRoom" class="fl-empty-chat">
+          <span class="empty-chat-icon">📭</span>
+          <p>Sélectionnez un contrat pour accéder au chat.</p>
+        </div>
+        
+        <div *ngIf="selectedRoom && messages.length === 0" class="fl-empty-chat">
+          <span class="empty-chat-icon">🤝</span>
+          <p>Aucun message encore. Commencez la conversation!</p>
+        </div>
+        
+        <ng-container *ngFor="let msg of messages; let i = index">
+          <!-- Date separator -->
+          <div class="fl-date-separator" 
+               *ngIf="i === 0 || (msg.createdAt | date:'shortDate') !== (messages[i-1].createdAt | date:'shortDate')">
+            <span>{{ msg.createdAt | date:'mediumDate' }}</span>
+          </div>
+          
+          <div class="fl-message-wrapper"
+               [class.fl-message-mine]="(mode === 'CLIENT_FREELANCE' && msg.senderId === selectedContract?.clientId) || 
+                                        (mode === 'FREELANCER' && msg.senderId === selectedContract?.freelancerId)">
+            <!-- Avatar -->
+            <div class="fl-msg-avatar" 
+                 *ngIf="(mode === 'CLIENT_FREELANCE' && msg.senderId !== selectedContract?.clientId) || 
+                        (mode === 'FREELANCER' && msg.senderId !== selectedContract?.freelancerId)">
+              {{ msg.senderNom?.charAt(0) | uppercase }}
+            </div>
+            
+            <div class="fl-message-bubble">
+              <div class="fl-message-author" 
+                   *ngIf="i === 0 || messages[i-1].senderId !== msg.senderId">
+                {{ msg.senderNom }}
+              </div>
+              <div class="fl-message-content">{{ msg.content }}</div>
+              <div class="fl-message-meta">
+                <span class="fl-message-time">{{ msg.createdAt | date:'HH:mm' }}</span>
+                <span class="fl-msg-read" *ngIf="(mode === 'CLIENT_FREELANCE' && msg.senderId === selectedContract?.clientId) || 
+                                                  (mode === 'FREELANCER' && msg.senderId === selectedContract?.freelancerId)">
+                  ✓✓
+                </span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+        <!-- Typing Indicator -->
+        <div class="fl-typing-indicator" *ngIf="isTyping">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+      
+      <!-- Emoji Picker -->
+      <div class="fl-emoji-picker" *ngIf="showEmojiPicker">
+        <span *ngFor="let e of EMOJIS" (click)="addEmoji(e)" class="emoji-btn">{{ e }}</span>
+      </div>
+      
+      <div class="fl-chat-input-area" *ngIf="selectedRoom">
+        <button class="emoji-toggle-btn" (click)="toggleEmojiPicker()" title="Emojis">😊</button>
+        <input type="text" 
+               [(ngModel)]="newMessage" 
+               placeholder="Écrivez un message..." 
+               (keyup.enter)="sendMessage()"
+               (input)="onInputChange()"
+               class="fl-chat-input">
+        <button class="fl-btn fl-btn-primary fl-send-btn" 
+                (click)="sendMessage()" 
+                [disabled]="!newMessage.trim()">
+          <span>➤</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upwork-Style Payment Modal -->
+  <div class="fl-modal-overlay" *ngIf="showStripeModal">
+    <div class="uw-payment-modal" [class.processing]="stripeProcessing">
+      <div class="uw-modal-header">
+        <h2>Fund Escrow</h2>
+        <button class="uw-close-btn" (click)="closeStripeModal()" *ngIf="!stripeProcessing">×</button>
+      </div>
+      
+      <div class="uw-modal-body" *ngIf="!stripeProcessing && !stripeSuccess">
+        <div class="uw-amount-summary">
+          <div class="uw-summary-row">
+            <span>Milestone Amount</span>
+            <span>{{ stripeAmount | number:'1.2-2' }} TND</span>
+          </div>
+          <div class="uw-summary-row">
+            <span>Marketplace Fee (3%)</span>
+            <span>{{ (stripeAmount * 0.03) | number:'1.2-2' }} TND</span>
+          </div>
+          <div class="uw-summary-total">
+            <span>Total to Pay</span>
+            <span>{{ (stripeAmount * 1.03) | number:'1.2-2' }} TND</span>
+          </div>
+        </div>
+
+        <div *ngIf="stripeError" class="uw-error-banner">
+          {{ stripeError }}
+        </div>
+
+        <h3 class="uw-section-title">Billing Method</h3>
+        
+        <div class="uw-payment-methods">
+          <label class="uw-method-card" [class.selected]="paymentMethod === 'card'">
+            <input type="radio" name="payMethod" value="card" [(ngModel)]="paymentMethod">
+            <span class="uw-method-name">Payment Card</span>
+            <div class="uw-method-icons">
+              <span class="uw-icon-visa">Visa</span>
+              <span class="uw-icon-mc">MC</span>
+            </div>
+          </label>
+          <label class="uw-method-card" [class.selected]="paymentMethod === 'paypal'">
+            <input type="radio" name="payMethod" value="paypal" [(ngModel)]="paymentMethod">
+            <span class="uw-method-name">PayPal</span>
+            <span class="uw-icon-paypal">PayPal</span>
+          </label>
+        </div>
+
+        <div class="uw-card-form" *ngIf="paymentMethod === 'card'">
+          <div class="uw-form-row">
+            <div class="uw-form-group">
+              <label>First Name</label>
+              <input type="text" class="uw-input" [(ngModel)]="ccFirstName" placeholder="John">
+            </div>
+            <div class="uw-form-group">
+              <label>Last Name</label>
+              <input type="text" class="uw-input" [(ngModel)]="ccLastName" placeholder="Doe">
+            </div>
+          </div>
+          
+          <div class="uw-form-group">
+            <label>Card Number</label>
+            <input type="text" class="uw-input uw-card-input" [(ngModel)]="ccNumber" placeholder="0000 0000 0000 0000">
+          </div>
+          
+          <div class="uw-form-row">
+            <div class="uw-form-group">
+              <label>Expires</label>
+              <input type="text" class="uw-input" [(ngModel)]="ccExpiry" placeholder="MM/YY">
+            </div>
+            <div class="uw-form-group">
+              <label>Security Code</label>
+              <input type="text" class="uw-input" [(ngModel)]="ccCvc" placeholder="CVV">
+            </div>
+          </div>
+        </div>
+
+        <div class="uw-simulation-form">
+          <label>Simulation Network Response</label>
+          <select [(ngModel)]="stripeToken" class="uw-select">
+            <option value="">-- Choose a simulation token --</option>
+            <option value="tok_success">Simulate Success (tok_success)</option>
+            <option value="tok_fail">Simulate Card Declined (tok_fail)</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Processing State -->
+      <div class="uw-processing-state" *ngIf="stripeProcessing && !stripeSuccess">
+        <div class="uw-spinner"></div>
+        <p>Processing payment securely...</p>
+      </div>
+      
+      <!-- Success State -->
+      <div class="uw-success-state" *ngIf="stripeSuccess">
+        <div class="uw-success-icon">✓</div>
+        <h2>Payment Successful</h2>
+        <p>Funds have been safely deposited in Escrow.</p>
+      </div>
+      
+      <div class="uw-modal-footer" *ngIf="!stripeProcessing && !stripeSuccess">
+        <button class="uw-btn-cancel" (click)="closeStripeModal()">Cancel</button>
+        <button class="uw-btn-primary" (click)="processStripePayment()" [disabled]="!stripeToken || (paymentMethod === 'card' && (!ccNumber || !ccFirstName))">
+          Fund Contract
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Signature Modal -->
+  <div class="fl-modal-overlay" *ngIf="showSignModal">
+    <div class="fl-modal-card signature-modal">
+      <div class="fl-card-title">📝 Sign Contract</div>
+      <p class="fl-modal-desc">Please sign below to digitally execute this agreement.</p>
+      
+      <div class="uw-signature-tabs">
+        <button class="uw-tab-btn" [class.active]="signMode === 'type'" (click)="signMode = 'type'">Type Name</button>
+        <button class="uw-tab-btn" [class.active]="signMode === 'draw'" (click)="switchToDrawMode()">Draw Signature</button>
+      </div>
+
+      <div class="uw-signature-content" *ngIf="signMode === 'type'">
+        <label>Type your full name</label>
+        <input type="text" class="uw-input" [(ngModel)]="typedSignature" placeholder="John Doe">
+        <div class="uw-typed-preview" *ngIf="typedSignature">
+          {{ typedSignature }}
+        </div>
+      </div>
+
+      <div class="uw-signature-content" *ngIf="signMode === 'draw'">
+        <div class="signature-pad-container">
+          <canvas #sigPad width="400" height="200"></canvas>
+        </div>
+        <button class="uw-btn-link" (click)="clearSignature()">Clear Canvas</button>
+      </div>
+      
+      <div class="fl-modal-actions uw-signature-actions">
+        <button class="uw-btn-cancel" (click)="showSignModal = false">Cancel</button>
+        <button class="uw-btn-primary" (click)="confirmSignature()">Sign & Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone Submit Modal -->
+  <div class="fl-modal-overlay" *ngIf="showMilestoneSubmitModal">
+    <div class="fl-modal-card">
+      <div class="fl-card-title">📤 Soumettre le travail</div>
+      <p class="fl-modal-desc">Ajoutez un résumé de livraison et, si possible, un lien de livrable.</p>
+      <div class="fl-form-group">
+        <label class="fl-label">Description de livraison</label>
+        <textarea class="fl-textarea"
+                  rows="4"
+                  [(ngModel)]="milestoneSubmissionNote"
+                  placeholder="Ex: Modèle final livré + documentation + test d'intégration"></textarea>
+      </div>
+      <div class="fl-form-group">
+        <label class="fl-label">Lien de livraison (optionnel)</label>
+        <input class="fl-input"
+               type="url"
+               [(ngModel)]="milestoneDeliveryUrl"
+               placeholder="https://github.com/... ou https://drive.google.com/...">
+      </div>
+      <div class="fl-modal-actions uw-signature-actions">
+        <button class="uw-btn-cancel" (click)="closeMilestoneSubmitModal()">Annuler</button>
+        <button class="uw-btn-primary"
+                (click)="confirmMilestoneSubmission()"
+                [disabled]="!milestoneSubmissionNote.trim() && !milestoneDeliveryUrl.trim()">
+          Soumettre
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone Review Modal -->
+  <div class="fl-modal-overlay" *ngIf="showMilestoneReviewModal">
+    <div class="fl-modal-card">
+      <div class="fl-card-title">{{ reviewMode === 'APPROVE' ? '✅ Approuver le milestone' : '🔄 Demander une révision' }}</div>
+      <p class="fl-modal-desc">Ajoutez un feedback pour garder un historique clair côté client/freelancer.</p>
+      <div class="fl-form-group">
+        <label class="fl-label">Feedback (optionnel)</label>
+        <textarea class="fl-textarea"
+                  rows="4"
+                  [(ngModel)]="milestoneReviewFeedback"
+                  placeholder="Ex: Très bon travail / Merci de corriger la section API."></textarea>
+      </div>
+      <div class="fl-modal-actions uw-signature-actions">
+        <button class="uw-btn-cancel" (click)="closeMilestoneReviewModal()">Annuler</button>
+        <button class="uw-btn-primary" *ngIf="reviewMode === 'APPROVE'" (click)="confirmMilestoneApproval()">Confirmer approbation</button>
+        <button class="uw-btn-primary" *ngIf="reviewMode === 'REVISION'" (click)="confirmRevisionRequest()">Envoyer la révision</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,4 @@
+﻿      ? report.pointsForts.map((item: string) => `<li>${this.escapeHtml(item)}</li>`).join('')
+      : '<li>Aucun point fort identifie.</li>';
+    const pointsFaibles = report.pointsFaibles.length
+      ? report.pointsFaibles.map((item: string) => `<li>${this.escapeHtml(item)}</li>`).join('')

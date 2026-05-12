@@ -1,0 +1,74 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">Mode Client</div>
+  <div class="fl-page-header fl-page-header-compact">
+    <div class="fl-header-left">
+      <h1 class="fl-title">Publier une nouvelle mission</h1>
+      <p class="fl-subtitle">Créez une mission claire et attractive pour recevoir de meilleures candidatures.</p>
+    </div>
+    <div class="fl-header-actions">
+      <a routerLink="/freelance/client" class="fl-back-btn">← Tableau de bord</a>
+    </div>
+  </div>
+
+  <div class="fl-publish-layout" *ngIf="!soumis">
+    <div class="fl-form-card fl-form-card-fluid fl-publish-card" [formGroup]="form">
+      <div *ngIf="erreur" class="fl-error-banner" style="margin-bottom:16px">{{ erreur }}</div>
+
+      <div class="fl-form-group">
+        <label class="fl-label">Titre de la mission <span class="fl-required">*</span></label>
+        <input type="text" formControlName="titre"
+              class="fl-input" placeholder="Ex : Développeur Angular senior"/>
+      </div>
+
+      <div class="fl-form-group">
+        <label class="fl-label">Description <span class="fl-required">*</span></label>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button class="fl-btn fl-btn-secondary" type="button" (click)="genererDescriptionIA()" [disabled]="aiLoadingDescription">
+            {{ aiLoadingDescription ? '⏳ Génération IA...' : '✨ Générer description IA' }}
+          </button>
+        </div>
+        <textarea formControlName="description" rows="5"
+                  class="fl-input" placeholder="Décrivez la mission en détail..."></textarea>
+      </div>
+
+      <div class="fl-form-group">
+        <label class="fl-label">Budget (TND) <span class="fl-required">*</span></label>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button class="fl-btn fl-btn-secondary" type="button" (click)="suggererBudgetIA()" [disabled]="aiLoadingBudget">
+            {{ aiLoadingBudget ? '⏳ Calcul IA...' : '💰 Suggérer budget IA' }}
+          </button>
+        </div>
+        <input type="number" formControlName="budget"
+              class="fl-input" placeholder="Ex : 5000"/>
+        <div *ngIf="aiBudgetSuggestion" class="fl-success-inline" style="margin-top:8px;">
+          {{ aiBudgetSuggestion }}
+        </div>
+      </div>
+
+      <div class="fl-form-group">
+        <label class="fl-label">
+          Compétences requises <span class="fl-required">*</span>
+          <span class="fl-hint"> — séparées par virgule</span>
+        </label>
+        <input type="text" formControlName="competences"
+              class="fl-input" placeholder="Angular, Java, PostgreSQL"/>
+      </div>
+
+      <button class="fl-primary-btn" (click)="soumettre()" [disabled]="form.invalid">
+        Publier la mission
+      </button>
+    </div>
+
+    <aside class="fl-side-info-card">
+      <div class="fl-side-info-title">Bonnes pratiques</div>
+      <div class="fl-side-info-item"><span>Titre précis</span><strong>Rôle + techno + niveau</strong></div>
+      <div class="fl-side-info-item"><span>Description</span><strong>Objectif + livrables + contexte</strong></div>
+      <div class="fl-side-info-item"><span>Budget</span><strong>Valeur réaliste du marché</strong></div>
+      <div class="fl-side-info-item"><span>Compétences</span><strong>3 à 6 mots-clés ciblés</strong></div>
+    </aside>
+  </div>
+
+  <div class="fl-success-card" *ngIf="soumis">
+    Mission publiée avec succès ! Redirection...
+  </div>
+</div>

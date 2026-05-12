@@ -1,0 +1,140 @@
+<div class="recruiter-dashboard-container">
+    <section class="dashboard-section">
+        <div class="hero-header">
+            <div>
+                <h2>Pilotage Recruteur</h2>
+                <p>Vue en temps reel de vos offres, candidatures et entretiens.</p>
+            </div>
+            <button class="btn btn-outline-secondary" (click)="loadDashboardData()">
+                <i class="ri-refresh-line"></i>
+                Rafraichir
+            </button>
+        </div>
+
+        <div *ngIf="loading" class="loading-state">
+            <i class="ri-loader-4-line rotating"></i>
+            <span>Chargement des statistiques...</span>
+        </div>
+
+        <div *ngIf="!loading && errorMessage" class="error-state">
+            <i class="ri-error-warning-line"></i>
+            <span>{{ errorMessage }}</span>
+        </div>
+
+        <div *ngIf="!loading && !errorMessage" class="stat-cards-grid">
+            <div class="stat-card tone-blue">
+                <div class="stat-label">Offres actives</div>
+                <div class="stat-value">{{ stats.activeOffers }}</div>
+                <div class="stat-change">
+                    <i class="ri-briefcase-4-line"></i>
+                    Offres actuellement visibles
+                </div>
+            </div>
+
+            <div class="stat-card tone-green">
+                <div class="stat-label">Candidatures totales</div>
+                <div class="stat-value">{{ stats.totalCandidatures }}</div>
+                <div class="stat-change positive">
+                    <i class="ri-user-search-line"></i>
+                    {{ stats.pendingCandidatures }} en attente
+                </div>
+            </div>
+
+            <div class="stat-card tone-amber">
+                <div class="stat-label">Entretiens a venir</div>
+                <div class="stat-value">{{ stats.upcomingInterviews }}</div>
+                <div class="stat-change">
+                    <i class="ri-calendar-check-line"></i>
+                    {{ stats.completedInterviews }} termines
+                </div>
+            </div>
+
+            <div class="stat-card tone-violet">
+                <div class="stat-label">Taux d'acceptation</div>
+                <div class="stat-value">{{ stats.acceptanceRate }}%</div>
+                <div class="progress-mini">
+                    <span [style.width.%]="stats.acceptanceRate"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-section mt-4">
+        <div class="card split-layout" *ngIf="!loading && !errorMessage">
+            <div class="card-header">
+                <h4>Offres les plus performantes</h4>
+            </div>
+            <div class="card-body">
+                <div *ngIf="topOffers.length === 0" class="empty-state">
+                    <i class="ri-bar-chart-grouped-line"></i>
+                    <p>Aucune donnee de candidature disponible pour le moment.</p>
+                </div>
+
+                <div *ngIf="topOffers.length > 0" class="offer-performance-list">
+                    <div class="performance-item" *ngFor="let offer of topOffers">
+                        <div class="performance-head">
+                            <span class="offer-title">{{ offer.titre }}</span>
+                            <span class="offer-total">{{ offer.total }} candidatures</span>
+                        </div>
+                        <div class="bar-track">
+                            <span class="bar-fill" [style.width.%]="offer.ratio"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-section mt-4">
+        <div class="card" *ngIf="!loading && !errorMessage">
+            <div class="card-header">
+                <h4>Activite recente</h4>
+            </div>
+            <div class="card-body">
+                <div *ngIf="recentActivities.length === 0" class="empty-state">
+                    <i class="ri-time-line"></i>
+                    <p>Aucune activite recente a afficher.</p>
+                </div>
+
+                <div *ngIf="recentActivities.length > 0" class="activity-list">
+                    <div class="list-item" *ngFor="let item of recentActivities">
+                        <div class="item-avatar">
+                            <i [class]="item.icon"></i>
+                        </div>
+                        <div class="item-content">
+                            <div class="item-title">{{ item.title }}</div>
+                            <div class="item-subtitle">{{ item.subtitle }}</div>
+                        </div>
+                        <div class="item-action">
+                            <span class="badge" [class]="'badge ' + item.badgeClass">{{ item.badge }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-section mt-4">
+        <div class="card" *ngIf="!loading && !errorMessage">
+            <div class="card-header">
+                <h4>Actions rapides</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary" routerLink="/recruiter-dashboard/post-job">
+                        <i class="ri-add-circle-line"></i>
+                        Publier une offre
+                    </button>
+                    <button class="btn btn-outline-secondary" routerLink="/recruiter-dashboard/candidatures">
+                        <i class="ri-user-search-line"></i>
+                        Voir les candidatures
+                    </button>
+                    <button class="btn btn-outline-secondary" routerLink="/recruiter-dashboard/interviews">
+                        <i class="ri-calendar-2-line"></i>
+                        Planifier un entretien
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

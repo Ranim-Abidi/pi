@@ -1,0 +1,161 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">Mode Client</div>
+  <div class="fl-page-header">
+    <h1 class="fl-title">Mes Missions Postées</h1>
+    <div class="fl-header-actions">
+      <a routerLink="/freelance/client/post" class="fl-primary-btn">+ Nouvelle Mission</a>
+      <a routerLink="/freelance" class="fl-back-btn">← Tableau de bord</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="fl-loading">Chargement...</div>
+
+  <div class="fl-missions-list fl-cards-square" *ngIf="!loading">
+    <div class="fl-client-tools" *ngIf="missions.length > 0">
+      <input class="fl-input"
+             type="text"
+             placeholder="Rechercher une mission, description, compétence..."
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="applyFilters()">
+      <select class="fl-input" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+        <option value="ALL">Tous les statuts</option>
+        <option value="OUVERTE">Ouverte</option>
+        <option value="EN_COURS">En cours</option>
+        <option value="FERMEE">Fermée</option>
+      </select>
+      <select class="fl-input" [(ngModel)]="sortMode" (ngModelChange)="applyFilters()">
+        <option value="newest">Plus récentes d'abord</option>
+        <option value="oldest">Plus anciennes d'abord</option>
+        <option value="budget_desc">Budget décroissant</option>
+        <option value="budget_asc">Budget croissant</option>
+      </select>
+    </div>
+
+    <div *ngIf="missions.length === 0" class="fl-empty">
+      Aucune mission postée. <a routerLink="/freelance/client/post">Créer votre première mission →</a>
+    </div>
+    <div *ngIf="missions.length > 0 && filteredMissions.length === 0" class="fl-empty">
+      Aucun résultat pour ces filtres.
+    </div>
+
+    <div class="fl-mission-card fl-client-mission-card" *ngFor="let mission of filteredMissions">
+      <div class="fl-mission-header">
+        <span class="fl-mission-title">{{ mission.titre }}</span>
+        <span class="fl-status-badge" [ngClass]="{
+          'fl-open':    mission.statut === 'OUVERTE',
+          'fl-closed':  mission.statut === 'FERMEE',
+          'fl-ongoing': mission.statut === 'EN_COURS'
+        }">{{ mission.statut }}</span>
+      </div>
+      <p class="fl-mission-desc">{{ mission.description }}</p>
+      <div class="fl-skills" *ngIf="mission.competences?.length">
+        <span class="fl-skill-tag" *ngFor="let comp of mission.competences | slice:0:4">{{ comp }}</span>
+      </div>
+      <div class="fl-mission-footer">
+        <span class="fl-budget-tag">{{ mission.budget }} TND</span>
+        <div class="fl-action-buttons">
+          <button class="fl-secondary-btn" (click)="voirCandidatures(mission.id)">
+            Candidatures
+          </button>
+          <button class="fl-edit-btn" (click)="startEdit(mission)">
+            ✏️ Modifier
+          </button>
+          <button class="fl-delete-btn" (click)="deleteMission(mission)">
+            🗑️ Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidatures smart panel -->
+  <div class="fl-smart-overlay" *ngIf="showCandidaturesPanel" (click)="closeCandidaturesPanel()">
+    <div class="fl-smart-panel" (click)="$event.stopPropagation()">
+      <div class="fl-smart-header">
+        <div>
+          <div class="fl-smart-kicker">Mission Review</div>
+          <h2 class="fl-smart-title">{{ missionSelectionneeDetails?.titre || 'Candidatures reçues' }}</h2>
+          <div class="fl-smart-headline" *ngIf="missionSelectionneeDetails">
+            Budget: {{ missionSelectionneeDetails.budget }} TND • Statut: {{ missionSelectionneeDetails.statut }}
+          </div>
+        </div>
+        <button class="fl-back-btn" (click)="closeCandidaturesPanel()">✕ Fermer</button>
+      </div>
+
+      <div *ngIf="loadingCandidatures" class="fl-loading">Chargement des candidatures...</div>
+
+      <div class="fl-applicants-panel" *ngIf="!loadingCandidatures">
+        <div *ngIf="candidaturesMission.length === 0" class="fl-empty">
+          Aucune candidature pour cette mission.
+        </div>
+        <div class="fl-applicant-row" *ngFor="let c of candidaturesMission">
+          <span class="fl-applicant-name">{{ c.utilisateurNom || 'Candidat' }}</span>
+          <span class="fl-status-badge" [ngClass]="{
+            'fl-open':     c.statut === 'EN_ATTENTE',
+            'fl-accepted': c.statut === 'ACCEPTEE',
+            'fl-rejected': c.statut === 'REJETEE'
+          }">{{ c.statut }}</span>
+          <div class="fl-candidature-actions" *ngIf="c.statut === 'EN_ATTENTE'">
+            <button class="fl-accept-btn" (click)="accepter(c)">✅ Accepter</button>
+            <button class="fl-reject-btn" (click)="rejeter(c)">❌ Rejeter</button>
+          </div>
+          <div class="fl-candidature-actions" *ngIf="c.statut === 'ACCEPTEE'">
+            <button class="fl-primary-btn" (click)="generateContract(c)">📄 Générer Smart Contract</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit mission smart panel -->
+  <div class="fl-smart-overlay" *ngIf="showEditMissionPanel" (click)="cancelEdit()">
+    <div class="fl-smart-panel fl-edit-smart-panel" (click)="$event.stopPropagation()">
+      <div class="fl-smart-header">
+        <div>
+          <div class="fl-smart-kicker">Mission Editor</div>
+          <h2 class="fl-smart-title">Modifier la mission</h2>
+          <div class="fl-smart-headline">Mettez à jour les informations puis sauvegardez.</div>
+        </div>
+        <button class="fl-back-btn" (click)="cancelEdit()">✕ Fermer</button>
+      </div>
+
+      <div class="fl-edit-form">
+        <div class="fl-form-group">
+          <label class="fl-label">Titre</label>
+          <input [(ngModel)]="editForm.titre" class="fl-input" />
+        </div>
+        <div class="fl-form-group">
+          <label class="fl-label">Description</label>
+          <textarea [(ngModel)]="editForm.description" class="fl-textarea" rows="4"></textarea>
+        </div>
+        <div class="fl-form-grid">
+          <div class="fl-form-group">
+            <label class="fl-label">Budget (TND)</label>
+            <input type="number" [(ngModel)]="editForm.budget" class="fl-input" />
+          </div>
+          <div class="fl-form-group">
+            <label class="fl-label">Compétences (séparées par des virgules)</label>
+            <input [(ngModel)]="editForm.competences" class="fl-input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-ops-actions">
+        <button class="fl-back-btn" (click)="cancelEdit()">Annuler</button>
+        <button class="fl-primary-btn" (click)="saveEdit()">💾 Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blockchain Generation Overlay -->
+  <div class="fl-modal-overlay" *ngIf="isGeneratingContract">
+    <div class="fl-blockchain-loader">
+      <div class="bc-spinner"></div>
+      <h3 class="bc-title">Génération du Smart Contract</h3>
+      <p class="bc-subtitle">Vérification cryptographique sur le réseau en cours...</p>
+      <div class="bc-hash-sim">
+        > 0x{{ simulatedHash }}...
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,177 @@
+.card {
+    background-color: var(--matchy-bg-white);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--matchy-card-shadow);
+    border: 1px solid var(--matchy-bg-light);
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 8px 20px var(--matchy-card-shadow);
+    }
+
+    .card-header {
+        padding: 25px;
+        border-bottom: 2px solid var(--matchy-bg-light);
+        background: linear-gradient(135deg, var(--matchy-bg-white) 0%, var(--matchy-bg-light) 100%);
+
+        h4 {
+            margin: 0;
+            color: var(--matchy-blue-dark);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            &::before {
+                content: '';
+                width: 4px;
+                height: 24px;
+                background: linear-gradient(180deg, var(--matchy-orange) 0%, var(--matchy-orange-light) 100%);
+                border-radius: 2px;
+            }
+        }
+    }
+
+    .card-body {
+        padding: 25px;
+
+        p {
+            margin: 0;
+            color: var(--matchy-blue-light);
+            line-height: 1.6;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            
+            thead {
+                th {
+                    background-color: var(--matchy-bg-light);
+                    color: var(--matchy-blue-dark);
+                    font-weight: 600;
+                    padding: 12px;
+                    text-align: left;
+                    border-bottom: 2px solid #e8eef5;
+                }
+            }
+
+            tbody {
+                tr {
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background-color: var(--matchy-bg-light);
+                    }
+
+                    td {
+                        padding: 12px;
+                        color: var(--matchy-blue-light);
+                        border-bottom: 1px solid #e8eef5;
+                    }
+                }
+            }
+        }
+
+        /* Button styles */
+        .btn {
+            &.btn-primary {
+                background-color: var(--matchy-orange);
+                border-color: var(--matchy-orange);
+                color: var(--matchy-bg-white);
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                }
+            }
+
+            &.btn-secondary {
+                background-color: var(--matchy-blue-light);
+                border-color: var(--matchy-blue-light);
+                color: var(--matchy-bg-white);
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                }
+            }
+
+            .decision-metric {
+                height: 100%;
+                border: 1px solid #e6edf5;
+                border-radius: 10px;
+                padding: 14px 16px;
+                background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+
+                span {
+                    font-size: 0.8rem;
+                    color: var(--matchy-blue-light);
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                }
+
+                strong {
+                    font-size: 1.15rem;
+                    color: var(--matchy-blue-dark);
+                }
+            }
+
+            .decision-metric-highlight {
+                border-color: rgba(245, 124, 0, 0.25);
+                background: linear-gradient(180deg, rgba(245, 124, 0, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+            }
+
+            .decision-table {
+                thead th {
+                    white-space: nowrap;
+                }
+
+                tbody td {
+                    vertical-align: top;
+                }
+            }
+        }
+    }
+}
+
+/* Recommendation Widget Styles */
+.recommendation-row {
+    background-color: #f8f9fa;
+    
+    td {
+        padding: 20px !important;
+        border: none !important;
+    }
+}
+
+/* Button for recommendations */
+.btn-warning {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    
+    &:hover {
+        background-color: #e0a800 !important;
+        border-color: #e0a800 !important;
+    }
+    
+    i {
+        animation: pulse 2s infinite;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}

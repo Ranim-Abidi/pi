@@ -1,0 +1,104 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">Espace Freelance</div>
+  <div class="fl-page-header fl-page-header-compact">
+    <div class="fl-header-left">
+      <h1 class="fl-title">Détail de la mission</h1>
+      <p class="fl-subtitle" *ngIf="mission">{{ mission.titre }}</p>
+      <p class="fl-subtitle" *ngIf="!mission && !loading">Mission</p>
+    </div>
+    <div class="fl-header-actions">
+      <a routerLink="/freelance/projects" class="fl-back-btn">← Retour aux missions</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="fl-loading">Chargement...</div>
+  <div *ngIf="erreur" class="fl-error">{{ erreur }}</div>
+
+  <div class="fl-detail-card fl-detail-card-premium" *ngIf="mission && !loading">
+    <div class="fl-detail-header">
+      <h1 class="fl-title">{{ mission.titre }}</h1>
+      <span class="fl-status-badge" [ngClass]="{
+        'fl-open':    mission.statut === 'OUVERTE',
+        'fl-closed':  mission.statut === 'FERMEE',
+        'fl-ongoing': mission.statut === 'EN_COURS'
+      }">{{ mission.statut }}</span>
+    </div>
+
+    <p class="fl-detail-desc">{{ mission.description }}</p>
+
+    <div class="fl-detail-meta">
+      <div class="fl-meta-item">
+        <span class="fl-meta-label">Budget</span>
+        <span class="fl-meta-value">{{ mission.budget }} TND</span>
+      </div>
+      <div class="fl-meta-item">
+        <span class="fl-meta-label">Compétences requises</span>
+        <div class="fl-skills">
+          <span class="fl-skill-tag"
+                *ngFor="let comp of mission.competences">{{ comp }}</span>
+        </div>
+      </div>
+      <div class="fl-meta-item" *ngIf="mission.postedByNom">
+        <span class="fl-meta-label">Publié par</span>
+        <span class="fl-meta-value">{{ mission.postedByNom }}</span>
+      </div>
+    </div>
+
+    <div class="fl-detail-workspace">
+      <div>
+        <div *ngIf="postule" class="fl-success-inline">
+          Candidature envoyée avec succès ✓
+        </div>
+
+        <div class="fl-form-card fl-apply-section fl-form-card-fluid" *ngIf="!postule && mission.statut === 'OUVERTE'">
+          <h3 class="fl-section-title">Votre Proposition</h3>
+          <div class="fl-form-group">
+            <label class="fl-label">Message de candidature</label>
+            <textarea
+              class="fl-textarea"
+              rows="4"
+              [(ngModel)]="proposalForm.coverLetter"
+              placeholder="Présentez votre expérience et votre approche..."
+            ></textarea>
+          </div>
+          <div class="fl-form-grid">
+            <div class="fl-form-group">
+              <label class="fl-label">Votre offre (TND)</label>
+              <input type="number" class="fl-input" [(ngModel)]="proposalForm.bidAmount" min="1" />
+            </div>
+            <div class="fl-form-group">
+              <label class="fl-label">Délai estimé (jours)</label>
+              <input type="number" class="fl-input" [(ngModel)]="proposalForm.estimatedDays" min="1" />
+            </div>
+          </div>
+          <button
+            class="fl-apply-btn"
+            (click)="postuler()"
+            [disabled]="postule || mission.statut !== 'OUVERTE'">
+            {{ postule ? 'Candidature envoyée ✓' : '+ Postuler à cette mission' }}
+          </button>
+        </div>
+
+        <div class="fl-error-banner" *ngIf="!postule && mission.statut !== 'OUVERTE'">
+          Cette mission n'est plus ouverte aux candidatures.
+        </div>
+      </div>
+
+      <aside class="fl-side-info-card">
+        <div class="fl-side-info-title">Aperçu rapide</div>
+        <div class="fl-side-info-item">
+          <span>Budget</span>
+          <strong>{{ mission.budget }} TND</strong>
+        </div>
+        <div class="fl-side-info-item">
+          <span>Statut</span>
+          <strong>{{ mission.statut }}</strong>
+        </div>
+        <div class="fl-side-info-item" *ngIf="mission.postedByNom">
+          <span>Client</span>
+          <strong>{{ mission.postedByNom }}</strong>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>

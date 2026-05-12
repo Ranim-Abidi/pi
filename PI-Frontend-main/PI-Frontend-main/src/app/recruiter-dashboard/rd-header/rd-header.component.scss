@@ -1,0 +1,173 @@
+.recruiter-header {
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    position: fixed;
+    background-color: var(--whiteColor);
+    box-shadow: 0px 4px 15px 0px rgba(64, 65, 69, .05);
+    padding: {
+        top: 13px;
+        bottom: 13px;
+    };
+
+    .container-fluid {
+        padding: {
+            left: 30px;
+            right: 30px;
+        };
+    }
+
+    .navbar {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .navbar-brand {
+            font-size: inherit;
+            line-height: 1;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            img {
+                height: 40px;
+                width: auto;
+            }
+        }
+
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            h5 {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--headingColor);
+                margin: 0;
+                line-height: 1.2;
+            }
+
+            .brand-subtitle {
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 0;
+                font-weight: 500;
+            }
+        }
+
+        .others-option {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            .option-item {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                .notification-btn {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    background-color: #f4f7fb;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--primaryColor);
+                    font-size: 22px;
+                    flex-shrink: 0;
+                    position: relative;
+                    text-decoration: none;
+                    transition: var(--transition);
+
+                    .badge {
+                        position: absolute;
+                        top: -5px;
+                        right: -4px;
+                        min-width: 20px;
+                        height: 20px;
+                        border-radius: 999px;
+                        background: #0965a4;
+                        color: #fff;
+                        font-size: 11px;
+                        font-weight: 700;
+                        padding: 0 6px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        border: 2px solid #fff;
+                    }
+
+                    .alert-dot {
+                        position: absolute;
+                        bottom: 2px;
+                        right: 0;
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        background: #dc2626;
+                        border: 2px solid #fff;
+                        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+                    }
+
+                    &:hover {
+                        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+                        transform: scale(1.05);
+                    }
+                }
+
+                .welcome-text {
+                    color: var(--bodyColor);
+                    font-weight: 500;
+                    font-size: var(--fontSize);
+                    margin: 0;
+                    white-space: nowrap;
+                }
+
+                .profile-avatar {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    background-color: #f4f7fb;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--primaryColor);
+                    font-size: 24px;
+                    flex-shrink: 0;
+                    cursor: pointer;
+                    transition: var(--transition);
+
+                    &:hover {
+                        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+                        transform: scale(1.05);
+                    }
+                }
+            }
+        }
+    }
+
+    @media only screen and (max-width: 767px) {
+        padding: 10px 0;
+
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .navbar {
+            .header-brand {
+                display: none;
+            }
+        }
+
+        .welcome-text {
+            display: none !important;
+        }
+    }
+}

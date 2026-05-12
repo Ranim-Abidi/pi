@@ -1,0 +1,266 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">📅 Scheduler Freelance</div>
+
+  <div class="fl-page-header">
+    <div>
+      <h1 class="fl-title">Mon Calendrier</h1>
+      <p class="fl-subtitle">Planifiez vos entretiens, deadlines et réunions.</p>
+    </div>
+    <div class="fl-header-actions">
+      <button class="fl-primary-btn" (click)="openCreateForm()">+ Nouvel Événement</button>
+      <button class="fl-secondary-btn" (click)="openAvailabilityForm()">+ Disponibilité</button>
+      <button class="fl-back-btn" (click)="goBack()">← Tableau de bord</button>
+    </div>
+  </div>
+
+  <div *ngIf="uiNotice"
+       [class.fl-success-inline]="uiNoticeType === 'success'"
+       [class.fl-error-banner]="uiNoticeType === 'error'"
+       style="margin-bottom: 12px;">
+    {{ uiNotice }}
+  </div>
+
+  <div class="sch-top-panels">
+    <div class="sch-mini-panel">
+      <h4>Disponibilités</h4>
+      <div class="sch-empty" *ngIf="availabilitySlots.length === 0">Aucun créneau défini.</div>
+      <div class="sch-mini-row" *ngFor="let slot of availabilitySlots | slice:0:4">
+        <span>{{ slot.startDate | date:'dd/MM HH:mm' }} → {{ slot.endDate | date:'HH:mm' }}</span>
+        <button class="fl-delete-btn" (click)="removeAvailability(slot.id)">Supprimer</button>
+      </div>
+    </div>
+    <div class="sch-mini-panel">
+      <h4>Deadlines proches</h4>
+      <div class="sch-empty" *ngIf="upcomingDeadlines.length === 0">Aucune deadline prochaine.</div>
+      <div class="sch-mini-row" *ngFor="let d of upcomingDeadlines | slice:0:5">
+        <span>{{ d.title }} ({{ d.dueDate | date:'dd/MM HH:mm' }})</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  CALENDAR GRID                                                -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="sch-calendar">
+    <!-- Month navigation -->
+    <div class="sch-nav">
+      <button class="sch-nav-btn" (click)="prevMonth()">‹</button>
+      <span class="sch-month-label">{{ monthLabel }}</span>
+      <button class="sch-nav-btn" (click)="nextMonth()">›</button>
+      <button class="sch-today-btn" (click)="goToToday()">Aujourd'hui</button>
+    </div>
+
+    <!-- Weekday headers -->
+    <div class="sch-weekdays">
+      <div class="sch-weekday" *ngFor="let d of weekDays">{{ d }}</div>
+    </div>
+
+    <!-- Day grid -->
+    <div class="sch-grid">
+      <div
+        class="sch-day"
+        *ngFor="let day of calendarDays"
+        [class.sch-day--other]="!day.isCurrentMonth"
+        [class.sch-day--today]="day.isToday"
+        [class.sch-day--selected]="selectedDay?.date?.getTime() === day.date.getTime()"
+        [class.sch-day--has-events]="day.events.length > 0"
+        (click)="selectDay(day)">
+        <span class="sch-day-number">{{ day.dayNumber }}</span>
+        <div class="sch-day-events">
+          <div
+            class="sch-day-event-dot"
+            *ngFor="let ev of day.events | slice:0:3"
+            [style.background]="getEventColor(ev.type)"
+            [title]="ev.title">
+          </div>
+          <span class="sch-day-more" *ngIf="day.events.length > 3">+{{ day.events.length - 3 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  SELECTED DAY PANEL                                           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="sch-day-panel" *ngIf="selectedDay">
+    <div class="sch-day-panel-header">
+      <h3>{{ selectedDay.date | date:'EEEE d MMMM yyyy':'':'fr-FR' }}</h3>
+      <button class="fl-primary-btn sch-small-btn" (click)="openCreateForm(selectedDay)">+ Ajouter</button>
+      <button class="fl-secondary-btn sch-small-btn" (click)="autoBookSelectedDay(selectedDay)">⚡ Auto-book</button>
+    </div>
+
+    <div *ngIf="selectedDay.events.length === 0" class="sch-empty">
+      Aucun événement ce jour. Cliquez sur <strong>+ Ajouter</strong> pour planifier.
+    </div>
+
+    <div class="sch-event-list">
+      <div
+        class="sch-event-card"
+        *ngFor="let ev of selectedDay.events"
+        [class.sch-event--active]="selectedEvent?.id === ev.id"
+        [style.border-left-color]="getEventColor(ev.type)"
+        (click)="selectEvent(ev)">
+
+        <div class="sch-event-time">
+          {{ formatTime(ev.startDate) }} — {{ formatTime(ev.endDate) }}
+        </div>
+        <div class="sch-event-title">{{ ev.title }}</div>
+        <div class="sch-event-meta">
+          <span class="sch-event-type-badge" [style.background]="getEventColor(ev.type)">
+            {{ getEventLabel(ev.type) }}
+          </span>
+          <span class="sch-event-status-badge">{{ getStatusLabel(ev.status) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  EVENT DETAIL PANEL                                           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="sch-detail-panel" *ngIf="selectedEvent">
+    <div class="sch-detail-header">
+      <h3>{{ selectedEvent.title }}</h3>
+      <div class="sch-detail-actions">
+        <button class="fl-edit-btn" (click)="openEditForm(selectedEvent)">✏️ Modifier</button>
+        <button class="fl-delete-btn" (click)="deleteEvent(selectedEvent)">🗑️ Supprimer</button>
+      </div>
+    </div>
+
+    <div class="sch-detail-body">
+      <div class="sch-detail-row">
+        <span class="sch-detail-label">Type</span>
+        <span class="sch-event-type-badge" [style.background]="getEventColor(selectedEvent.type)">
+          {{ getEventLabel(selectedEvent.type) }}
+        </span>
+      </div>
+      <div class="sch-detail-row">
+        <span class="sch-detail-label">Horaire</span>
+        <span>{{ formatTime(selectedEvent.startDate) }} → {{ formatTime(selectedEvent.endDate) }}</span>
+      </div>
+      <div class="sch-detail-row">
+        <span class="sch-detail-label">Statut</span>
+        <span>{{ getStatusLabel(selectedEvent.status) }}</span>
+      </div>
+      <div class="sch-detail-row" *ngIf="selectedEvent.missionTitre">
+        <span class="sch-detail-label">Mission</span>
+        <span>{{ selectedEvent.missionTitre }}</span>
+      </div>
+      <div class="sch-detail-row" *ngIf="selectedEvent.participantNom">
+        <span class="sch-detail-label">Participant</span>
+        <span>{{ selectedEvent.participantNom }}</span>
+      </div>
+      <div class="sch-detail-row" *ngIf="selectedEvent.description">
+        <span class="sch-detail-label">Notes</span>
+        <span>{{ selectedEvent.description }}</span>
+      </div>
+
+      <!-- Status actions -->
+      <div class="sch-status-actions">
+        <button *ngIf="selectedEvent.status === 'SCHEDULED'"
+                type="button"
+                class="sch-status-btn sch-btn-confirm"
+                (click)="$event.stopPropagation(); changeStatus(selectedEvent, 'CONFIRMED')">✅ Confirmer</button>
+        <button *ngIf="selectedEvent.status === 'CONFIRMED'"
+                type="button"
+                class="sch-status-btn sch-btn-complete"
+                (click)="$event.stopPropagation(); changeStatus(selectedEvent, 'COMPLETED')">🏆 Terminer</button>
+        <button *ngIf="selectedEvent.status !== 'CANCELLED' && selectedEvent.status !== 'COMPLETED'"
+                type="button"
+                class="sch-status-btn sch-btn-cancel"
+                (click)="$event.stopPropagation(); changeStatus(selectedEvent, 'CANCELLED')">❌ Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!--  CREATE / EDIT FORM MODAL                                     -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="sch-modal-overlay" *ngIf="showForm" (click)="closeForm()">
+    <div class="sch-modal" (click)="$event.stopPropagation()">
+      <h3>{{ editingEvent ? '✏️ Modifier l\'événement' : '📅 Nouvel événement' }}</h3>
+
+      <div class="sch-form-group">
+        <label>Titre *</label>
+        <input type="text" [(ngModel)]="formData.title" placeholder="Ex: Entretien avec le client" />
+      </div>
+
+      <div class="sch-form-row">
+        <div class="sch-form-group">
+          <label>Début *</label>
+          <input type="datetime-local" [(ngModel)]="formData.startDate" />
+        </div>
+        <div class="sch-form-group">
+          <label>Fin *</label>
+          <input type="datetime-local" [(ngModel)]="formData.endDate" />
+        </div>
+      </div>
+
+      <div class="sch-form-group">
+        <label>Type</label>
+        <select [(ngModel)]="formData.type">
+          <option *ngFor="let t of eventTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+
+      <div class="sch-form-group">
+        <label>Mission liée (optionnel)</label>
+        <select [(ngModel)]="formData.missionId" (ngModelChange)="onMissionChange()">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let m of missions" [ngValue]="m.id">{{ m.titre }}</option>
+        </select>
+      </div>
+
+      <div class="sch-form-group">
+        <label>{{ counterpartyFieldLabel }} (optionnel)</label>
+        <select [(ngModel)]="formData.counterpartyId"
+                [disabled]="counterpartyLoading && formData.missionId != null">
+          <option [ngValue]="null">— Moi seulement —</option>
+          <option *ngFor="let u of visibleCounterparties" [ngValue]="u.id">{{ counterpartyLabel(u) }}</option>
+        </select>
+        <p class="fl-subtitle" style="margin: 6px 0 0; font-size: 0.85rem;">
+          Ajoutez une contrepartie pour que l’événement apparaisse aussi sur son calendrier.
+        </p>
+        <p class="fl-subtitle"
+           *ngIf="formData.missionId && !counterpartyLoading && visibleCounterparties.length === 0"
+           style="margin: 4px 0 0; font-size: 0.82rem; color:#b45309;">
+          Aucun participant lié à cette mission pour le moment.
+        </p>
+      </div>
+
+      <div class="sch-form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="formData.description" rows="3" placeholder="Détails supplémentaires..."></textarea>
+      </div>
+
+      <div class="sch-form-actions">
+        <button class="fl-back-btn" (click)="closeForm()">Annuler</button>
+        <button class="fl-primary-btn"
+                [disabled]="counterpartyLoading && formData.missionId != null"
+                (click)="submitForm()">
+          {{ editingEvent ? 'Mettre à jour' : 'Créer l\'événement' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sch-modal-overlay" *ngIf="showAvailabilityForm" (click)="showAvailabilityForm = false">
+    <div class="sch-modal" (click)="$event.stopPropagation()">
+      <h3>Nouvelle disponibilité</h3>
+      <div class="sch-form-row">
+        <div class="sch-form-group">
+          <label>Début *</label>
+          <input type="datetime-local" [(ngModel)]="availabilityForm.startDate" />
+        </div>
+        <div class="sch-form-group">
+          <label>Fin *</label>
+          <input type="datetime-local" [(ngModel)]="availabilityForm.endDate" />
+        </div>
+      </div>
+      <div class="sch-form-actions">
+        <button class="fl-back-btn" (click)="showAvailabilityForm = false">Annuler</button>
+        <button class="fl-primary-btn" (click)="saveAvailability()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

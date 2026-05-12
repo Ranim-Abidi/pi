@@ -1,0 +1,99 @@
+<div class="navbar-area">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg" [class.active]="classApplied">
+
+            <!-- Logo -->
+            <a class="navbar-brand" routerLink="/evenement-dashboard">
+                <img src="images/logo.png" alt="logo">
+            </a>
+
+            <!-- Toggle mobile -->
+            <button class="navbar-toggler" type="button" (click)="toggleClass()">
+                <span class="burger-menu">
+                    <span class="top-bar"></span>
+                    <span class="middle-bar"></span>
+                    <span class="bottom-bar"></span>
+                </span>
+            </button>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a routerLink="/" class="nav-link">
+                            Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/evenement-dashboard" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/evenement-dashboard/liste" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                            Mes Événements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/evenement-dashboard/ajouter" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                            Créer un Événement
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="others-option d-md-flex align-items-center">
+
+                    <!-- Notifications -->
+                    <div class="option-item d-inline-block">
+                        <a class="notification-icon d-inline-block position-relative">
+                            <i class="ri-notification-line"></i>
+                            <span>0</span>
+                        </a>
+                    </div>
+
+                    <!-- Mon compte -->
+                    <div class="option-item">
+                        <div class="dropdown">
+                            <button
+                                class="dropdown-toggle"
+                                type="button"
+                                (click)="toggleClass2()"
+                            >
+                                <div class="image">
+                                    <i class="ri-user-line" style="font-size: 20px;"></i>
+                                </div>
+                                {{ userName }}
+                                <i class="ri-arrow-down-s-line"></i>
+                            </button>
+                            <ul class="dropdown-menu" [class.active]="classApplied2">
+                                <li>
+                                    <a routerLink="/evenement-dashboard" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                        <i class="ri-dashboard-line"></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a routerLink="/evenement-dashboard/liste" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                        <i class="ri-calendar-line"></i>
+                                        Mes événements
+                                    </a>
+                                </li>
+                                <li>
+                                    <a routerLink="/evenement-dashboard/ajouter" class="d-block position-relative" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                        <i class="ri-add-circle-line"></i>
+                                        Créer un événement
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="d-block position-relative" (click)="logout()" style="cursor: pointer;">
+                                        <i class="ri-logout-box-line"></i>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

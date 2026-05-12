@@ -1,0 +1,164 @@
+<div class="mes-formations-header-wrapper">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div class="dashboard-blue-banner">
+          <h2>Mes formations</h2>
+          <p>Suivez votre progression et obtenez vos certificats</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mes-formations-area">
+  <div class="container pb-5">
+    <div class="row justify-content-center">
+      <div class="col-12">
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">📖</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ enCours }}</span>
+              <span class="stat-label">En cours</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ terminees }}</span>
+              <span class="stat-label">Terminées</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber">🏆</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ certificats.length }}</span>
+              <span class="stat-label">Certificats</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h3><i class="ri-bar-chart-line"></i> Progression</h3>
+          </div>
+          <div class="section-card-body">
+
+            <div class="empty-state" *ngIf="inscriptions.length === 0 && !loading">
+              <div class="empty-icon">📚</div>
+              <p>Aucune formation en cours pour le moment.</p>
+              <a routerLink="/formations" class="empty-action">
+                Découvrir les formations
+              </a>
+            </div>
+
+            <div class="loading-state" *ngIf="loading">
+              <div class="loading-spinner"></div>
+              <p>Chargement...</p>
+            </div>
+
+            <div class="row g-4" *ngIf="inscriptions.length && !loading">
+              <div class="col-lg-4 col-md-6 col-sm-12"
+                   *ngFor="let ins of inscriptions">
+
+                <div class="formation-progress-card"
+                     (click)="voirDetailsFormation(ins)"
+                     style="cursor:pointer">
+
+                  <div class="progress-card-banner">
+                    <span class="progress-emoji">📚</span>
+                    <span class="statut-badge" [ngClass]="{
+                      'badge-encours': ins.statut === 'EnCours',
+                      'badge-termine': ins.statut === 'Terminé'
+                    }">
+                      {{ ins.statut === 'EnCours' ? 'En cours' : 'Terminé' }}
+                    </span>
+                  </div>
+
+                  <div class="progress-card-body">
+                    <div class="plateforme-label">
+                      {{ ins.formation.plateforme }}
+                    </div>
+                    <h4 class="formation-title">{{ ins.formation.titre }}</h4>
+
+                    <div class="progress-row">
+                      <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill"
+                             [style.width.%]="getProgression(ins)">
+                        </div>
+                      </div>
+                      <span class="progress-pct">
+                        {{ getProgression(ins) }}%
+                      </span>
+                    </div>
+
+                    <div class="auto-progression-info">
+                      <i class="ri-magic-line"></i>
+                      <span>{{ getProgressionLabel(ins) }}</span>
+                    </div>
+
+                    <a [routerLink]="['/formations', ins.formation.id, 'video']"
+                       [queryParams]="{ parcoursId: ins.parcoursId, niveau: ins.niveauContext }"
+                       class="btn-continuer"
+                       (click)="$event.stopPropagation()"
+                       *ngIf="ins.statut !== 'Terminé'">
+                      <i class="ri-play-circle-line"></i>
+                      Continuer la formation
+                    </a>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <h3><i class="ri-award-line"></i> Mes certificats</h3>
+          </div>
+          <div class="section-card-body">
+
+            <div class="empty-state" *ngIf="certificats.length === 0">
+              <div class="empty-icon">🏆</div>
+              <p>Terminez une formation pour obtenir votre certificat.</p>
+            </div>
+
+            <div class="cert-list" *ngIf="certificats.length > 0">
+              <div class="cert-row" *ngFor="let cert of certificats">
+                <div class="cert-left">
+                  <div class="cert-icon">🏆</div>
+                  <div class="cert-info">
+                    <div class="cert-title">{{ cert.titre }}</div>
+                    <div class="cert-date">
+                      Obtenu le
+                      {{ cert.dateObtention | date:'dd MMM yyyy' }}
+                    </div>
+                  </div>
+                </div>
+                <div class="cert-actions" style="display: flex; gap: 10px;">
+                  <button type="button"
+                          class="btn btn-outline-primary"
+                          style="border-radius: 8px; font-size: 14px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;"
+                          (click)="partagerLinkedIn(cert)">
+                    <i class="ri-linkedin-fill"></i> Ajouter au profil
+                  </button>
+                  <button type="button"
+                          class="cert-download-btn"
+                          (click)="telecharger(cert)">
+                    <i class="ri-download-line"></i> Télécharger
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

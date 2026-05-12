@@ -1,0 +1,375 @@
+<div class="dashboard-container">
+
+  
+  <div class="welcome-section">
+    <div class="welcome-left">
+      <div class="welcome-icon">👋</div>
+      <div>
+        <h3>Bienvenue, <span class="admin-name">{{ adminName }}</span> !</h3>
+        <p>Gérez vos partenaires et offres depuis ce dashboard.</p>
+      </div>
+    </div>
+    <div class="welcome-date">
+      <i class="ri-calendar-line"></i>
+      {{ today.toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) }}
+    </div>
+  </div>
+
+  
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div>
+        <div class="clock-time">{{ currentTime }}</div>
+        <div class="clock-date">{{ currentDate }}</div>
+      </div>
+    </div>
+    <div class="ws-status"
+         [class.connected]="wsConnected"
+         [class.disconnected]="!wsConnected">
+      <div class="ws-dot"></div>
+      {{ wsConnected ? 'WebSocket connecté' : 'Reconnexion...' }}
+    </div>
+  </div>
+
+  
+  <div class="stats-grid">
+    <div class="stat-card card-blue">
+      <div class="stat-icon"><i class="ri-building-line"></i></div>
+      <div class="stat-info">
+        <span class="stat-num">{{ totalPartenaires }}</span>
+        <span class="stat-label">Total Partenaires</span>
+      </div>
+      <div class="stat-bg-icon"><i class="ri-building-line"></i></div>
+    </div>
+    <div class="stat-card card-green">
+      <div class="stat-icon"><i class="ri-file-list-3-line"></i></div>
+      <div class="stat-info">
+        <span class="stat-num">{{ totalOffres }}</span>
+        <span class="stat-label">Total Offres</span>
+      </div>
+      <div class="stat-bg-icon"><i class="ri-file-list-3-line"></i></div>
+    </div>
+    <div class="stat-card card-indigo">
+      <div class="stat-icon"><i class="ri-briefcase-line"></i></div>
+      <div class="stat-info">
+        <span class="stat-num">{{ totalEmplois }}</span>
+        <span class="stat-label">Offres Emploi</span>
+      </div>
+      <div class="stat-bg-icon"><i class="ri-briefcase-line"></i></div>
+    </div>
+    <div class="stat-card card-orange">
+      <div class="stat-icon"><i class="ri-graduation-cap-line"></i></div>
+      <div class="stat-info">
+        <span class="stat-num">{{ totalStages }}</span>
+        <span class="stat-label">Offres Stage</span>
+      </div>
+      <div class="stat-bg-icon"><i class="ri-graduation-cap-line"></i></div>
+    </div>
+  </div>
+
+  
+  <div class="visual-row">
+    <div class="visual-card">
+      <div class="visual-title">
+        <i class="ri-pie-chart-line"></i>
+        Répartition des Offres
+      </div>
+      <div class="repartition-bar-wrapper">
+        <div class="repartition-bar">
+          <div class="bar-emploi"
+               [style.width.%]="getPourcentage(totalEmplois, totalOffres)">
+            <span *ngIf="getPourcentage(totalEmplois, totalOffres) > 10">
+              {{ getPourcentage(totalEmplois, totalOffres) }}%
+            </span>
+          </div>
+          <div class="bar-stage"
+               [style.width.%]="getPourcentage(totalStages, totalOffres)">
+            <span *ngIf="getPourcentage(totalStages, totalOffres) > 10">
+              {{ getPourcentage(totalStages, totalOffres) }}%
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="repartition-legend">
+        <div class="legend-item">
+          <span class="legend-dot emploi"></span>
+          Emploi — <strong>{{ totalEmplois }}</strong>
+          ({{ getPourcentage(totalEmplois, totalOffres) }}%)
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot stage"></span>
+          Stage — <strong>{{ totalStages }}</strong>
+          ({{ getPourcentage(totalStages, totalOffres) }}%)
+        </div>
+      </div>
+    </div>
+
+    <div class="visual-card">
+      <div class="visual-title">
+        <i class="ri-bar-chart-line"></i>
+        Statistiques Globales
+      </div>
+      <div class="progress-list">
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">
+              <i class="ri-building-line"></i> Partenaires
+            </span>
+            <span class="progress-value blue">{{ totalPartenaires }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill blue"
+                 [style.width.%]="getPourcentage(totalPartenaires, totalPartenaires + totalOffres)">
+            </div>
+          </div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">
+              <i class="ri-file-list-3-line"></i> Total Offres
+            </span>
+            <span class="progress-value green">{{ totalOffres }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill green"
+                 [style.width.%]="getPourcentage(totalOffres, totalPartenaires + totalOffres)">
+            </div>
+          </div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">
+              <i class="ri-briefcase-line"></i> Emplois
+            </span>
+            <span class="progress-value indigo">{{ totalEmplois }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill indigo"
+                 [style.width.%]="getPourcentage(totalEmplois, totalOffres)">
+            </div>
+          </div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">
+              <i class="ri-graduation-cap-line"></i> Stages
+            </span>
+            <span class="progress-value orange">{{ totalStages }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill orange"
+                 [style.width.%]="getPourcentage(totalStages, totalOffres)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+
+  
+  <div class="new-grid">
+
+    <!-- Top 5 partenaires -->
+    <div class="new-card">
+      <div class="new-card-header">
+        <div class="new-card-icon">🏆</div>
+        <div>
+          <div class="new-card-title">Top 5 partenaires</div>
+          <div class="new-card-sub">Classement par nombre d'offres</div>
+        </div>
+      </div>
+      <div class="top-list">
+        <div *ngFor="let p of topPartenaires; let i = index"
+             class="top-item"
+             [style.animation-delay]="i * 0.08 + 's'">
+          <div class="rank-bubble"
+               [class.gold]="i === 0"
+               [class.silver]="i === 1"
+               [class.bronze]="i === 2">
+            {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1 }}
+          </div>
+          <div class="top-info">
+            <div class="top-name">{{ p.nom }}</div>
+            <div class="top-sub-row">
+              <span class="mini-badge emploi-tag">{{ p.nbEmploi }} emploi</span>
+              <span class="mini-badge stage-tag">{{ p.nbStage }} stage</span>
+            </div>
+            <div class="top-bar-wrap">
+              <div class="top-bar-fill"
+                   [style.width.%]="getBarWidth(p.nbOffres)">
+              </div>
+            </div>
+          </div>
+          <div class="top-stats">
+            <span class="top-num">{{ p.nbOffres }}</span>
+            <span class="top-lbl">offres</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="new-card">
+      <div class="new-card-header">
+        <div class="new-card-icon">🔔</div>
+        <div>
+          <div class="new-card-title">Activité récente</div>
+          <div class="new-card-sub">Mises à jour en temps réel</div>
+        </div>
+        <div class="live-dot-small"></div>
+      </div>
+      <div *ngIf="!activities || activities.length === 0" class="empty-act">
+        En attente d'activité...
+      </div>
+      <div class="activity-list" *ngIf="activities && activities.length > 0">
+        <div *ngFor="let a of activities" class="activity-item">
+          <div class="act-ico-wrap">{{ a.icon }}</div>
+          <div class="act-content">
+            <div class="act-message">{{ a.message }}</div>
+            <div class="act-time">{{ a.time }}</div>
+          </div>
+          <span class="mini-badge"
+                [class.emploi-tag]="a.offreType === 'EMPLOI'"
+                [class.stage-tag]="a.offreType === 'STAGE'"
+                *ngIf="a.offreType">
+            {{ a.offreType }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="new-card">
+      <div class="new-card-header">
+        <div class="new-card-icon">⭐</div>
+        <div>
+          <div class="new-card-title">Scores popularité</div>
+          <div class="new-card-sub">Mis à jour toutes les 30s</div>
+        </div>
+      </div>
+      <div class="score-list">
+        <div *ngFor="let s of scores; let i = index" class="score-item">
+
+          <div class="score-rank" [class]="getStatutClass(s.statutActivite)">
+            {{ i + 1 }}
+          </div>
+
+          <div class="score-name">{{ s.nom }}</div>
+
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div [class]="'score-bar-fill bar-fill-' + getStatutClass(s.statutActivite)"
+                   [style.width.%]="s.scorePopularite">
+              </div>
+            </div>
+            <div class="score-pct">{{ s.scorePopularite }}%</div>
+          </div>
+
+          <div class="score-val">{{ s.scorePopularite }}</div>
+
+          <div class="statut-badge" [class]="getStatutClass(s.statutActivite)">
+            {{ s.statutActivite }}
+          </div>
+
+        </div>
+      </div>
+      <div class="scheduler-note">⏱ Mis à jour toutes les 30s</div>
+    </div>
+
+    
+    <div class="new-card">
+      <div class="new-card-header">
+        <div class="new-card-icon">🔀</div>
+        <div>
+          <div class="new-card-title">Analyse croisée</div>
+          <div class="new-card-sub">Répartition par type et statut</div>
+        </div>
+      </div>
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini">
+          <div class="kpi-mini-num blue">
+            {{ statsKeywords?.stageUniversite || 0 }}
+          </div>
+          <div class="kpi-mini-lbl">Stages universités</div>
+        </div>
+        <div class="kpi-mini">
+          <div class="kpi-mini-num purple">
+            {{ statsKeywords?.emploiEntreprise || 0 }}
+          </div>
+          <div class="kpi-mini-lbl">Emplois entreprises</div>
+        </div>
+        <div class="kpi-mini">
+          <div class="kpi-mini-num amber">
+            {{ statsKeywords?.nbEpingleesTresActifs || 0 }}
+          </div>
+          <div class="kpi-mini-lbl">Épinglées actifs</div>
+        </div>
+      </div>
+      <div *ngFor="let o of statsKeywords?.offresEpinglees"
+           class="epinglee-item">
+        <div class="pin-ico-wrap">📌</div>
+        <span class="ep-titre">{{ o.titre }}</span>
+        <span class="ep-part">{{ o.partenaire }}</span>
+        <span class="mini-badge"
+              [class.emploi-tag]="o.type === 'EMPLOI'"
+              [class.stage-tag]="o.type === 'STAGE'">
+          {{ o.type }}
+        </span>
+      </div>
+      
+    </div>
+
+  </div>
+
+  
+  <div class="section-header">
+    <h5><i class="ri-time-line"></i> Dernières Offres</h5>
+    <span class="section-badge">{{ offres.length }} récentes</span>
+  </div>
+
+  <div class="table-card">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Titre</th>
+          <th>Partenaire</th>
+          <th>Type</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of offres; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><strong>{{ o.titre }}</strong></td>
+          <td>
+            <span class="partenaire-badge">
+              <i class="ri-building-line"></i>
+              {{ o.partenaire?.nom }}
+            </span>
+          </td>
+          <td>
+            <span [class]="'type-badge ' + (o.type === 'EMPLOI' ? 'emploi' : 'stage')">
+              {{ o.type }}
+            </span>
+          </td>
+          <td class="date-cell">
+            <i class="ri-calendar-line"></i>
+            {{ formatDate(o.datePublication) }}
+          </td>
+        </tr>
+        <tr *ngIf="offres.length === 0">
+          <td colspan="5" class="empty-row">
+            <i class="ri-inbox-line"></i>
+            <p>Aucune offre trouvée</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

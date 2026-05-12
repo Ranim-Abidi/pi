@@ -1,0 +1,72 @@
+<div class="freelance-wrapper">
+  <div class="fl-espace-badge">Espace Freelance</div>
+  <div class="fl-page-header">
+    <div class="fl-header-left">
+      <h1 class="fl-title">Mes Candidatures</h1>
+      <p class="fl-subtitle">Suivez vos candidatures avec le meme style que Mes Missions Postees.</p>
+    </div>
+    <a routerLink="/freelance" class="fl-back-btn">← Tableau de bord</a>
+  </div>
+
+  <div *ngIf="loading" class="fl-loading">Chargement des candidatures...</div>
+  <div *ngIf="erreur" class="fl-error">{{ erreur }}</div>
+
+  <div class="fl-missions-list fl-cards-square" *ngIf="!loading && !erreur">
+    <div class="fl-client-tools" *ngIf="candidatures.length > 0">
+      <input class="fl-input"
+             type="text"
+             placeholder="Rechercher une candidature..."
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="onFiltersChanged()">
+      <select class="fl-input" [(ngModel)]="statusFilter" (ngModelChange)="onFiltersChanged()">
+        <option value="ALL">Tous les statuts</option>
+        <option value="EN_ATTENTE">En attente</option>
+        <option value="ACCEPTEE">Acceptee</option>
+        <option value="REJETEE">Rejetee</option>
+      </select>
+      <select class="fl-input" [(ngModel)]="sortMode" (ngModelChange)="onFiltersChanged()">
+        <option value="recent">Plus recentes</option>
+        <option value="oldest">Plus anciennes</option>
+      </select>
+    </div>
+
+    <div class="fl-results-kpi" *ngIf="candidatures.length > 0">
+      {{ candidatures.length }} candidature(s) affichée(s) / {{ totalElements }} total
+    </div>
+
+    <div *ngIf="candidatures.length === 0" class="fl-empty">
+      Vous n'avez pas encore postulé à une mission.
+      <a routerLink="/freelance/projects">Parcourir les missions disponibles →</a>
+    </div>
+    <div *ngIf="candidatures.length === 0" class="fl-empty">
+      Aucun résultat pour ces filtres.
+    </div>
+
+    <div class="fl-mission-card fl-client-mission-card" *ngFor="let c of candidatures">
+      <div class="fl-mission-header">
+        <span class="fl-mission-title">{{ c.missionTitre || 'Mission #' + resolveMissionId(c) }}</span>
+        <span class="fl-status-badge" [ngClass]="{
+          'fl-open':     c.statut === 'EN_ATTENTE',
+          'fl-accepted': c.statut === 'ACCEPTEE',
+          'fl-rejected': c.statut === 'REJETEE'
+        }">{{ c.statut === 'EN_ATTENTE' ? 'EN ATTENTE' : c.statut }}</span>
+      </div>
+      <div class="fl-candidature-meta">
+        <span class="fl-skill-tag">ID Mission: #{{ resolveMissionId(c) }}</span>
+      </div>
+      <div class="fl-mission-footer">
+        <span class="fl-budget-tag" *ngIf="c.datePostulation">
+          Postulé le {{ c.datePostulation | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+        <div class="fl-action-buttons">
+          <a [routerLink]="getMissionRoute(c)" class="fl-secondary-btn">Voir la mission →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fl-action-buttons" *ngIf="!loading && !erreur && totalElements > pageSize">
+    <button class="fl-back-btn" (click)="previousPage()" [disabled]="currentPage === 0">← Précédent</button>
+    <span class="fl-skill-tag">Page {{ currentPage + 1 }}</span>
+    <button class="fl-back-btn" (click)="nextPage()" [disabled]="(currentPage + 1) * pageSize >= totalElements">Suivant →</button>
+  </div>
+</div>

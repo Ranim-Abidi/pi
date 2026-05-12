@@ -1,0 +1,74 @@
+<div class="container-fluid">
+  <div class="page-header">
+    <h4>
+      <i class="ri-calendar-check-line"></i>
+      Liste des Entretiens
+    </h4>
+    <span class="badge-count">{{ entretiens.length }} entretiens</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="loading" *ngIf="loading">
+        <i class="ri-loader-4-line spin"></i>
+        Chargement des entretiens...
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Type</th>
+              <th>Recruteur</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of entretiens; let i = index">
+              <td><strong>{{ e.titre || '-' }}</strong></td>
+              <td>{{ e.type || e.categorie || '-' }}</td>
+              <td>{{ getRecruteur(e) }}</td>
+              <td>{{ formatDate(e.dateEntretien || e.dateCreation || e.createdAt) }}</td>
+              <td>
+                <span class="tag" [ngClass]="getStatutClass(e)">
+                  {{ getStatutLabel(e) }}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <button
+                    type="button"
+                    class="btn-icon btn-accept"
+                    [disabled]="!canAccepter(e)"
+                    (click)="accepterEntretien(e)"
+                    title="Accepter">
+                    <i class="ri-check-line"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-icon btn-refuse"
+                    [disabled]="!canRefuser(e)"
+                    (click)="refuserEntretien(e)"
+                    title="Refuser">
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="entretiens.length === 0">
+              <td colspan="6" class="empty-row">
+                <i class="ri-inbox-line"></i>
+                <p>Aucun entretien trouvé</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,178 @@
+<div class="quiz-page">
+
+  <!-- ═══ PHASE 1: CHARGEMENT ═══ -->
+  <div class="loading-phase" *ngIf="phase === 'loading' && !error">
+    <div class="ai-loader">
+      <div class="ai-brain">
+        <i class="ri-brain-line"></i>
+      </div>
+      <div class="ai-rings">
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+      </div>
+    </div>
+    <h2>Génèration de vos questions...</h2>
+    <p>Quiz adaptatif au niveau <strong>{{ LABELS[niveau] }}</strong></p>
+    <p class="hint">Cela peut prendre quelques secondes</p>
+  </div>
+
+  <!-- Erreur -->
+  <div class="error-state" *ngIf="error">
+    <div class="error-card">
+      <div class="error-icon">
+        <i class="ri-error-warning-fill"></i>
+      </div>
+      <h3>Oups !</h3>
+      <p class="error-message">{{ error }}</p>
+      <div class="error-actions">
+        <button class="btn-retour" (click)="retourParcours()">
+          <i class="ri-arrow-left-line"></i>
+          Retour au parcours
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ PHASE 2: QUIZ ═══ -->
+  <div class="quiz-phase" *ngIf="phase === 'quiz' && quiz && !error">
+
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+      <button class="back-btn" (click)="retourParcours()">
+        <i class="ri-arrow-left-line"></i> Quitter
+      </button>
+      <div class="quiz-title">
+        <h2>Quiz {{ LABELS[niveau] }}</h2>
+        <span class="seuil-info">Seuil de réussite : {{ quiz.seuilRequis }}%</span>
+      </div>
+      <span class="tentative-badge">
+        Tentative #{{ quiz.tentative }}
+        <ng-container *ngIf="niveau === 'EXPERT'">/ 3</ng-container>
+      </span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <span class="progress-label">{{ progressPercent }}% répondu</span>
+    </div>
+
+    <!-- Question Navigation Dots -->
+    <div class="question-dots">
+      <button *ngFor="let q of quiz.questions; let i = index"
+              class="dot"
+              [class.active]="i === currentQuestionIndex"
+              [class.answered]="reponses[q.id]"
+              (click)="goToQuestion(i)">
+        {{ i + 1 }}
+      </button>
+    </div>
+
+    <!-- Current Question -->
+    <div class="question-card" *ngIf="currentQuestion">
+      <div class="question-number">Question {{ currentQuestionIndex + 1 }} / {{ totalQuestions }}</div>
+      <h3 class="question-text">{{ currentQuestion.enonce }}</h3>
+
+      <div class="choices-list">
+        <button *ngFor="let c of currentQuestion.choix"
+                class="choice-btn"
+                [class.selected]="isSelected(currentQuestion.id, c)"
+                (click)="selectReponse(currentQuestion.id, c)">
+          <span class="choice-letter">{{ c.charAt(0) }}</span>
+          <span class="choice-text">{{ c.substring(3) }}</span>
+          <i class="ri-check-line check-icon" *ngIf="isSelected(currentQuestion.id, c)"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="quiz-nav">
+      <button class="btn-nav" (click)="prevQuestion()" [disabled]="currentQuestionIndex === 0">
+        <i class="ri-arrow-left-line"></i> Précédent
+      </button>
+
+      <button class="btn-nav" (click)="nextQuestion()"
+              *ngIf="currentQuestionIndex < totalQuestions - 1">
+        Suivant <i class="ri-arrow-right-line"></i>
+      </button>
+
+      <button class="btn-submit" (click)="soumettre()"
+              *ngIf="currentQuestionIndex === totalQuestions - 1"
+              [disabled]="!allAnswered || submitting">
+        <i class="ri-send-plane-line" *ngIf="!submitting"></i>
+        <i class="ri-loader-4-line spin" *ngIf="submitting"></i>
+        {{ submitting ? 'Correction...' : 'Soumettre le Quiz' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ PHASE 3: RÉSULTAT ═══ -->
+  <div class="resultat-phase" *ngIf="phase === 'resultat' && resultat">
+
+    <!-- Score Card -->
+    <div class="score-card" [class.reussi]="resultat.reussi" [class.echoue]="!resultat.reussi">
+      <div class="score-circle">
+        <div class="score-value">{{ resultat.score }}%</div>
+        <div class="score-seuil">Seuil : {{ resultat.seuilRequis }}%</div>
+      </div>
+      <div class="score-status">
+        <h2 *ngIf="resultat.reussi">
+          <i class="ri-trophy-line"></i> Réussi !
+        </h2>
+        <h2 *ngIf="!resultat.reussi">
+          <i class="ri-close-circle-line"></i> Non réussi
+        </h2>
+        <p class="message">{{ resultat.message }}</p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="resultat-actions">
+      <button class="btn-primary" *ngIf="resultat.reussi && resultat.niveauSuivantDebloque && !isReviewMode"
+              (click)="niveauSuivant()">
+        <i class="ri-arrow-right-line"></i> Aller au niveau {{ LABELS[resultat.niveauSuivantDebloque] }}
+      </button>
+      <button class="btn-primary" *ngIf="resultat.reussi && !resultat.niveauSuivantDebloque && !isReviewMode"
+              (click)="niveauSuivant()">
+        <i class="ri-trophy-line"></i> Obtenir mon certificat
+      </button>
+      <button class="btn-secondary" *ngIf="!resultat.reussi" (click)="reessayer()">
+        <i class="ri-refresh-line"></i> Réessayer
+      </button>
+      <button class="btn-outline" (click)="retourParcours()">
+        <i class="ri-arrow-left-line"></i> Retour au parcours
+      </button>
+    </div>
+
+    <!-- Corrections -->
+    <div class="corrections-section">
+      <h3><i class="ri-file-list-3-line"></i> Corrections détaillées</h3>
+      <div class="correction-item" *ngFor="let c of resultat.corrections"
+           [class.correct]="c.correct" [class.incorrect]="!c.correct">
+        <div class="correction-header">
+          <span class="q-number">Q{{ c.questionId }}</span>
+          <i [class]="c.correct ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'"></i>
+        </div>
+        <p class="q-enonce">{{ c.enonce }}</p>
+        <div class="correction-details">
+          <div class="your-answer">
+            <span class="label">Votre réponse :</span>
+            <span [class.wrong]="!c.correct">{{ c.reponseCandidat || '—' }}</span>
+          </div>
+          <div class="correct-answer" *ngIf="!c.correct">
+            <span class="label">Bonne réponse :</span>
+            <span class="right">{{ c.bonneReponse }}</span>
+          </div>
+        </div>
+        <p class="explication" *ngIf="c.explication">
+          <i class="ri-lightbulb-line"></i> {{ c.explication }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>

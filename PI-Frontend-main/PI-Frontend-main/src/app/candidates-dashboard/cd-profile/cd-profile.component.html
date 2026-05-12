@@ -1,0 +1,540 @@
+<!-- Candidate Details Area -->
+<div class="candidate-details-area ptb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <div class="single-candidate-box d-sm-flex align-items-center justify-content-between">
+                    <div class="d-sm-flex align-items-center">
+                        <!-- Hidden file input for profile picture -->
+                        <input #profilePictureInput 
+                               type="file" 
+                               accept=".jpg,.jpeg,.png" 
+                               (change)="onProfilePictureSelected($event)" 
+                               style="display: none;">
+                        
+                        <!-- Clickable profile picture -->
+                        <div class="image profile-pic-wrapper" 
+                             (click)="!isViewingOtherCandidate && profilePictureInput.click()" 
+                             [style.cursor]="isViewingOtherCandidate ? 'default' : 'pointer'"
+                             [title]="isViewingOtherCandidate ? 'Viewing another candidate profile' : 'Click to upload profile picture'">
+                            <img [src]="displayProfilePictureUrl" 
+                                 class="rounded-circle profile-pic-img" 
+                                 alt="candidate-image">
+                            <div *ngIf="!isViewingOtherCandidate && !(profilePictureUrl || candidateData.profile_picture_url || candidateData.profilePictureUrl)" class="profile-pic-overlay">
+                                <span style="color: #85B7EB; font-weight: bold; text-align: center;">📁 Upload<br>Picture</span>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <h3 class="fw-semibold">
+                                {{ currentUserName }}
+                            </h3>
+                            <span class="designation d-block">
+                                {{ candidateData.niveau_etude || 'Candidat' }}
+                            </span>
+                            <span class="location d-block">
+                                <span>Location:</span> {{ localisationData.ville || 'Non spécifié' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="candidate-details-description">
+                    <h3 style="margin-bottom: 20px;">About me</h3>
+
+                    <!-- View Mode -->
+                    <div *ngIf="!isEditingAbout">
+                        <p *ngIf="candidateData.description">
+                            {{ candidateData.description }}
+                        </p>
+                        <p *ngIf="!candidateData.description" style="font-style: italic; color: #999;">
+                            Aucune description fournie. Cliquez sur "Edit" pour ajouter votre description.
+                        </p>
+                        <div *ngIf="!isEditingAbout" style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button *ngIf="!isViewingOtherCandidate" (click)="isEditingAbout = true" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #85B7EB; color: white; font-weight: bold;">
+                                Edit Description
+                            </button>
+                            <button *ngIf="!isViewingOtherCandidate && isDescriptionSaved" (click)="deleteDescription()" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #f3c388; color: white; font-weight: bold;">
+                                Delete Description
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div *ngIf="isEditingAbout" style="margin-bottom: 20px;">
+                        <textarea 
+                            class="form-control shadow-none" 
+                            [(ngModel)]="candidateData.description" 
+                            (input)="onDescriptionChange()"
+                            maxlength="1000"
+                            rows="5"
+                            placeholder="Parlez un peu de vous, vos passions, vos objectifs..." [style.border-color]="isDescriptionFormSubmitted && (!candidateData.description || candidateData.description.length === 0 || candidateData.description.length > 1000) ? '#dc3545' : ''" [style.border-width]="isDescriptionFormSubmitted && (!candidateData.description || candidateData.description.length === 0 || candidateData.description.length > 1000) ? '2px' : ''"></textarea>
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button (click)="isDescriptionFormSubmitted = true; saveDescriptionOnly()" class="default-btn" [disabled]="isSaving || !isDescriptionValid()" style="background-color: #85B7EB; color: white; font-weight: bold;">
+                                {{ isSaving ? 'Sauvegarde...' : 'Save' }}
+                            </button>
+                            <button *ngIf="candidateData.description && candidateData.description.length > 0" (click)="deleteDescription()" class="default-btn" style="background-color: #f3c388; color: white; font-weight: bold;" [disabled]="isSaving">
+                                Delete
+                            </button>
+                            <button (click)="isEditingAbout = false" class="default-btn" style="background-color: #999;" [disabled]="isSaving">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">
+                        Education
+                    </h3>
+                    
+                    <!-- Education View Mode -->
+                    <div *ngIf="!isEditingEducation">
+                        <ul class="ps-0 list-unstyled section-list">
+                            <li class="position-relative section-list-item" *ngFor="let edu of educationList; let i = index">
+                                <div class="number">{{ i + 1 }}</div>
+                                <h4>{{ edu.domain || 'Domaine d\'étude' }}</h4>
+                                <span class="d-block designation">
+                                    <span>{{ edu.institution || 'Institution' }}</span> 
+                                    <span *ngIf="edu.startDate || edu.endDate"> - ({{ edu.startDate }}-{{ edu.endDate }})</span>
+                                </span>
+                                <p *ngIf="edu.niveauEtude" style="margin-top: 8px;">
+                                    <span style="font-weight: 600;">Niveau:</span> {{ edu.niveauEtude }}
+                                </p>
+                            </li>
+                        </ul>
+                        <div class="section-actions">
+                            <button *ngIf="!isViewingOtherCandidate" (click)="isEditingEducation = true; isEducationFormSubmitted = false;" class="default-btn btn-primary">
+                                Edit Education
+                            </button>
+                            <button *ngIf="!isViewingOtherCandidate && educationList.length > 0" (click)="deleteAllEducation()" class="default-btn btn-danger">
+                                Delete All Education
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Education Edit Mode -->
+                    <div *ngIf="isEditingEducation" style="margin-bottom: 30px;">
+                        <div *ngFor="let edu of educationList; let i = index" style="margin-bottom: 25px; padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0;">
+                            <h5 style="margin-bottom: 15px;">Éducation {{ i + 1 }}</h5>
+                            
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Niveau d'Étude</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="edu.niveauEtude" (change)="onEducationFieldChange(edu, 'niveauEtude')" [style.border-color]="isEducationFormSubmitted && (!edu.niveauEtude || edu.niveauEtude.length === 0) ? '#dc3545' : ''" [style.border-width]="isEducationFormSubmitted && (!edu.niveauEtude || edu.niveauEtude.length === 0) ? '2px' : ''" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez un niveau</option>
+                                                <option *ngFor="let option of niveauEtudeOptions" [value]="option">{{ option }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Domaine d'Étude</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="edu.domain" (change)="onEducationFieldChange(edu, 'domain')" [style.border-color]="isEducationFormSubmitted && (!edu.domain || edu.domain.length === 0) ? '#dc3545' : ''" [style.border-width]="isEducationFormSubmitted && (!edu.domain || edu.domain.length === 0) ? '2px' : ''" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez un domaine</option>
+                                                <option *ngFor="let option of domaineEtudeOptions" [value]="option">{{ option }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Institution / Université</label>
+                                        <input type="text" class="form-control shadow-none" [(ngModel)]="edu.institution" (input)="onEducationFieldChange(edu, 'institution')" maxlength="20" placeholder="Ex: Université de Paris" [style.border-color]="isEducationFormSubmitted && (!edu.institution || edu.institution.length === 0 || edu.institution.length > 20) ? '#dc3545' : ''" [style.border-width]="isEducationFormSubmitted && (!edu.institution || edu.institution.length === 0 || edu.institution.length > 20) ? '2px' : ''">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Année de Début</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="edu.startDate" (change)="onEducationYearChange(edu)" [style.border-color]="isEducationYearsValid(edu) ? '' : '#dc3545'" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez une année</option>
+                                                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Année de Fin</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="edu.endDate" (change)="onEducationYearChange(edu)" [style.border-color]="isEducationYearsValid(edu) ? '' : '#dc3545'" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez une année</option>
+                                                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                        <div *ngIf="edu.startDate && edu.endDate && !isEducationYearsValid(edu)" style="margin-top: 3px; font-size: 11px; color: #dc3545;">
+                                            L'année de fin doit être supérieure ou égale à l'année de début
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button *ngIf="educationList.length > 1" (click)="removeEducation(i)" class="default-btn" style="background-color: #f3c388; margin-top: 10px;">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="section-actions section-actions--form">
+                            <div class="form-status" *ngIf="isEducationFormSubmitted && !isEducationListValid()">
+                                ⚠️ {{ getEducationValidationError() }}
+                            </div>
+                            <div class="section-actions-inner">
+                                <button (click)="addEducation()" class="default-btn btn-primary" [disabled]="!isEducationListValid()">
+                                    Add Education
+                                </button>
+                                <button (click)="isEducationFormSubmitted = true; saveCandidateProfile(); isEditingEducation = false;" class="default-btn btn-primary" [disabled]="!isEducationListValid()">
+                                    Save Education
+                                </button>
+                                <button (click)="isEditingEducation = false" class="default-btn btn-secondary">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="section-title">
+                        Background and expertise
+                    </h3>
+                    
+                    <!-- Background View Mode -->
+                    <div *ngIf="!isEditingBackground">
+                        <ul class="ps-0 list-unstyled section-list">
+                            <li class="position-relative section-list-item" *ngFor="let bg of backgroundList; let i = index">
+                                <div class="number">{{ i + 1 }}</div>
+                                <h4>{{ bg.titre || 'Titre Professionnel' }}</h4>
+                                <span class="d-block designation">
+                                    <span>{{ bg.company || 'Entreprise' }}</span> 
+                                    <span *ngIf="bg.startDate || bg.endDate"> - ({{ bg.startDate }}-{{ bg.endDate }})</span>
+                                </span>
+                            </li>
+                        </ul>
+                        <div class="section-actions">
+                            <button *ngIf="!isViewingOtherCandidate" (click)="isEditingBackground = true; isBackgroundFormSubmitted = false;" class="default-btn btn-primary">
+                                Edit Background
+                            </button>
+                            <button *ngIf="!isViewingOtherCandidate && backgroundList.length > 0" (click)="deleteAllBackground()" class="default-btn btn-danger">
+                                Delete All Background
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Background Edit Mode -->
+                    <div *ngIf="isEditingBackground" style="margin-bottom: 30px;">
+                        <div *ngFor="let bg of backgroundList; let i = index" style="margin-bottom: 25px; padding: 20px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0;">
+                            <h5 style="margin-bottom: 15px;">Expérience Professionnelle {{ i + 1 }}</h5>
+                            
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Titre du Poste</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="bg.titre" (input)="onBackgroundFieldChange(bg, 'titre')" [style.border-color]="isBackgroundFormSubmitted && (!bg.titre || bg.titre.length === 0 || bg.titre.length > 30) ? '#dc3545' : ''" [style.border-width]="isBackgroundFormSubmitted && (!bg.titre || bg.titre.length === 0 || bg.titre.length > 30) ? '2px' : ''" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez un titre</option>
+                                                <option *ngFor="let option of titrePosteOptions" [value]="option">{{ option }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Entreprise</label>
+                                        <input type="text" class="form-control shadow-none" [(ngModel)]="bg.company" (input)="onBackgroundFieldChange(bg, 'company')" maxlength="20" placeholder="Ex: Google, Jove" [style.border-color]="isBackgroundFormSubmitted && (!bg.company || bg.company.length === 0 || bg.company.length > 20) ? '#dc3545' : ''" [style.border-width]="isBackgroundFormSubmitted && (!bg.company || bg.company.length === 0 || bg.company.length > 20) ? '2px' : ''">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Année de Début</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="bg.startDate" (change)="onBackgroundYearChange(bg)" [style.border-color]="isBackgroundFormSubmitted && bg.startDate && bg.endDate && !isBackgroundYearsValid(bg) ? '#dc3545' : ''" [style.border-width]="isBackgroundFormSubmitted && bg.startDate && bg.endDate && !isBackgroundYearsValid(bg) ? '2px' : ''" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez une année</option>
+                                                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label>Année de Fin</label>
+                                        <div style="position: relative;">
+                                            <select class="form-control shadow-none" [(ngModel)]="bg.endDate" (change)="onBackgroundYearChange(bg)" [style.border-color]="isBackgroundFormSubmitted && bg.startDate && bg.endDate && !isBackgroundYearsValid(bg) ? '#dc3545' : ''" [style.border-width]="isBackgroundFormSubmitted && bg.startDate && bg.endDate && !isBackgroundYearsValid(bg) ? '2px' : ''" style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                                <option value="" disabled>Sélectionnez une année</option>
+                                                <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+                                            </select>
+                                            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                        </div>
+                                        <div *ngIf="bg.startDate && bg.endDate && !isBackgroundYearsValid(bg)" style="margin-top: 3px; font-size: 11px; color: #dc3545;">
+                                            L'année de fin doit être supérieure ou égale à l'année de début
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button *ngIf="backgroundList.length > 1" (click)="removeBackground(i)" class="default-btn" style="background-color: #f3c388; margin-top: 10px;">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="section-actions section-actions--form">
+                            <div class="form-status" *ngIf="isBackgroundFormSubmitted && !isBackgroundListValid()">
+                                ⚠️ {{ getBackgroundValidationError() }}
+                            </div>
+                            <div class="section-actions-inner">
+                                <button (click)="addBackground()" class="default-btn btn-primary" [disabled]="!isBackgroundListValid()">
+                                    Add Experience
+                                </button>
+                                <button (click)="isBackgroundFormSubmitted = true; saveCandidateProfile(); isEditingBackground = false;" class="default-btn btn-primary" [disabled]="!isBackgroundListValid()">
+                                    Save Background
+                                </button>
+                                <button (click)="isEditingBackground = false" class="default-btn btn-secondary">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>
+                        Passion and future goals
+                    </h3>
+                    
+                    <!-- Passion View Mode -->
+                    <div *ngIf="!isEditingPassion">
+                        <p *ngIf="passionAndGoals">{{ passionAndGoals }}</p>
+                        <p *ngIf="!passionAndGoals" style="font-style: italic; color: #999;">
+                            Aucune information fournie. Cliquez sur "Edit" pour ajouter vos passions et objectifs futurs.
+                        </p>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button *ngIf="!isViewingOtherCandidate" (click)="isEditingPassion = true" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #85B7EB; color: white; font-weight: bold;">
+                                Edit Passion & Goals
+                            </button>
+                            <button *ngIf="!isViewingOtherCandidate && isPassionSaved" (click)="deletePassionAndGoals()" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #f3c388; color: white; font-weight: bold;">
+                                Delete Passion & Goals
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Passion Edit Mode -->
+                    <div *ngIf="isEditingPassion" style="margin-bottom: 30px;">
+                        <div class="form-group">
+                            <label>Vos Passions et Objectifs Futurs</label>
+                            <textarea 
+                                class="form-control shadow-none" 
+                                [(ngModel)]="passionAndGoals" 
+                                (input)="onPassionChange()"
+                                maxlength="200"
+                                rows="6"
+                                placeholder="Parlez de vos passions, vos rêves professionnels et vos objectifs futurs..." [style.border-color]="isPassionFormSubmitted && (!passionAndGoals || passionAndGoals.length === 0 || passionAndGoals.length > 200) ? '#dc3545' : ''" [style.border-width]="isPassionFormSubmitted && (!passionAndGoals || passionAndGoals.length === 0 || passionAndGoals.length > 200) ? '2px' : ''"></textarea>
+                        </div>
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button (click)="isPassionFormSubmitted = true; savePassionAndGoals()" class="default-btn" [disabled]="isSaving || !isPassionValid()" style="background-color: #85B7EB; color: white; font-weight: bold;">
+                                Save
+                            </button>
+                            <button (click)="isEditingPassion = false" class="default-btn" style="background-color: #999;" [disabled]="isSaving">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px;">
+                        Skills & Competences
+                    </h3>
+
+                    <!-- View Mode -->
+                    <div *ngIf="!isEditingCompetences">
+                        <div *ngIf="candidateData.competences.length > 0">
+                            <div class="competences-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                                <span *ngFor="let comp of candidateData.competences" 
+                                      style="background-color: #85B7EB; color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px;">
+                                    {{ comp }}
+                                </span>
+                            </div>
+                        </div>
+                        <p *ngIf="candidateData.competences.length === 0" style="font-style: italic; color: #999;">
+                            No skills added yet. Click "Edit" to add your professional skills.
+                        </p>
+                        <button *ngIf="!isViewingOtherCandidate" (click)="isEditingCompetences = true" class="default-btn" style="background-color: #85B7EB; color: white; font-weight: bold;">
+                            Edit Skills
+                        </button>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div *ngIf="isEditingCompetences" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>Select a Skill to Add</label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                                <select class="form-control shadow-none" 
+                                        [(ngModel)]="selectedCompetence">
+                                    <option value="">-- Select a skill --</option>
+                                    <option *ngFor="let comp of availableCompetences" 
+                                            [value]="comp.nom"
+                                            [disabled]="candidateData.competences.includes(comp.nom)">
+                                        {{ comp.nom }} ({{ comp.type }})
+                                    </option>
+                                </select>
+                                <button (click)="addCompetence()" class="default-btn" style="background-color: #85B7EB; color: white; font-weight: bold; padding: 8px 16px; white-space: nowrap;">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Skills List -->
+                        <div *ngIf="candidateData.competences.length > 0" class="competences-list" style="margin-bottom: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">Your Skills ({{candidateData.competences.length}})</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div *ngFor="let comp of candidateData.competences; let i = index" 
+                                     style="background-color: #f0f0f0; padding: 8px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+                                    <span>{{ comp }}</span>
+                                    <button (click)="removeCompetence(i)" style="background: none; border: none; cursor: pointer; color: #dc3545; font-weight: bold; padding: 0 4px;">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button (click)="saveCompetences()" class="default-btn" [disabled]="isSaving" style="background-color: #85B7EB; color: white; font-weight: bold; flex: 1;">
+                                {{ isSaving ? 'Saving...' : 'Save Skills' }}
+                            </button>
+                            <button (click)="isEditingCompetences = false" class="default-btn" style="background-color: #999; flex: 1;" [disabled]="isSaving">
+                                Cancel
+                            </button>
+                        </div>
+
+                        <!-- Success/Error Messages -->
+                        <div *ngIf="successMessage" style="margin-top: 10px; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 4px;">
+                            {{ successMessage }}
+                        </div>
+                        <div *ngIf="errorMessage" style="margin-top: 10px; padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px;">
+                            {{ errorMessage }}
+                        </div>
+                    </div>
+                    
+                    <!-- Thank You Section -->
+                    <div style="margin-top: 40px; padding: 30px; background: white; border-radius: 10px; color: #333; text-align: center; border: 2px solid #85B7EB;">
+                        <h3 style="color: #85B7EB; margin-bottom: 15px;">Thank You for Using Matchy Khedma!</h3>
+                        <p style="font-size: 15px; line-height: 1.6; margin: 0; color: #666;">
+                            We appreciate you taking the time to build your complete candidate profile. Your detailed information helps employers find the perfect match for their opportunities. Continue exploring job listings, apply to positions that match your skills, and take the next step in your career journey with us. Good luck!
+                        </p>
+                        <button class="default-btn" routerLink="/candidates-dashboard/applied-jobs" style="margin-top: 20px; background-color: #85B7EB; color: white; font-weight: bold;">
+                            Apply for a job
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <aside class="sidebar-area">
+                    <div class="box">
+                        <h3 style="margin-top: 0;">Complétez vos informations</h3>
+
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" class="form-control shadow-none" [(ngModel)]="contactData.prenom" (input)="onPrenomChange()" maxlength="20" placeholder="Entrez votre prénom" [disabled]="isViewingOtherCandidate" [style.border-color]="isContactFormSubmitted && (!contactData.prenom || contactData.prenom.length === 0 || contactData.prenom.length > 20) ? '#dc3545' : ''" [style.border-width]="isContactFormSubmitted && (!contactData.prenom || contactData.prenom.length === 0 || contactData.prenom.length > 20) ? '2px' : ''">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" class="form-control shadow-none" [(ngModel)]="candidateData.telephone" (input)="onTelephoneChange()" placeholder="Ex: +212 6 00 000 000" [disabled]="isViewingOtherCandidate" [style.border-color]="isContactFormSubmitted && !isTelephoneValid() ? '#dc3545' : ''" [style.border-width]="isContactFormSubmitted && !isTelephoneValid() ? '2px' : ''">
+                            <div *ngIf="isContactFormSubmitted && candidateData.telephone && !isTelephoneValid()" style="margin-top: 5px; font-size: 12px; color: #dc3545;">
+                                Le téléphone doit contenir uniquement des chiffres et caractères spéciaux (+, -, espaces)
+                            </div>
+                            <div *ngIf="isContactFormSubmitted && !candidateData.telephone" style="margin-top: 5px; font-size: 12px; color: #dc3545;">
+                                Le téléphone est requis
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button *ngIf="!isViewingOtherCandidate" (click)="isContactFormSubmitted = true; saveContactInfo()" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #85B7EB; color: white; font-weight: bold;" [disabled]="isSaving || !isPrenomValid() || !isTelephoneValid()">
+                                Save Contact Info
+                            </button>
+                            <button *ngIf="!isViewingOtherCandidate && isContactInfoSaved" (click)="deleteContactInfo()" class="default-btn" style="padding: 8px 20px; font-size: 14px; background-color: #f3c388; color: white; font-weight: bold;" [disabled]="isSaving">
+                                Delete Contact Info
+                            </button>
+                        </div>
+
+                        <h3 style="margin-top: 30px;">Localisation</h3>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Pays *</label>
+                                    <div style="position: relative;">
+                                        <select class="form-control shadow-none" [(ngModel)]="localisationData.pays" (ngModelChange)="onPaysCityChange(); localisationData.ville = ''" [disabled]="isViewingOtherCandidate" required style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                            <option value="" disabled>Sélectionnez un pays</option>
+                                            <option *ngFor="let country of countryOptions" [value]="country">{{ country }}</option>
+                                        </select>
+                                        <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Ville *</label>
+                                    <div style="position: relative;">
+                                        <select class="form-control shadow-none" [(ngModel)]="localisationData.ville" (ngModelChange)="onPaysCityChange(); updateMapToCity()" [disabled]="!localisationData.pays || isViewingOtherCandidate" required style="padding-right: 35px; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                                            <option value="" disabled>{{ localisationData.pays ? 'Sélectionnez une ville' : 'Sélectionnez d\'abord un pays' }}</option>
+                                            <option *ngFor="let city of getCitiesByCountry()" [value]="city">{{ city }}</option>
+                                        </select>
+                                        <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #85B7EB; font-size: 18px;">▼</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Latitude</label>
+                                    <input type="number" class="form-control shadow-none" [(ngModel)]="localisationData.latitude" placeholder="Ex: 36.8065" [disabled]="isViewingOtherCandidate" step="0.0001">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Longitude</label>
+                                    <input type="number" class="form-control shadow-none" [(ngModel)]="localisationData.longitude" placeholder="Ex: 10.1615" [disabled]="isViewingOtherCandidate" step="0.0001">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; position: relative; width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                            <label style="position: absolute; top: -25px; left: 0;">Sélectionnez votre localisation sur la carte</label>
+                            <google-map 
+                                #map
+                                [height]="'400px'" 
+                                [width]="'100%'"
+                                [zoom]="mapZoom"
+                                [center]="mapCenter"
+                                (mapClick)="onMapClick($event)">
+                                <map-marker 
+                                    *ngIf="markerPosition"
+                                    [position]="markerPosition"
+                                    [title]="'Ma Localisation'">
+                                </map-marker>
+                            </google-map>
+                        </div>
+
+                        <button *ngIf="!isViewingOtherCandidate" (click)="saveLocalisationInfo()" class="default-btn" style="padding: 8px 20px; font-size: 14px; margin-top: 15px; background-color: #85B7EB; color: white; font-weight: bold; margin-right: 10px;" [disabled]="isSaving">
+                            Save Localisation
+                        </button>
+                        <button *ngIf="!isViewingOtherCandidate && candidateData.localisation_id" (click)="deleteLocalisationInfo()" class="default-btn" style="padding: 8px 20px; font-size: 14px; margin-top: 15px; background-color: #f3c388; color: white; font-weight: bold;" [disabled]="isSaving">
+                            Delete Localisation
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>

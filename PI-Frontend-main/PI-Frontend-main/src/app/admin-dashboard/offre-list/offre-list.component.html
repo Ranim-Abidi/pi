@@ -1,0 +1,201 @@
+<div class="container-fluid">
+
+  <div class="page-header">
+    <div class="header-left">
+      <button type="button" class="btn-retour" (click)="retour()">
+        <i class="ri-arrow-left-line"></i>
+        Retour
+      </button>
+      <h4>
+        <i class="ri-file-list-3-line"></i>
+        Offres de <span class="partenaire-name">{{ partenaire?.nom }}</span>
+      </h4>
+    </div>
+    <span class="badge-count">{{ offres.length }} offres</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Titre</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let o of offres; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <strong>
+                  <span *ngIf="o.epinglee"
+                        style="display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:#fef3c7; color:#b45309; border:1px solid #fde68a; margin-right:6px;">
+                    📌
+                  </span>
+                  {{ o.titre }}
+                </strong>
+              </td>
+              <td>{{ o.description }}</td>
+              <td>
+                <span [class]="'badge ' + (o.type === 'EMPLOI' ? 'badge-emploi' : 'badge-stage')">
+                  {{ o.type }}
+                </span>
+              </td>
+              <td>{{ formatDate(o.datePublication) }}</td>
+              <td>
+                <div class="btn-group">
+
+                  <!-- ✅ Bouton épingler -->
+                  <button type="button"
+                          (click)="toggleEpingle(o.id)"
+                          [style]="o.epinglee ?
+                            'background:#fef3c7; color:#b45309; border:1px solid #fde68a; border-radius:8px; padding:6px 10px; cursor:pointer;' :
+                            'background:#f3f4f6; color:#6b7280; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px; cursor:pointer;'"
+                          [title]="o.epinglee ? 'Désépingler' : 'Épingler'">
+                    📌
+                  </button>
+
+                  <button type="button"
+                          class="btn-yellow"
+                          (click)="modifier(o)">
+                    <i class="ri-edit-line"></i>
+                  </button>
+
+                  <button type="button"
+                          class="btn-red"
+                          (click)="supprimer(o.id)">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="offres.length === 0">
+              <td colspan="6" class="empty-row">
+                <i class="ri-inbox-line"></i>
+                <p>Aucune offre trouvée</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP MODIFIER OFFRE -->
+<div class="popup-overlay" *ngIf="isModifPopupOpen">
+  <div class="popup-box">
+    <div class="popup-header">
+      <h5>
+        <i class="ri-edit-line"></i>
+        Modifier Offre
+      </h5>
+      <button type="button" class="close-btn" (click)="closeModifPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <form (ngSubmit)="saveModif()" #modifForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label>Titre *</label>
+          <div class="input-wrapper">
+            <i class="ri-file-text-line input-icon"></i>
+            <input type="text"
+                   [(ngModel)]="offreModif.titre"
+                   name="titre"
+                   #titre="ngModel"
+                   required
+                   minlength="3"
+                   maxlength="100"
+                   pattern="[a-zA-ZÀ-ÿ\s\-0-9]*[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-0-9]*"
+                   placeholder="Titre de l'offre"
+                   [class.input-error]="titre.invalid && titre.touched"
+                   [class.input-success]="titre.valid && titre.touched">
+          </div>
+          <div class="error-box" *ngIf="titre.invalid && titre.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="titre.errors?.['required']">Le titre est obligatoire</span>
+            <span *ngIf="titre.errors?.['minlength']">Minimum 3 caractères</span>
+            <span *ngIf="titre.errors?.['maxlength']">Maximum 100 caractères</span>
+            <span *ngIf="titre.errors?.['pattern']">Le titre doit contenir au moins une lettre</span>
+          </div>
+          <div class="success-box" *ngIf="titre.valid && titre.touched">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>Titre valide</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <div class="textarea-wrapper">
+            <i class="ri-align-left input-icon"></i>
+            <textarea [(ngModel)]="offreModif.description"
+                      name="description"
+                      #description="ngModel"
+                      required
+                      minlength="10"
+                      pattern="[a-zA-ZÀ-ÿ\s\-0-9]*[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-0-9]*"
+                      placeholder="Description de l'offre..."
+                      rows="3"
+                      [class.input-error]="description.invalid && description.touched"
+                      [class.input-success]="description.valid && description.touched">
+            </textarea>
+          </div>
+          <div class="error-box" *ngIf="description.invalid && description.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="description.errors?.['required']">La description est obligatoire</span>
+            <span *ngIf="description.errors?.['minlength']">Minimum 10 caractères</span>
+            <span *ngIf="description.errors?.['pattern']">La description doit contenir au moins une lettre</span>
+          </div>
+          <div class="success-box" *ngIf="description.valid && description.touched">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>Description valide</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Type *</label>
+          <div class="input-wrapper">
+            <i class="ri-list-check input-icon"></i>
+            <select [(ngModel)]="offreModif.type"
+                    name="typeOffre"
+                    #typeOffre="ngModel"
+                    required
+                    [class.input-error]="typeOffre.invalid && typeOffre.touched"
+                    [class.input-success]="typeOffre.valid && typeOffre.touched">
+              <option value="EMPLOI">Emploi</option>
+              <option value="STAGE">Stage</option>
+            </select>
+          </div>
+          <div class="error-box" *ngIf="typeOffre.invalid && typeOffre.touched">
+            <i class="ri-error-warning-line"></i>
+            <span *ngIf="typeOffre.errors?.['required']">Le type est obligatoire</span>
+          </div>
+          <div class="success-box" *ngIf="typeOffre.valid && typeOffre.touched">
+            <i class="ri-checkbox-circle-line"></i>
+            <span>Type sélectionné</span>
+          </div>
+        </div>
+
+        <div class="popup-footer">
+          <button type="button"
+                  class="btn-annuler"
+                  (click)="closeModifPopup()">
+            Annuler
+          </button>
+          <button type="submit"
+                  class="btn-modifier"
+                  [disabled]="modifForm.invalid">
+            <i class="ri-save-line"></i>
+            Modifier
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

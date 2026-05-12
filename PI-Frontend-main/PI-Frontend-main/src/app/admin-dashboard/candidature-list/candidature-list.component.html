@@ -1,0 +1,71 @@
+<div class="page-container">
+
+    <div class="page-header">
+        <h4>
+            <i class="ri-file-list-3-line"></i>
+            Liste des Candidatures
+        </h4>
+        <span class="badge-count">{{ filteredCandidatures.length }} candidature(s)</span>
+    </div>
+
+    <div class="search-bar">
+        <div class="search-wrapper">
+            <i class="ri-search-line search-icon"></i>
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Rechercher par candidat, offre, entreprise ou statut..."
+                [ngModel]="searchTerm"
+                (ngModelChange)="onSearch($event)"
+            />
+            <button *ngIf="searchTerm" class="clear-btn" type="button" (click)="onSearch('')">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="state-box" *ngIf="isLoading">
+        <i class="ri-loader-4-line spin"></i>
+        <p>Chargement des candidatures...</p>
+    </div>
+
+    <div class="state-box error" *ngIf="!isLoading && errorMessage">
+        <i class="ri-error-warning-line"></i>
+        <p>{{ errorMessage }}</p>
+    </div>
+
+    <div class="cards-grid" *ngIf="!isLoading && !errorMessage && filteredCandidatures.length > 0">
+        <article class="candidature-card" *ngFor="let c of filteredCandidatures; let i = index">
+            <div class="card-top">
+                <span class="idx">#{{ i + 1 }}</span>
+                <span class="status-chip">{{ getStatus(c) }}</span>
+            </div>
+
+            <h5 class="candidate-name">
+                <i class="ri-user-line"></i>
+                {{ getCandidateName(c) }}
+            </h5>
+
+            <div class="meta-row">
+                <i class="ri-briefcase-4-line"></i>
+                <span>{{ getJobTitle(c) }}</span>
+            </div>
+
+            <div class="meta-row">
+                <i class="ri-building-line"></i>
+                <span>{{ getCompanyName(c) }}</span>
+            </div>
+
+            <div class="meta-row" *ngIf="getDate(c)">
+                <i class="ri-calendar-line"></i>
+                <span>{{ getDate(c) | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+        </article>
+    </div>
+
+    <div class="state-box" *ngIf="!isLoading && !errorMessage && filteredCandidatures.length === 0">
+        <i class="ri-inbox-line"></i>
+        <p>{{ searchTerm ? 'Aucun résultat trouvé' : 'Aucune candidature disponible' }}</p>
+    </div>
+
+</div>

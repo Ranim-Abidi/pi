@@ -1,0 +1,332 @@
+<div class="player-container">
+
+  <div class="screenshot-blocker-overlay" *ngIf="isObscured">
+    <div class="message">
+      <i class="ri-forbid-line"></i>
+      <span>Capture d'écran interdite</span>
+    </div>
+  </div>
+
+  <div class="quiz-final-overlay" *ngIf="showQuizFinal">
+    <div class="quiz-final-panel position-relative"
+         [class.no-select]="!quizFinalSubmitted && !quizBloque" style="position: relative;">
+
+      <button class="btn-close-modal-x" (click)="fermerQuizFinal()" aria-label="Fermer" title="Fermer et retourner à la formation" *ngIf="quizFinalSubmitted || quizBloque || peutReessayer">
+        <i class="ri-close-line"></i>
+      </button>
+
+      <div class="quiz-avertissement" *ngIf="showAvertissement">
+        <i class="ri-alert-line"></i>
+        {{ avertissementMessage }}
+      </div>
+
+      <div class="quiz-final-loading" *ngIf="quizFinalLoading">
+        <div class="loading-spinner"></div>
+        <h3>Génération de votre {{ getQuizLabel() }}...</h3>
+      </div>
+
+      <div class="quiz-bloque-panel" *ngIf="quizBloque && !quizFinalLoading">
+        <h2 style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <span class="bloque-icon" style="font-size: 1.1em; margin: 0; line-height: 1;">🚫</span> 
+          Tentative annulée
+        </h2>
+        <p class="bloque-raison">{{ quizBloqueMessage }}</p>
+
+        <div class="tentatives-info danger">
+          <i class="ri-close-circle-line"></i>
+          <span>
+            Cette tentative a été comptabilisée.
+            <ng-container *ngIf="tentativesRestantes > 0">
+              Il vous reste <strong>{{ tentativesRestantes }}</strong>
+              tentative{{ tentativesRestantes > 1 ? 's' : '' }}.
+            </ng-container>
+            <ng-container *ngIf="tentativesRestantes === 0">
+              Vous avez épuisé toutes vos tentatives.
+            </ng-container>
+          </span>
+        </div>
+
+        <button *ngIf="peutReessayer"
+                class="btn-retry-final"
+                (click)="lancerQuizFinal()"
+                type="button">
+          <i class="ri-restart-line"></i>
+          Réessayer l'évaluation
+        </button>
+
+        <button *ngIf="!peutReessayer"
+                class="btn-close-final"
+                (click)="fermerQuizFinal()"
+                type="button">
+          <i class="ri-close-line"></i>
+          Fermer
+        </button>
+      </div>
+
+      <ng-container *ngIf="!quizFinalLoading && !quizFinalSubmitted
+                           && !quizBloque">
+
+        <div class="quiz-final-header">
+          <div class="quiz-final-badge">🎓 {{ getQuizLabel() }}</div>
+          <h2>{{ formation.titre }}</h2>
+          <div class="quiz-final-progress-info">
+            <span>{{ quizFinalQuestions.length }} questions</span>
+            <span>•</span>
+            <span>Score minimum pour obtenir un certificat : {{ seuilQuiz }}%</span>
+            <!-- Indicateur tentatives si limite présente -->
+            <ng-container *ngIf="MAX_TENTATIVES !== INFINITY">
+              <span>•</span>
+              <span class="tentatives-badge"
+                    [class.warning]="tentativesUtilisees === 2">
+                Tentative {{ tentativesUtilisees }} / {{ MAX_TENTATIVES }}
+              </span>
+            </ng-container>
+            <span>•</span>
+            <span class="timer-badge" [ngStyle]="{'color': quizTimerRestant <= 60 ? '#ef4444' : 'inherit', 'font-weight': 'bold'}">
+              <i class="ri-timer-line"></i> {{ formattedTimer }}
+            </span>
+          </div>
+
+          <!-- Avertissement anti-triche -->
+          <div class="anti-triche-notice">
+            <i class="ri-shield-check-line"></i>
+            Copier-coller désactivé · Quitter la fenêtre annule la tentative
+          </div>
+        </div>
+
+        <div class="quiz-final-questions">
+          <div class="quiz-final-question"
+               *ngFor="let q of quizFinalQuestions; let qi = index">
+            <div class="question-header">
+              <span class="question-num">{{ qi + 1 }}</span>
+            </div>
+            <p class="question-text">{{ q.question }}</p>
+            <div class="quiz-options">
+              <button
+                *ngFor="let opt of q.options; let oi = index"
+                class="quiz-option"
+                [class.selected]="quizFinalAnswers[qi] === oi"
+                (click)="selectFinalAnswer(qi, oi)"
+                type="button">
+                <span class="opt-letter">{{ ['A','B','C','D'][oi] }}</span>
+                {{ opt }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-final-submit-bar">
+          <div class="answers-count">
+            {{ answeredQuestionsCount }} / {{ quizFinalQuestions.length }} réponses
+          </div>
+          <button class="btn-submit-final"
+                  (click)="submitQuizFinal()"
+                  type="button">
+            <i class="ri-send-plane-line"></i>
+            Soumettre mon quiz
+          </button>
+        </div>
+      </ng-container>
+
+      <div class="quiz-final-result"
+           *ngIf="quizFinalSubmitted && !quizBloque">
+
+        <div class="result-success" *ngIf="quizFinalReussi">
+          <div class="result-trophy">🏆</div>
+          <h2>Félicitations !</h2>
+          <div class="result-score-circle success">{{ quizFinalScore }}%</div>
+          <p>{{ quizFinalMessage }}</p>
+          <div class="cert-actions">
+            <button class="btn-download-cert"
+                    (click)="telechargerCertificat()"
+                    *ngIf="certificatId"
+                    type="button">
+              <i class="ri-download-line"></i>
+              Télécharger mon certificat
+            </button>
+            <div class="cert-loading" *ngIf="!certificatId">
+              <div class="loading-spinner-sm"></div>
+              Génération du certificat...
+            </div>
+          </div>
+        </div>
+
+        <div class="result-fail" *ngIf="!quizFinalReussi && peutReessayer">
+          <div class="result-emoji">😔</div>
+          <h2>Score insuffisant</h2>
+          <div class="result-score-circle fail">{{ quizFinalScore }}%</div>
+          <p>{{ quizFinalMessage }}</p>
+          <div class="tentatives-info warning" *ngIf="MAX_TENTATIVES !== INFINITY && tentativesRestantes !== undefined">
+            <i class="ri-error-warning-line"></i>
+            Il vous reste <strong>{{ tentativesRestantes }}</strong>
+            tentative{{ tentativesRestantes > 1 ? 's' : '' }} sur {{ MAX_TENTATIVES }}.
+          </div>
+          <button class="btn-retry-final"
+                  (click)="lancerQuizFinal()"
+                  type="button">
+            <i class="ri-restart-line"></i>
+            Réessayer l'évaluation
+          </button>
+        </div>
+
+        <div class="result-fail" *ngIf="!quizFinalReussi && !peutReessayer">
+          <div class="result-emoji">😞</div>
+          <h2>Tentatives épuisées</h2>
+          <div class="result-score-circle fail">{{ quizFinalScore }}%</div>
+          <p>{{ quizFinalMessage }}</p>
+          <div class="tentatives-info danger">
+            <i class="ri-close-circle-line"></i>
+            Vous avez utilisé toutes vos tentatives.
+          </div>
+          <button class="btn-close-final"
+                  (click)="fermerQuizFinal()"
+                  type="button">
+            <i class="ri-close-line"></i>
+            Fermer
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="confetti-overlay" *ngIf="showConfetti">
+    <div class="confetti-message">
+      <span>🎉</span>
+      <h3>Toutes les vidéos terminées !</h3>
+      <p>Votre {{ getQuizLabel() }} va commencer...</p>
+    </div>
+  </div>
+
+  <div class="player-header">
+    <div class="player-title">
+      <i class="ri-play-circle-line"></i>
+      Playlist complète
+    </div>
+
+    <div class="player-progression" *ngIf="isPlaylist">
+      <div class="prog-info">
+        <span class="prog-label">{{ getProgressionLabel() }}</span>
+        <span class="prog-pct" [style.color]="getProgressionColor()">
+          {{ progression }}%
+        </span>
+      </div>
+      <div class="prog-bar-bg">
+        <div class="prog-bar-fill"
+             [style.width.%]="progression"
+             [style.background]="getProgressionColor()">
+        </div>
+      </div>
+    </div>
+
+    <div class="formation-complete-header"
+         *ngIf="progression >= 100 && isPlaylist"
+         style="margin-left:20px;display:flex;align-items:center">
+      <button class="btn-quiz-final-trigger"
+              (click)="lancerQuizFinal()"
+              type="button"
+              [disabled]="MAX_TENTATIVES !== INFINITY && tentativesUtilisees >= MAX_TENTATIVES"
+              style="margin:0;padding:6px 14px;background:#16a34a;color:#fff;
+                     border:none;border-radius:6px;font-weight:600;cursor:pointer;
+                     display:flex;align-items:center;gap:6px">
+        <i class="ri-medal-fill" style="font-size:16px"></i>
+        <ng-container *ngIf="MAX_TENTATIVES === INFINITY || tentativesUtilisees < MAX_TENTATIVES">
+          Passer le {{ getQuizLabel() }}
+        </ng-container>
+        <ng-container *ngIf="MAX_TENTATIVES !== INFINITY && tentativesUtilisees >= MAX_TENTATIVES">
+          Tentatives épuisées
+        </ng-container>
+      </button>
+    </div>
+
+    <div class="player-tabs" *ngIf="hasEditor()">
+      <div class="player-tab tab-active">
+        <i class="ri-code-s-slash-line"></i>
+        Éditeur {{ getStackBlitzLabel() }}
+      </div>
+    </div>
+  </div>
+
+  <div class="player-split" *ngIf="hasEditor()">
+    <div class="player-left">
+      <div class="video-wrapper-16-9">
+        <div id="yt-player-div"></div>
+      </div>
+      <div class="playlist-bottom-menu"
+           *ngIf="isPlaylist && playlistVideos.length > 0">
+        <div class="playlist-item-small"
+             *ngFor="let v of playlistVideos; let i = index"
+             [class.active]="currentVideoId === v.videoId"
+             [class.vue]="isVideoVue(v.videoId)"
+             (click)="playVideo(v)">
+          <span class="idx">{{ i+1 }}.</span>
+          <span class="item-title-small">{{ v.title }}</span>
+          <i class="ri-check-line vue-check" *ngIf="isVideoVue(v.videoId)"></i>
+        </div>
+      </div>
+    </div>
+    <div class="player-right">
+      <div class="editor-wrapper">
+        <iframe [src]="safeStackBlitzUrl" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="playlist-custom-layout" *ngIf="isPlaylist && !hasEditor()">
+    <div class="playlist-video-side">
+      <div class="video-wrapper-16-9">
+        <div id="yt-player-div"></div>
+      </div>
+      <div class="video-nav"
+           *ngIf="currentIndex < playlistVideos.length - 1">
+        <button class="btn-next-video"
+                (click)="nextVideo()" type="button">
+          <i class="ri-skip-right-line"></i> Vidéo suivante
+        </button>
+      </div>
+      <div class="formation-complete" *ngIf="progression >= 100">
+        <i class="ri-trophy-line"></i>
+        <span>Toutes les vidéos vues !</span>
+      </div>
+    </div>
+
+    <div class="playlist-menu-side">
+      <div class="playlist-header-info">
+        <span class="playlist-count">{{ playlistVideos.length }} vidéos</span>
+        <span class="playlist-progress-text">
+          {{ videosVues.size }} terminées
+        </span>
+      </div>
+      <div class="playlist-items-wrapper">
+        <div class="playlist-item"
+             *ngFor="let v of playlistVideos; let i = index"
+             [class.active]="currentVideoId === v.videoId"
+             [class.vue]="isVideoVue(v.videoId)"
+             (click)="playVideo(v)">
+          <div class="position">{{ i + 1 }}</div>
+          <div class="thumbnail-wrapper">
+            <img [src]="v.thumbnail" [alt]="v.title">
+            <div class="play-overlay" *ngIf="currentVideoId === v.videoId">
+              <i class="ri-pause-fill"></i>
+            </div>
+            <div class="video-badge-vue" *ngIf="isVideoVue(v.videoId)">
+              <i class="ri-check-line"></i>
+            </div>
+          </div>
+          <div class="item-title" [title]="v.title">{{ v.title }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-full" *ngIf="!hasEditor() && !isPlaylist">
+    <div class="video-wrapper-full">
+      <div id="yt-player-div"></div>
+    </div>
+  </div>
+
+  <div class="player-tip" *ngIf="hasEditor()">
+    <i class="ri-lightbulb-line"></i>
+    <span>Regardez chaque vidéo jusqu'à la fin — progression automatique !</span>
+  </div>
+</div>

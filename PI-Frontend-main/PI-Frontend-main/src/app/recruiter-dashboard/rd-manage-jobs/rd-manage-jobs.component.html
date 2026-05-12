@@ -1,0 +1,182 @@
+<div class="card">
+    <div class="card-header">
+        <h4>Gerer les Offres d'emploi</h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+        <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <div *ngIf="loading" class="text-muted">Chargement...</div>
+        <div *ngIf="!loading && offres.length === 0" class="text-muted">Vous n'avez encore publie aucune offre.</div>
+
+        <div class="table-responsive" *ngIf="!loading && offres.length > 0">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Localisation</th>
+                        <th>Contrat</th>
+                        <th>Date publication</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let offre of offres">
+                        <tr>
+                            <td>{{ offre.titre }}</td>
+                            <td>{{ offre.location }}</td>
+                            <td>{{ offre.typeContrat || '-' }}</td>
+                            <td>{{ formatDate(offre.datePublication) }}</td>
+                            <td>{{ offre.statut || '-' }}</td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-sm btn-primary" (click)="modifier(offre)">Modifier</button>
+                                    <button class="btn btn-sm btn-info text-white" (click)="ouvrirDecision(offre)">
+                                        <i class="ri-bar-chart-line me-1"></i>
+                                        Décision
+                                    </button>
+                                    <button class="btn btn-sm btn-success" (click)="ouvrirInterview(offre)">
+                                        <i class="ri-questionnaire-line me-1"></i>
+                                        Interview
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" (click)="supprimer(offre)">Supprimer</button>
+                                    <button class="btn btn-sm btn-warning text-dark" (click)="expandedOffreId === offre.id ? expandedOffreId = null : expandedOffreId = offre.id" title="Show AI Recommendations">
+                                        <i class="ri-robot-line me-1"></i>
+                                        Recommendations
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Recommendation Widget Row -->
+                        <tr *ngIf="expandedOffreId === offre.id" class="recommendation-row">
+                            <td [attr.colspan]="6" class="p-3 bg-light border-top-0">
+                                <app-recommendation-widget
+                                    [offerId]="offre.id"
+                                    [mode]="'candidates'"
+                                    [limit]="5"
+                                ></app-recommendation-widget>
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="decisionLoading" class="alert alert-info mt-3 mb-0">
+            Génération du rapport de décision en cours...
+        </div>
+
+        <div *ngIf="decisionError" class="alert alert-danger mt-3 mb-0">
+            {{ decisionError }}
+        </div>
+
+        <div *ngIf="decisionReport" class="border rounded p-3 mt-3 bg-white">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <h6 class="mb-1">Rapport de décision</h6>
+                    <div class="text-muted small">Offre: <strong>{{ decisionReport.offre?.titre || '-' }}</strong></div>
+                    <div class="text-muted small">Compétences requises: {{ requiredSkillsText }}</div>
+                    <div class="text-muted small">Score final = (Score entretien × 0.5) + (Score compétence × 0.3) + (Score expérience × 0.2)</div>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" (click)="fermerDecision()">Fermer</button>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <div class="decision-metric">
+                        <span>Total candidatures</span>
+                        <strong>{{ decisionReport.totalCandidatures }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="decision-metric">
+                        <span>Total entretiens trouvés</span>
+                        <strong>{{ decisionReport.totalEntretiens }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="decision-metric decision-metric-highlight">
+                        <span>Choix final recommandé</span>
+                        <strong>{{ decisionReport.candidatRecommande?.candidatNom || 'Aucun candidat' }}</strong>
+                        <small class="text-muted" *ngIf="decisionReport.candidatRecommande">Score final: {{ decisionReport.candidatRecommande.scoreFinal }} / 100</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle decision-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Candidat</th>
+                            <th>Statut</th>
+                            <th>Score entretien</th>
+                            <th>Score compétence</th>
+                            <th>Score expérience</th>
+                            <th>Score final</th>
+                            <th>Correspondance</th>
+                            <th>Expérience</th>
+                            <th>Décision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of decisionReport.candidats">
+                            <td>{{ row.rang }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ row.candidatNom }}</div>
+                                <div class="text-muted small">#{{ row.candidatureId || '-' }}</div>
+                            </td>
+                            <td>{{ row.candidatureStatut }}</td>
+                            <td>{{ row.scoreEntretien !== null ? row.scoreEntretien + ' / 100' : '-' }}</td>
+                            <td>{{ row.scoreCompetence }} / 100</td>
+                            <td>{{ row.scoreExperience }} / 100</td>
+                            <td><strong>{{ row.scoreFinal }} / 100</strong></td>
+                            <td>{{ row.tauxCorrespondance }}%</td>
+                            <td>{{ row.experienceAnnees | number:'1.0-0' }} ans</td>
+                            <td>
+                                <div>{{ row.decision }}</div>
+                                <div class="text-muted small">{{ row.recommandation }}</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div *ngIf="offreEditee" class="border rounded p-3 mt-3 bg-light">
+            <h6 class="mb-3">Modifier une offre</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Titre</label>
+                    <input class="form-control" [(ngModel)]="offreEditee.titre" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Localisation</label>
+                    <input class="form-control" [(ngModel)]="offreEditee.location" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Type de contrat</label>
+                    <input class="form-control" [(ngModel)]="offreEditee.typeContrat" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Salaire</label>
+                    <input class="form-control" [(ngModel)]="offreEditee.salary" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date limite</label>
+                    <input type="date" class="form-control" [(ngModel)]="offreEditee.deadline" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="4" [(ngModel)]="offreEditee.description"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary" (click)="enregistrer()" [disabled]="saving">{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button class="btn btn-secondary" (click)="annuler()" [disabled]="saving">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>

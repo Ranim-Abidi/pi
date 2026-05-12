@@ -1,0 +1,385 @@
+<!-- Title -->
+<div class="breadcrumb-title text-center">
+    <h1 class="mb-0 fw-semibold">
+        News
+    </h1>
+</div>
+
+<!-- News Content -->
+<div class="jove-card">
+    <!-- Events Carousel Section -->
+    <div class="stories-section mb-5">
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="loading-state text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading events...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && items.length === 0" class="empty-state text-center py-5">
+            <i class="ri-calendar-event-line empty-icon"></i>
+            <p class="text-muted mt-3">No events available</p>
+        </div>
+
+        <!-- Filter Checkboxes -->
+        <div *ngIf="!isLoading && items.length > 0" class="filter-controls">
+            <label class="filter-label">
+                <input type="checkbox" [(ngModel)]="showWorkshops" (change)="onFilterChange()">
+                <span>Events/Workshops</span>
+            </label>
+            <label class="filter-label">
+                <input type="checkbox" [(ngModel)]="showJobs" (change)="onFilterChange()">
+                <span>Jobs</span>
+            </label>
+            <label class="filter-label">
+                <input type="checkbox" [(ngModel)]="showFormations" (change)="onFilterChange()">
+                <span>Formations</span>
+            </label>
+        </div>
+
+        <!-- Events Carousel -->
+        <div *ngIf="!isLoading && filteredItems.length > 0" class="events-carousel-container">
+            <!-- Left Arrow -->
+            <button class="carousel-arrow carousel-arrow-left" 
+                    (click)="prevEvent()">
+                <i class="ri-arrow-left-s-line"></i>
+            </button>
+
+            <!-- Cards Container -->
+            <div style="display: flex; gap: 30px; justify-content: center; align-items: center; flex: 1; min-width: 0;">
+                <!-- Left Card (Previous) -->
+                <div *ngIf="filteredItems.length > 1" class="carousel-card side" style="flex: 0 0 280px; min-width: 0; cursor: pointer;" (click)="prevEvent()">
+                    <div class="event-card">
+                        <div class="event-card-header">
+                            <div class="event-badge" [style.backgroundColor]="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'FORMATION' ? '#10b981' : filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'JOB' ? '#ef4444' : 'var(--primaryColor)'">
+                                <i [class]="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'FORMATION' ? 'ri-book-line' : filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'JOB' ? 'ri-briefcase-line' : 'ri-calendar-event-line'"></i>
+                                <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type }}</span>
+                            </div>
+                            <h3 class="event-title">{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].titre }}</h3>
+                        </div>
+                        <div class="event-card-body">
+                            <ng-container *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'JOB'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomEntreprise" style="font-size: 12px;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomEntreprise }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomPoste" style="font-size: 12px;">
+                                    <i class="ri-briefcase-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomPoste }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salaire || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salary || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].montant || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].rangSalaire || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salaireMin" style="font-size: 12px; font-weight: 600; color: #10b981;">
+                                    <i class="ri-money-dollar-circle-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salaire || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salary || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].montant || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].rangSalaire || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].salaireMin }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].lieu" style="font-size: 12px;">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].lieu }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePublication || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePoste || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePub || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].date" style="font-size: 12px;">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePublication || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePoste || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].datePub || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].statut || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].status || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].state" style="font-size: 12px;">
+                                    <i class="ri-flag-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].statut || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].status || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].state }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].contratType || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].typeContrat" style="font-size: 12px;">
+                                    <i class="ri-briefcase-fill"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].contratType || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].typeContrat }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].description" style="font-size: 11px; color: #666; margin-top: 6px;">
+                                    <i class="ri-file-text-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].description | slice:0:80 }}{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].description?.length > 80 ? '...' : '' }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'WORKSHOP'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organisateur || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organizer" style="font-size: 12px;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organisateur || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organizer }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].heure || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].dateHeure || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].date" style="font-size: 12px;">
+                                    <i class="ri-calendar-event-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].heure || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].dateHeure || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].inscrits" style="font-size: 12px;">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].inscrits }} participants</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].lieu" style="font-size: 12px;">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].lieu }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'FORMATION'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomOrganisation || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organisation" style="font-size: 12px; font-weight: 600; color: #333;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].nomOrganisation || filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].organisation }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].plateforme" style="font-size: 12px; color: #666;">
+                                    <i class="ri-folder-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].plateforme }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].duree" style="font-size: 12px;">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].duree }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].noteMoyenne !== undefined && filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].noteMoyenne !== null" style="font-size: 12px;">
+                                    <i class="ri-star-fill" style="color: #fbbf24;"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].noteMoyenne }} ({{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].totalInscrits || '0' }})</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].totalInscrits !== undefined && filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].totalInscrits !== null" style="font-size: 12px;">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].totalInscrits }} inscrits</span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="event-card-footer">
+                            <a *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'JOB'" [routerLink]="['/candidates-dashboard/applied-jobs']" class="btn-apply-now" style="font-size: 12px;">Apply Now</a>
+                            <a *ngIf="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type !== 'JOB'" [routerLink]="filteredItems[(currentItemIndex - 1 + filteredItems.length) % filteredItems.length].type === 'FORMATION' ? ['/formations'] : ['/candidates-dashboard/evenements']" class="btn-view-details">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Card (Current/Featured) -->
+                <div class="carousel-card center" style="flex: 0 0 320px; min-width: 0;">
+                    <div class="event-card" *ngIf="currentItem" style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="event-card-header">
+                            <div class="event-badge" [style.backgroundColor]="currentItem?.type === 'FORMATION' ? '#10b981' : currentItem?.type === 'JOB' ? '#ef4444' : 'var(--primaryColor)'">
+                                <i [class]="currentItem?.type === 'FORMATION' ? 'ri-book-line' : currentItem?.type === 'JOB' ? 'ri-briefcase-line' : 'ri-calendar-event-line'"></i>
+                                <span>{{ currentItem?.type }}</span>
+                            </div>
+                            <h3 class="event-title">{{ currentItem?.titre }}</h3>
+                        </div>
+                        <div class="event-card-body" style="flex: 1; min-height: 60px;">
+                            <!-- Job Details -->
+                            <ng-container *ngIf="currentItem?.type === 'JOB'">
+                                <div class="event-detail" *ngIf="currentItem?.nomEntreprise">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ currentItem.nomEntreprise }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.nomPoste">
+                                    <i class="ri-briefcase-line"></i>
+                                    <span>{{ currentItem.nomPoste }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.salaire || currentItem?.salary || currentItem?.montant || currentItem?.rangSalaire || currentItem?.salaireMin" style="font-weight: 600; color: #10b981;">
+                                    <i class="ri-money-dollar-circle-line"></i>
+                                    <span>{{ currentItem?.salaire || currentItem?.salary || currentItem?.montant || currentItem?.rangSalaire || currentItem?.salaireMin || 'Salary available' }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem.lieu">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ currentItem.lieu }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.datePublication || currentItem?.datePoste || currentItem?.datePub || currentItem?.date">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ currentItem?.datePublication || currentItem?.datePoste || currentItem?.datePub || currentItem?.date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.statut || currentItem?.status || currentItem?.state">
+                                    <i class="ri-flag-line"></i>
+                                    <span>{{ currentItem?.statut || currentItem?.status || currentItem?.state }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.contratType || currentItem?.typeContrat">
+                                    <i class="ri-briefcase-fill"></i>
+                                    <span>{{ currentItem?.contratType || currentItem?.typeContrat }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.experience || currentItem?.niveauExperience">
+                                    <i class="ri-team-line"></i>
+                                    <span>{{ currentItem?.experience || currentItem?.niveauExperience }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem.description" style="font-size: 13px; color: #666; margin-top: 8px; line-height: 1.4;">
+                                    <i class="ri-file-text-line"></i>
+                                    <span>{{ currentItem.description | slice:0:100 }}{{ currentItem.description?.length > 100 ? '...' : '' }}</span>
+                                </div>
+                            </ng-container>
+                            
+                            <!-- Event/Workshop Details -->
+                            <ng-container *ngIf="currentItem?.type === 'WORKSHOP';">
+                                <div class="event-detail" *ngIf="currentItem?.organisateur || currentItem?.organizer">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ currentItem?.organisateur || currentItem?.organizer }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.heure || currentItem?.dateHeure || currentItem?.date">
+                                    <i class="ri-calendar-event-line"></i>
+                                    <span>{{ currentItem?.heure || currentItem?.dateHeure || currentItem?.date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.inscrits">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ currentItem.inscrits }} participants</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem.lieu">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ currentItem.lieu }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.duree">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ currentItem.duree }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.niveau">
+                                    <i class="ri-star-line"></i>
+                                    <span>{{ currentItem.niveau }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem.description" style="font-size: 13px; color: #666; margin-top: 8px; line-height: 1.4;">
+                                    {{ currentItem.description | slice:0:100 }}{{ currentItem.description?.length > 100 ? '...' : '' }}
+                                </div>
+                            </ng-container>
+                            
+                            <!-- Formation Details -->
+                            <ng-container *ngIf="currentItem?.type === 'FORMATION';">
+                                <div class="event-detail" *ngIf="currentItem?.nomOrganisation || currentItem?.organisation">
+                                    <i class="ri-building-line"></i>
+                                    <span style="font-weight: 600; color: #333;">{{ currentItem?.nomOrganisation || currentItem?.organisation }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.plateforme" style="font-size: 12px; color: #666;">
+                                    <i class="ri-folder-line"></i>
+                                    <span>{{ currentItem?.plateforme }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.duree">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ currentItem.duree }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.noteMoyenne !== undefined && currentItem?.noteMoyenne !== null" style="font-size: 12px;">
+                                    <i class="ri-star-fill" style="color: #fbbf24;"></i>
+                                    <span>{{ currentItem.noteMoyenne }} ({{ currentItem?.totalInscrits || '0' }})</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.totalInscrits !== undefined && currentItem?.totalInscrits !== null">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ currentItem.totalInscrits }} inscrits</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.rating || currentItem?.note">
+                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
+                                    <span>{{ currentItem?.rating || currentItem?.note }} ({{ currentItem?.nombreAvis || 0 }} avis)</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.instructeur || currentItem?.formateur">
+                                    <i class="ri-user-circle-line"></i>
+                                    <span>{{ currentItem?.instructeur || currentItem?.formateur }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem?.prix || currentItem?.price">
+                                    <i class="ri-price-tag-line"></i>
+                                    <span style="font-weight: 600; color: #10b981;">{{ currentItem?.prix || currentItem?.price }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="currentItem.description" style="font-size: 13px; color: #666; margin-top: 8px; line-height: 1.4;">
+                                    {{ currentItem.description | slice:0:100 }}{{ currentItem.description?.length > 100 ? '...' : '' }}
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="event-card-footer">
+                            <a *ngIf="currentItem?.type === 'JOB'" [routerLink]="['/candidates-dashboard/applied-jobs']" class="btn-apply-now">Apply Now</a>
+                            <a *ngIf="currentItem?.type !== 'JOB'" [routerLink]="currentItem?.type === 'FORMATION' ? ['/formations'] : ['/candidates-dashboard/evenements']" class="btn-view-details">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Card (Next) -->
+                <div *ngIf="filteredItems.length > 1" class="carousel-card side" style="flex: 0 0 280px; min-width: 0; cursor: pointer;" (click)="nextEvent()">
+                    <div class="event-card">
+                        <div class="event-card-header">
+                            <div class="event-badge" [style.backgroundColor]="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'FORMATION' ? '#10b981' : filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'JOB' ? '#ef4444' : 'var(--primaryColor)'">
+                                <i [class]="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'FORMATION' ? 'ri-book-line' : filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'JOB' ? 'ri-briefcase-line' : 'ri-calendar-event-line'"></i>
+                                <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].type }}</span>
+                            </div>
+                            <h3 class="event-title">{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].titre }}</h3>
+                        </div>
+                        <div class="event-card-body">
+                            <ng-container *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'JOB'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].nomEntreprise" style="font-size: 12px;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].nomEntreprise }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].nomPoste" style="font-size: 12px;">
+                                    <i class="ri-briefcase-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].nomPoste }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].salaire || filteredItems[(currentItemIndex + 1) % filteredItems.length].salary || filteredItems[(currentItemIndex + 1) % filteredItems.length].montant || filteredItems[(currentItemIndex + 1) % filteredItems.length].rangSalaire || filteredItems[(currentItemIndex + 1) % filteredItems.length].salaireMin" style="font-size: 12px; font-weight: 600; color: #10b981;">
+                                    <i class="ri-money-dollar-circle-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].salaire || filteredItems[(currentItemIndex + 1) % filteredItems.length].salary || filteredItems[(currentItemIndex + 1) % filteredItems.length].montant || filteredItems[(currentItemIndex + 1) % filteredItems.length].rangSalaire || filteredItems[(currentItemIndex + 1) % filteredItems.length].salaireMin }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].lieu" style="font-size: 12px;">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].lieu }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].datePublication || filteredItems[(currentItemIndex + 1) % filteredItems.length].datePoste || filteredItems[(currentItemIndex + 1) % filteredItems.length].datePub || filteredItems[(currentItemIndex + 1) % filteredItems.length].date" style="font-size: 12px;">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].datePublication || filteredItems[(currentItemIndex + 1) % filteredItems.length].datePoste || filteredItems[(currentItemIndex + 1) % filteredItems.length].datePub || filteredItems[(currentItemIndex + 1) % filteredItems.length].date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].statut || filteredItems[(currentItemIndex + 1) % filteredItems.length].status || filteredItems[(currentItemIndex + 1) % filteredItems.length].state" style="font-size: 12px;">
+                                    <i class="ri-flag-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].statut || filteredItems[(currentItemIndex + 1) % filteredItems.length].status || filteredItems[(currentItemIndex + 1) % filteredItems.length].state }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].contratType || filteredItems[(currentItemIndex + 1) % filteredItems.length].typeContrat" style="font-size: 12px;">
+                                    <i class="ri-briefcase-fill"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].contratType || filteredItems[(currentItemIndex + 1) % filteredItems.length].typeContrat }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].description" style="font-size: 11px; color: #666; margin-top: 6px;">
+                                    <i class="ri-file-text-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].description | slice:0:80 }}{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].description?.length > 80 ? '...' : '' }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'WORKSHOP'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].organisateur || filteredItems[(currentItemIndex + 1) % filteredItems.length].organizer" style="font-size: 12px;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].organisateur || filteredItems[(currentItemIndex + 1) % filteredItems.length].organizer }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].heure || filteredItems[(currentItemIndex + 1) % filteredItems.length].dateHeure || filteredItems[(currentItemIndex + 1) % filteredItems.length].date" style="font-size: 12px;">
+                                    <i class="ri-calendar-event-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].heure || filteredItems[(currentItemIndex + 1) % filteredItems.length].dateHeure || filteredItems[(currentItemIndex + 1) % filteredItems.length].date }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].inscrits" style="font-size: 12px;">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].inscrits }} participants</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].lieu" style="font-size: 12px;">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].lieu }}</span>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'FORMATION'">
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].nomOrganisation || filteredItems[(currentItemIndex + 1) % filteredItems.length].organisation" style="font-size: 12px; font-weight: 600; color: #333;">
+                                    <i class="ri-building-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].nomOrganisation || filteredItems[(currentItemIndex + 1) % filteredItems.length].organisation }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].plateforme" style="font-size: 12px; color: #666;">
+                                    <i class="ri-folder-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].plateforme }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].duree" style="font-size: 12px;">
+                                    <i class="ri-calendar-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].duree }}</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].noteMoyenne !== undefined && filteredItems[(currentItemIndex + 1) % filteredItems.length].noteMoyenne !== null" style="font-size: 12px;">
+                                    <i class="ri-star-fill" style="color: #fbbf24;"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].noteMoyenne }} ({{ filteredItems[(currentItemIndex + 1) % filteredItems.length].totalInscrits || '0' }})</span>
+                                </div>
+                                <div class="event-detail" *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].totalInscrits !== undefined && filteredItems[(currentItemIndex + 1) % filteredItems.length].totalInscrits !== null" style="font-size: 12px;">
+                                    <i class="ri-user-line"></i>
+                                    <span>{{ filteredItems[(currentItemIndex + 1) % filteredItems.length].totalInscrits }} inscrits</span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="event-card-footer">
+                            <a *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'JOB'" [routerLink]="['/candidates-dashboard/applied-jobs']" class="btn-apply-now" style="font-size: 12px;">Apply Now</a>
+                            <a *ngIf="filteredItems[(currentItemIndex + 1) % filteredItems.length].type !== 'JOB'" [routerLink]="filteredItems[(currentItemIndex + 1) % filteredItems.length].type === 'FORMATION' ? ['/formations'] : ['/candidates-dashboard/evenements']" class="btn-view-details">View Details →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Arrow -->
+            <button class="carousel-arrow carousel-arrow-right" 
+                    (click)="nextEvent()">
+                <i class="ri-arrow-right-s-line"></i>
+            </button>
+        </div>
+
+        <!-- Pagination Dots -->
+        <div *ngIf="!isLoading && filteredItems.length > 1" class="carousel-pagination">
+            <button *ngFor="let item of filteredItems; let i = index"
+                    class="pagination-dot"
+                    [class.active]="i === currentItemIndex"
+                    (click)="goToEvent(i)"
+                    [attr.aria-label]="'Go to item ' + (i + 1)">
+            </button>
+        </div>
+    </div>
+</div>

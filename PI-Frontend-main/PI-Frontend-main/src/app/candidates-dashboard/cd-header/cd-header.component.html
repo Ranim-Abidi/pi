@@ -1,0 +1,252 @@
+﻿<div class="navbar-area navbar-expand-lg">
+    <div class="container-fluid">
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <img src="/images/logo.png" alt="MatchyKhedma Logo">
+                <div class="header-brand">
+                    <h5>MatchyKhedma</h5>
+                    <p class="brand-subtitle">Candidates Dashboard</p>
+                </div>
+            </div>
+
+            <ul class="navbar-nav">
+                <!-- Formations -->
+                <li class="nav-item">
+                    <button type="button" class="dropdown-toggle nav-link" (click)="toggleDropdown('formations')">
+                        Formations
+                    </button>
+                    <ul class="dropdown-menu" [class.show]="activeDropdown === 'formations'">
+                        <li class="nav-item">
+                            <a routerLink="/formations" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                Liste des formations
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </li>
+
+                <!-- Candidates -->
+                <li class="nav-item">
+                    <button type="button" class="dropdown-toggle nav-link" (click)="toggleDropdown('candidates')">
+                        Candidates
+                    </button>
+                    <ul class="dropdown-menu" [class.show]="activeDropdown === 'candidates'">
+                        <li class="nav-item">
+                            <a routerLink="/candidates" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                Candidates
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a routerLink="/candidate-details" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                Candidate Details
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a routerLink="/candidates-dashboard" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                Candidates Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a routerLink="/candidate-entretiens" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                Mes Entretiens
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Search -->
+            <div class="header-actions">
+                <div class="search-container">
+                    <i class="ri-search-line search-icon"></i>
+                    <input
+                        type="text"
+                        placeholder="Search users..."
+                        [(ngModel)]="searchTerm"
+                        (input)="onSearchChange()"
+                        (focus)="showSearchResults = true"
+                        (blur)="onSearchBlur()"
+                    />
+                    <button
+                        type="button"
+                        class="clear-btn"
+                        *ngIf="searchTerm"
+                        (click)="clearSearch()"
+                    >
+                        ✕
+                    </button>
+
+                    <div class="search-results" *ngIf="showSearchResults" (mousedown)="markSearchActionPending()">
+                        <div class="search-status" *ngIf="isSearching">
+                            Searching...
+                        </div>
+                        <div class="search-status" *ngIf="!isSearching && searchResults.length === 0 && searchTerm">
+                            No users found
+                        </div>
+                        <div
+                            class="search-result-item"
+                            *ngFor="let user of searchResults"
+                            (click)="selectUser(user)"
+                        >
+                            <div class="result-content">
+                                <div class="result-info">
+                                    <span class="result-name">{{ user.nom }}</span>
+                                    <span class="result-email">{{ user.email }}</span>
+                                </div>
+                                <div class="result-actions">
+                                    <button
+                                        type="button"
+                                        class="follow-btn"
+                                        [class.followed]="isUserFollowed(user.id)"
+                                        (click)="followUser(user); $event.stopPropagation()">
+                                        {{ isUserFollowed(user.id) ? '✓ Suivi' : 'Suivre' }}
+                                    </button>
+                                    <span class="result-tag" *ngIf="user.role">{{ user.role }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications + Profile -->
+            <div class="header-right">
+                <div class="notification-container">
+                    <button type="button" class="notification-btn" (click)="toggleNotificationPanel()" [class.active]="showNotificationPanel">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="notification-badge" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
+                    </button>
+
+                    <!-- Notification Dropdown Panel -->
+                    <div class="notification-panel" *ngIf="showNotificationPanel" (click)="$event.stopPropagation()">
+                        <div class="notification-header">
+                            <h3>Notifications</h3>
+                            <button type="button" class="close-btn" (click)="showNotificationPanel = false">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+
+                        <div class="notification-list" #notificationList>
+                            <!-- Empty State -->
+                            <div class="notification-empty" *ngIf="notifications.length === 0">
+                                <i class="ri-notification-off-line"></i>
+                                <p>No notifications yet</p>
+                            </div>
+
+                            <!-- Notification Items -->
+                            <div class="notification-item"
+                                 *ngFor="let notif of notifications; let i = index"
+                                 [class.unread]="!notif.isRead"
+                                 [class.new-notification]="i === 0 && !notif.isRead"
+                                 [class.reminder-today]="notif.type === 'interview_reminder' && notif.reminderLevel === 'today'"
+                                 [class.reminder-soon]="notif.type === 'interview_reminder' && notif.reminderLevel === 'soon'"
+                                 [class.reminder-planned]="notif.type === 'interview_reminder' && notif.reminderLevel === 'planned'"
+                                 (click)="markNotificationAsRead(notif.id)">
+                                <div class="notification-icon" [ngClass]="getNotificationLevelClass(notif)">
+                                    <i [class]="getNotificationIcon(notif)"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="notification-title">{{ getNotificationTitle(notif) }}</p>
+                                    <p class="notification-message">{{ notif.message }}</p>
+                                    <span class="notification-time">{{ getNotificationTime(notif) }}</span>
+                                </div>
+                                <div class="notification-status">
+                                    <span class="unread-dot" *ngIf="!notif.isRead"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mark All As Read Button -->
+                        <div class="notification-footer" *ngIf="notifications.length > 0">
+                            <button type="button" class="mark-all-btn" (click)="markAllAsRead()">
+                                Mark all as read
+                            </button>
+                            <button type="button" class="delete-all-btn" (click)="deleteAllNotifications()">
+                                <i class="ri-delete-bin-line"></i>
+                                Delete all
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="user-profile-button" (click)="toggleDropdown('profile')">
+                    <img [src]="displayProfilePictureUrl" alt="Candidate image" class="user-image" />
+                    <div class="user-info">
+                        <span class="user-greeting">Welcome,</span>
+                        <span class="user-name">{{ currentUserName }}</span>
+                    </div>
+                </button>
+
+                <ul class="header-dropdown-menu" [class.show]="activeDropdown === 'profile'">
+                    <li>
+                        <button type="button" class="dropdown-item" (click)="openChangePasswordModal()">
+                            <i class="ri-lock-2-line"></i>
+                            Change Password
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item" (click)="openDeleteAccountModal()">
+                            <i class="ri-delete-bin-line"></i>
+                            Delete Account
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item" (click)="logout()">
+                            <i class="ri-logout-box-r-line"></i>
+                            Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal" *ngIf="showChangePasswordModal" style="display: flex; background-color: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog-custom" role="document">
+        <div class="modal-content-custom">
+            <!-- Header with Logo -->
+            <div class="modal-header-logo">
+                <div class="logo-container">
+                    <img src="/images/logo.png" alt="Logo" class="logo-img">
+                </div>
+                <button type="button" class="close-btn" (click)="closeChangePasswordModal()">
+                    <span>&times;</span>
+                </button>
+            </div>
+            
+            <!-- Title -->
+            <div class="modal-title-section">
+                <h2 class="modal-title-text">Change Password</h2>
+                <p class="modal-subtitle-text">Secure your account with a new password</p>
+            </div>
+            
+            <!-- Form Body -->
+            <div class="modal-body-custom">
+                <form (ngSubmit)="submitChangePassword()" class="password-form">
+                    <div class="form-group-custom">
+                        <label for="oldPassword" class="form-label-custom">Old Password</label>
+                        <input type="password" class="form-control-custom" id="oldPassword" [(ngModel)]="changePasswordForm.oldPassword" name="oldPassword" placeholder="Enter your current password" required>
+                    </div>
+                    
+                    <div class="form-group-custom">
+                        <label for="newPassword" class="form-label-custom">New Password</label>
+                        <input type="password" class="form-control-custom" id="newPassword" [(ngModel)]="changePasswordForm.newPassword" name="newPassword" placeholder="Enter your new password" required>
+                    </div>
+                    
+                    <div class="form-group-custom">
+                        <label for="confirmPassword" class="form-label-custom">Confirm Password</label>
+                        <input type="password" class="form-control-custom" id="confirmPassword" [(ngModel)]="changePasswordForm.confirmPassword" name="confirmPassword" placeholder="Confirm your new password" required>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel" (click)="closeChangePasswordModal()">Cancel</button>
+                        <button type="submit" class="btn-submit">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+.dashboard-container {
+    --event-header-height: 104px;
+    --event-sidebar-width: 270px;
+
+    display: flex;
+    min-height: 100vh;
+    margin-top: var(--event-header-height);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: var(--event-sidebar-width);
+    min-height: calc(100vh - var(--event-header-height));
+    padding: 24px;
+    background-color: #f4f7fb;
+}
+
+@media only screen and (max-width: 1199px) {
+    .dashboard-container {
+        --event-header-height: 90px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 16px;
+    }
+}

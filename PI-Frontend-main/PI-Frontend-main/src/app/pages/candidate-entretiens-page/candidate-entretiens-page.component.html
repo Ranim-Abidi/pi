@@ -1,0 +1,129 @@
+<app-navbar />
+
+<section class="candidate-entretiens-area ptb-100">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Mes Entretiens</h2>
+        <p>Retrouvez tous les entretiens qui vous sont attribues et lancez votre test en un clic.</p>
+      </div>
+
+      <button type="button" class="calendar-toggle-btn" (click)="toggleCalendar()" [attr.aria-expanded]="showCalendar">
+        <i class="ri-calendar-2-line"></i>
+        <span>{{ showCalendar ? 'Masquer le calendrier' : 'Voir le calendrier' }}</span>
+      </button>
+    </div>
+
+    <div class="calendar-layout" *ngIf="showCalendar && !loading && !errorMessage && entretiens.length > 0">
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <div>
+            <h3>Calendrier des entretiens</h3>
+            <p>{{ currentMonthLabel }}</p>
+          </div>
+          <div class="calendar-nav">
+            <button type="button" (click)="previousMonth()">‹</button>
+            <button type="button" (click)="nextMonth()">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mer</span>
+          <span>Jeu</span>
+          <span>Ven</span>
+          <span>Sam</span>
+          <span>Dim</span>
+        </div>
+
+        <div class="calendar-grid">
+          <div class="calendar-week" *ngFor="let week of calendarWeeks">
+            <button
+              type="button"
+              class="calendar-day"
+              *ngFor="let day of week"
+              [class.outside-month]="!day.inCurrentMonth"
+              [class.today]="day.isToday"
+              [class.has-event]="day.hasEntretien">
+              <span class="day-number">{{ day.date.getDate() }}</span>
+              <span class="day-badge" *ngIf="day.entretienCount > 0">{{ day.entretienCount }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="upcoming-card">
+        <h3>Prochains entretiens</h3>
+        <div *ngIf="upcomingEntretiens.length > 0; else noUpcoming" class="upcoming-list">
+          <article class="upcoming-item" *ngFor="let item of upcomingEntretiens; trackBy: trackByEntretien">
+            <div class="upcoming-date">
+              <strong>{{ formatDate(item.dateEntretien) }}</strong>
+            </div>
+            <div class="upcoming-content">
+              <h4>{{ item.titre || 'Entretien' }}</h4>
+              <p>{{ item.description || 'Aucune description fournie.' }}</p>
+            </div>
+          </article>
+        </div>
+        <ng-template #noUpcoming>
+          <div class="state-box">
+            Aucun entretien à venir pour ce mois.
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="state-box">Chargement de vos entretiens...</div>
+
+    <div *ngIf="!loading && errorMessage" class="state-box error">
+      {{ errorMessage }}
+    </div>
+
+    <div class="reminder-panel" *ngIf="!loading && !errorMessage && reminders.length > 0">
+      <div class="reminder-head">
+        <h3>Rappels d entretien</h3>
+        <span>{{ reminders.length }} rappel(s)</span>
+      </div>
+
+      <article class="reminder-item" *ngFor="let reminder of reminders" [ngClass]="'level-' + reminder.level">
+        <div class="reminder-badge">{{ getReminderBadgeLabel(reminder.level) }}</div>
+        <div class="reminder-content">
+          <h4>{{ reminder.title }}</h4>
+          <p>{{ reminder.message }}</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="entretiens-grid" *ngIf="!loading && !errorMessage && entretiens.length > 0">
+      <article class="entretien-card" *ngFor="let item of entretiens; trackBy: trackByEntretien">
+        <div class="cover">
+          <img [src]="getPhoto(item)" [alt]="item.titre || 'Entretien'">
+          <span class="tag">{{ item.domaine || 'General' }}</span>
+        </div>
+
+        <div class="body">
+          <h3>{{ item.titre || 'Entretien' }}</h3>
+          <p>{{ item.description || 'Aucune description fournie.' }}</p>
+
+          <ul class="meta">
+            <li><i class="ri-calendar-event-line"></i> {{ formatDate(item.dateEntretien) }}</li>
+            <li><i class="ri-award-line"></i> {{ item.type || 'Type non specifie' }}</li>
+          </ul>
+
+          <div class="actions">
+            <button class="btn-pass" [disabled]="isPassButtonDisabled(item)" (click)="passEntretien(item)">
+              {{ getPassButtonLabel(item) }}
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && entretiens.length === 0" class="state-box">
+      Aucun entretien ne vous est attribue pour le moment.
+    </div>
+  </div>
+</section>
+
+<app-footer />

@@ -1,0 +1,823 @@
+<!-- Title -->
+<div class="breadcrumb-title">
+    <h1 class="mb-0 fw-semibold">My Documents</h1>
+    <p class="mb-0">Manage your CVs, cover letters and portfolio</p>
+</div>
+
+<!-- ===== TOAST NOTIFICATIONS (global, hors modals) ===== -->
+<div class="notification-toast" *ngIf="message" [ngClass]="'toast-' + messageType">
+    <div class="toast-icon">
+        <i class="ri-checkbox-circle-line" *ngIf="messageType === 'success'"></i>
+        <i class="ri-error-warning-line" *ngIf="messageType === 'error'"></i>
+        <i class="ri-information-line" *ngIf="messageType === 'info'"></i>
+    </div>
+    <div class="toast-content">
+        <span style="white-space: pre-line;">{{ message }}</span>
+    </div>
+    <button class="toast-close" (click)="message = ''">
+        <i class="ri-close-line"></i>
+    </button>
+</div>
+
+<!-- Bouton Nouveau Document -->
+<div class="text-end mb-4">
+    <button class="btn-primary" (click)="openCreateModal()">
+        <i class="ri-add-line"></i> New document
+    </button>
+</div>
+
+<!-- ========== SECTION DASHBOARD ANALYTIQUE ========== -->
+<div class="test-buttons-section" style="background: #1e293b; border-radius: 16px; padding: 24px; margin-bottom: 30px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h3 style="color: white; margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
+            <i class="ri-dashboard-line" style="color: #3b82f6;"></i>
+            Tableau de bord analytique
+        </h3>
+        <p style="color: #94a3b8; margin: 0; font-size: 12px;">Visualisez et analysez vos documents candidature</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div style="background: #0f172a; border-radius: 12px; padding: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <i class="ri-folder-open-line" style="color: #60a5fa; font-size: 18px;"></i>
+                <h5 style="color: white; margin: 0; font-size: 13px; font-weight: 600;">Gestion documentaire</h5>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button (click)="afficherCVsAvecCandidatures()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    📊 Performance des CVs
+                </button>
+                <button (click)="afficherStatistiquesParNiveau()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    📈 Répartition par niveau
+                </button>
+            </div>
+        </div>
+        <div style="background: #0f172a; border-radius: 12px; padding: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <i class="ri-search-eye-line" style="color: #60a5fa; font-size: 18px;"></i>
+                <h5 style="color: white; margin: 0; font-size: 13px; font-weight: 600;">Moteur de recherche</h5>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button (click)="rechercherSimple()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    🔍 Recherche simple
+                </button>
+            </div>
+        </div>
+        <div style="background: #0f172a; border-radius: 12px; padding: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <i class="ri-code-line" style="color: #60a5fa; font-size: 18px;"></i>
+                <h5 style="color: white; margin: 0; font-size: 13px; font-weight: 600;">API intelligente</h5>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button (click)="testerRechercheParNomContenant()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    🔍 Recherche par nom
+                </button>
+                <button (click)="testerExistsDocument()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    ✓ Vérification d'existence
+                </button>
+                <button (click)="testerCompterDocuments()" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left;">
+                    🔢 Comptage documents
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer explicatif -->
+    <div style="margin-top: 16px; text-align: center;">
+       
+    </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2">Loading your documents...</p>
+</div>
+
+<!-- Error -->
+<div *ngIf="errorMessage" class="alert alert-danger">
+    <i class="ri-error-warning-line me-2"></i> {{ errorMessage }}
+</div>
+
+<!-- Empty State -->
+<div *ngIf="!isLoading && !errorMessage && documents.length === 0" class="empty-state text-center py-5">
+    <i class="ri-folder-line" style="font-size: 64px; color: #ccc;"></i>
+    <h3 class="mt-3">Aucun document</h3>
+    <p class="text-muted">Créez votre premier document (CV, lettre de motivation...)</p>
+    <button class="btn-outline-primary mt-2" (click)="openCreateModal()">
+        <i class="ri-add-line"></i> Créer un document
+    </button>
+</div>
+
+<!-- Liste des documents -->
+<div *ngIf="!isLoading && !errorMessage && documents.length > 0" class="documents-grid">
+    <div class="document-card" *ngFor="let doc of documents">
+        <div class="card-header-row">
+            <div class="card-left">
+                <div class="document-icon" [style.backgroundColor]="getTypeColor(doc.type) + '20'">
+                    <i [class]="getTypeIcon(doc.type)" [style.color]="getTypeColor(doc.type)"></i>
+                </div>
+                <div class="document-info">
+                    <h3>{{ doc.nomFichier || doc.nom || getTypeLabel(doc.type) }}</h3>
+                    <span class="badge" [ngClass]="{'badge-success': doc.compatibleATS, 'badge-warning': !doc.compatibleATS}">
+                        {{ doc.compatibleATS ? 'ATS compatible' : 'ATS à améliorer' }}
+                    </span>
+                </div>
+            </div>
+            <div class="document-actions">
+                <button class="btn-view" (click)="viewDocument(doc)" title="Voir">
+                    <i class="ri-eye-line"></i>
+                </button>
+                <button class="btn-edit" (click)="openEditModal(doc)" title="Modifier">
+                    <i class="ri-edit-line"></i>
+                </button>
+                <button class="btn-analyse" (click)="ouvrirAnalyseCV(doc)"
+                    title="Analyser avec IA" *ngIf="doc.type === 'CV'">
+                    <i class="ri-robot-line"></i>
+                </button>
+                <button class="btn-optimize" (click)="ouvrirOptimisation(doc)"
+                    title="Optimiser pour une offre" *ngIf="doc.type === 'CV'">
+                    <i class="ri-rocket-line"></i>
+                </button>
+                <button class="btn-delete" (click)="deleteDocument(doc.id)" title="Supprimer">
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            </div>
+        </div>
+        <!-- ✅ FIX iframe : sandbox étendu + srcdoc sécurisé -->
+        <div class="document-preview-frame">
+            <iframe [srcdoc]="doc.contenu"
+                    sandbox="allow-same-origin allow-scripts"
+                    scrolling="no"
+                    loading="lazy">
+            </iframe>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CREATE / EDIT ==================== -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i [class]="editingDocumentId ? 'ri-edit-line' : 'ri-add-line'"></i>
+                {{ editingDocumentId ? 'Modifier le document' : 'Nouveau document' }}
+            </h3>
+            <button class="modal-close" (click)="closeCreateModal()">&times;</button>
+        </div>
+
+        <!-- ✅ UN SEUL modal-body -->
+        <div class="modal-body">
+
+            <!-- Toast interne au modal (erreurs de validation) -->
+            <div class="notification-toast" *ngIf="message" [ngClass]="'toast-' + messageType" style="margin-bottom: 16px;">
+                <div class="toast-icon">
+                    <i class="ri-error-warning-line" *ngIf="messageType === 'error'"></i>
+                    <i class="ri-checkbox-circle-line" *ngIf="messageType === 'success'"></i>
+                </div>
+                <div class="toast-content">
+                    <span style="white-space: pre-line;">{{ message }}</span>
+                </div>
+                <button class="toast-close" (click)="message = ''">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+
+            <!-- Sélection du type (masquée en mode édition) -->
+            <div class="type-selector" *ngIf="!editingDocumentId">
+                <button *ngFor="let t of types"
+                        class="type-btn"
+                        [class.active]="selectedType === t"
+                        (click)="onTypeChange(t)">
+                    <i [class]="getTypeIcon(t)"></i>
+                    {{ getTypeLabel(t) }}
+                </button>
+            </div>
+
+            <!-- ==================== FORMULAIRE CV ==================== -->
+            <div *ngIf="selectedType === 'CV'" class="form-cv">
+                <h4>Informations personnelles</h4>
+
+                <!-- Photo de profil -->
+                <div class="form-group">
+                    <label>Photo de profil</label>
+                    <div class="photo-upload-group">
+                        <input type="file"
+                               accept="image/*"
+                               (change)="onPhotoSelected($event)"
+                               class="form-control"
+                               style="flex: 1;">
+                        <button type="button" class="btn-camera" (click)="openCameraModal()" title="Prendre une photo">
+                            <i class="ri-camera-line"></i> Caméra
+                        </button>
+                    </div>
+                    <small class="text-muted" *ngIf="cvData.photo">
+                        ✅ Photo sélectionnée : {{ cvData.photoName || 'image.jpg' }}
+                    </small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prénom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="cvData.prenom">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom *</label>
+                        <input type="text" class="form-control" [(ngModel)]="cvData.nom">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Titre professionnel</label>
+                        <input type="text" class="form-control" [(ngModel)]="cvData.titre" placeholder="Ex: Développeur Full Stack">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" class="form-control" [(ngModel)]="cvData.email">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="tel" class="form-control" [(ngModel)]="cvData.telephone" placeholder="+216 55 555 555">
+                    </div>
+                    <div class="form-group">
+                        <label>Adresse</label>
+                        <input type="text" class="form-control" [(ngModel)]="cvData.adresse">
+                    </div>
+                </div>
+
+                <!-- Profil -->
+                <div class="form-group">
+                    <label>Profil personnel *</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="cvData.profil"
+                              placeholder="Décrivez votre profil (min. 20 caractères)..."></textarea>
+                    <small class="text-muted">{{ cvData.profil?.length || 0 }} / 500 caractères</small>
+                </div>
+
+                <!-- Expériences -->
+                <h4>Expériences professionnelles *</h4>
+                <div class="experiences-list">
+                    <div *ngFor="let exp of cvData.experiences; let i=index" class="experience-item">
+                        <div class="exp-header">
+                            <strong>{{ exp.poste }} - {{ exp.entreprise }}</strong>
+                            <button class="btn-remove" (click)="removeExperience(i)">×</button>
+                        </div>
+                        <div class="exp-period">{{ exp.periode }}</div>
+                        <p>{{ exp.description }}</p>
+                    </div>
+                </div>
+                <div class="add-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newExperience.poste" placeholder="Poste">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newExperience.entreprise" placeholder="Entreprise">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newExperience.periode" placeholder="Période (ex: 2020-2024)">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newExperience.description" placeholder="Description">
+                        </div>
+                    </div>
+                    <button class="btn-add" (click)="addExperience()">+ Ajouter une expérience</button>
+                </div>
+
+                <!-- Formation -->
+                <h4>Formation *</h4>
+                <div class="formations-list">
+                    <div *ngFor="let f of cvData.formations; let i=index" class="formation-item">
+                        <div class="formation-header">
+                            <strong>{{ f.diplome }} - {{ f.institution }}</strong>
+                            <button class="btn-remove" (click)="removeFormation(i)">×</button>
+                        </div>
+                        <div class="formation-annee">{{ f.annee }}</div>
+                        <p>{{ f.description }}</p>
+                    </div>
+                </div>
+                <div class="add-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newFormation.diplome" placeholder="Diplôme">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newFormation.institution" placeholder="Institution">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newFormation.annee" placeholder="Année">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newFormation.description" placeholder="Description">
+                        </div>
+                    </div>
+                    <button class="btn-add" (click)="addFormation()">+ Ajouter une formation</button>
+                </div>
+
+                <!-- Compétences -->
+                <h4>Compétences *</h4>
+                <div class="skills-tags">
+                    <span *ngFor="let skill of cvData.competences; let i=index" class="skill-tag">
+                        {{ skill }}
+                        <i class="ri-close-line" (click)="removeCompetence(i)"></i>
+                    </span>
+                </div>
+                <div class="add-skill">
+                    <input type="text" #skillInput class="form-control"
+                           placeholder="Ajouter une compétence"
+                           (keyup.enter)="addCompetence(skillInput.value); skillInput.value=''">
+                    <button class="btn-add-small" (click)="addCompetence(skillInput.value); skillInput.value=''">+</button>
+                </div>
+
+                <!-- Langues -->
+                <h4>Langues</h4>
+                <div class="langues-list">
+                    <div *ngFor="let l of cvData.langues; let i=index" class="langue-item">
+                        <span>{{ l.langue }} - {{ l.niveau }}</span>
+                        <button class="btn-remove" (click)="removeLangue(i)">×</button>
+                    </div>
+                </div>
+                <div class="add-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-control" [(ngModel)]="newLangue.langue" placeholder="Langue">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" [(ngModel)]="newLangue.niveau">
+                                <option value="">Niveau</option>
+                                <option value="Débutant">Débutant</option>
+                                <option value="Intermédiaire">Intermédiaire</option>
+                                <option value="Courant">Courant</option>
+                                <option value="Natif">Natif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-add" (click)="addLangue()">+ Ajouter une langue</button>
+                </div>
+
+                <!-- Centres d'intérêt -->
+                <h4>Centres d'intérêt</h4>
+                <div class="interests-tags">
+                    <span *ngFor="let interest of cvData.centresInteret; let i=index" class="interest-tag">
+                        {{ interest }}
+                        <i class="ri-close-line" (click)="removeCentreInteret(i)"></i>
+                    </span>
+                </div>
+                <div class="add-skill">
+                    <input type="text" #interestInput class="form-control"
+                           placeholder="Ajouter un centre d'intérêt"
+                           (keyup.enter)="addCentreInteret(interestInput.value); interestInput.value=''">
+                    <button class="btn-add-small" (click)="addCentreInteret(interestInput.value); interestInput.value=''">+</button>
+                </div>
+            </div>
+
+            <!-- ==================== FORMULAIRE LETTRE ==================== -->
+            <div *ngIf="selectedType === 'LETTRE_DE_MOTIVATION'" class="form-lettre">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prénom</label>
+                        <input type="text" class="form-control" [(ngModel)]="lettreData.prenom">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" class="form-control" [(ngModel)]="lettreData.nom">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Entreprise *</label>
+                    <input type="text" class="form-control" [(ngModel)]="lettreData.entreprise" placeholder="Nom de l'entreprise">
+                </div>
+                <div class="form-group">
+                    <label>Poste *</label>
+                    <input type="text" class="form-control" [(ngModel)]="lettreData.poste" placeholder="Intitulé du poste">
+                </div>
+                <div class="form-group">
+                    <label>Message personnalisé</label>
+                    <textarea class="form-control" rows="6" [(ngModel)]="lettreData.message" placeholder="Décrivez votre motivation..."></textarea>
+                </div>
+                <div class="form-note">💡 La lettre sera générée avec un format professionnel</div>
+            </div>
+
+            <!-- ==================== FORMULAIRE PORTFOLIO ==================== -->
+            <div *ngIf="selectedType === 'PORTFOLIO'" class="form-portfolio">
+                <div class="form-group">
+                    <label>Titre du projet *</label>
+                    <input type="text" class="form-control" [(ngModel)]="portfolioData.titre" placeholder="Nom de votre projet">
+                </div>
+                <div class="form-group">
+                    <label>Année</label>
+                    <input type="text" class="form-control" [(ngModel)]="portfolioData.annee" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" rows="4" [(ngModel)]="portfolioData.description" placeholder="Décrivez votre projet..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Lien du projet (optionnel)</label>
+                    <input type="url" class="form-control" [(ngModel)]="portfolioData.lien" placeholder="https://...">
+                </div>
+                <h4>Technologies utilisées</h4>
+                <div class="tech-tags">
+                    <span *ngFor="let tech of portfolioData.technologies; let i=index" class="tech-tag">
+                        {{ tech }}
+                        <i class="ri-close-line" (click)="removeTechnologie(i)"></i>
+                    </span>
+                </div>
+                <div class="add-skill">
+                    <input type="text" #techInput class="form-control"
+                           placeholder="Ajouter une technologie"
+                           (keyup.enter)="addTechnologie(techInput.value); techInput.value=''">
+                    <button class="btn-add-small" (click)="addTechnologie(techInput.value); techInput.value=''">+</button>
+                </div>
+            </div>
+
+            <!-- ==================== FORMULAIRE AUTRE ==================== -->
+            <div *ngIf="selectedType === 'AUTRE'" class="form-autre">
+                <div class="form-group">
+                    <label>Titre du document *</label>
+                    <input type="text" class="form-control" [(ngModel)]="autreData.titre" placeholder="Titre de votre document">
+                </div>
+                <div class="form-group">
+                    <label>Contenu *</label>
+                    <textarea class="form-control" rows="10" [(ngModel)]="autreData.contenu" placeholder="Écrivez votre contenu ici..."></textarea>
+                </div>
+            </div>
+
+        </div><!-- fin modal-body -->
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="closeCreateModal()">Annuler</button>
+            <button class="btn-submit" (click)="createDocument()" [disabled]="isCreating || isUpdating">
+                <i class="ri-save-line" *ngIf="editingDocumentId"></i>
+                <i class="ri-magic-line" *ngIf="!editingDocumentId"></i>
+                {{ isUpdating ? 'Modification...' : isCreating ? 'Génération...' : editingDocumentId ? 'Enregistrer' : 'Générer le document' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL VIEW ==================== -->
+<div class="modal-overlay" *ngIf="showViewModal" (click)="closeViewModal()">
+    <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i [class]="getTypeIcon(selectedDocument?.type)"></i>
+                {{ selectedDocument?.nom || getTypeLabel(selectedDocument?.type) }}
+            </h3>
+            <button class="modal-close" (click)="closeViewModal()">&times;</button>
+        </div>
+        <div class="modal-body view-body">
+            <div class="view-actions">
+                <button class="btn-download" (click)="telechargerDocument(selectedDocument)">
+                    <i class="ri-download-line"></i> Télécharger
+                </button>
+            </div>
+            <div class="document-viewer">
+                <iframe [srcdoc]="selectedDocument?.contenu"
+                        class="viewer-iframe"
+                        sandbox="allow-same-origin allow-scripts">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL APERÇU AVANT SAUVEGARDE ==================== -->
+<div class="modal-overlay" *ngIf="showPreviewModal" (click)="closePreviewModal()">
+    <div class="modal-container modal-xl" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i class="ri-eye-line"></i>
+                Aperçu du document généré
+            </h3>
+            <button class="modal-close" (click)="closePreviewModal()">&times;</button>
+        </div>
+        <div class="modal-body preview-body">
+            <div class="preview-actions">
+                <button class="btn-outline" (click)="telechargerDocument(generatedDocument)">
+                    <i class="ri-download-line"></i> Télécharger
+                </button>
+                <button class="btn-primary" (click)="saveGeneratedDocument()" [disabled]="isCreating">
+                    <i class="ri-save-line"></i>
+                    {{ isCreating ? 'Sauvegarde...' : 'Sauvegarder' }}
+                </button>
+            </div>
+            <div class="document-preview">
+                <iframe [srcdoc]="generatedDocument?.contenu"
+                        class="preview-iframe"
+                        sandbox="allow-same-origin allow-scripts">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL ANALYSE CV IA ==================== -->
+<div class="modal-overlay" *ngIf="showAnalyseCVModal" (click)="showAnalyseCVModal=false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white;">
+                <i class="ri-robot-line"></i> Analyse IA de votre CV
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);"
+                    (click)="showAnalyseCVModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="isAnalysing" class="text-center py-5">
+                <div class="spinner-border" style="color: #6c5ce7;"></div>
+                <p class="mt-3" style="color: #6b7280;">🤖 Claude analyse votre CV...</p>
+            </div>
+            <div *ngIf="!isAnalysing && analyseResult">
+                <div class="analyse-score-section">
+                    <div class="score-big-circle" [style.borderColor]="getScoreColor(analyseResult.scoreGlobal)">
+                        <span [style.color]="getScoreColor(analyseResult.scoreGlobal)">{{ analyseResult.scoreGlobal }}</span>
+                        <small>/100</small>
+                    </div>
+                    <div class="score-label-big" [style.color]="getScoreColor(analyseResult.scoreGlobal)">
+                        {{ getScoreLabel(analyseResult.scoreGlobal) }}
+                    </div>
+                </div>
+                <div class="scores-detail-grid">
+                    <div class="score-detail-item" *ngIf="analyseResult.scorePresentation">
+                        <span>Présentation</span>
+                        <div class="score-bar"><div [style.width]="analyseResult.scorePresentation + '%'" [style.background]="getScoreColor(analyseResult.scorePresentation)"></div></div>
+                        <span>{{ analyseResult.scorePresentation }}%</span>
+                    </div>
+                    <div class="score-detail-item" *ngIf="analyseResult.scoreCompetences">
+                        <span>Compétences</span>
+                        <div class="score-bar"><div [style.width]="analyseResult.scoreCompetences + '%'" [style.background]="getScoreColor(analyseResult.scoreCompetences)"></div></div>
+                        <span>{{ analyseResult.scoreCompetences }}%</span>
+                    </div>
+                    <div class="score-detail-item" *ngIf="analyseResult.scoreExperience">
+                        <span>Expérience</span>
+                        <div class="score-bar"><div [style.width]="analyseResult.scoreExperience + '%'" [style.background]="getScoreColor(analyseResult.scoreExperience)"></div></div>
+                        <span>{{ analyseResult.scoreExperience }}%</span>
+                    </div>
+                    <div class="score-detail-item" *ngIf="analyseResult.scoreFormation">
+                        <span>Formation</span>
+                        <div class="score-bar"><div [style.width]="analyseResult.scoreFormation + '%'" [style.background]="getScoreColor(analyseResult.scoreFormation)"></div></div>
+                        <span>{{ analyseResult.scoreFormation }}%</span>
+                    </div>
+                </div>
+                <div class="analyse-box info-box" *ngIf="analyseResult.resumeAnalyse">
+                    <h4>📋 Résumé</h4>
+                    <p>{{ analyseResult.resumeAnalyse }}</p>
+                </div>
+                <div class="analyse-box success-box" *ngIf="analyseResult.pointsForts?.length">
+                    <h4>✅ Points forts</h4>
+                    <ul><li *ngFor="let p of analyseResult.pointsForts">{{ p }}</li></ul>
+                </div>
+                <div class="analyse-box warning-box" *ngIf="analyseResult.pointsAmeliorer?.length">
+                    <h4>🎯 Points à améliorer</h4>
+                    <ul><li *ngFor="let p of analyseResult.pointsAmeliorer">{{ p }}</li></ul>
+                </div>
+                <div class="analyse-box" [ngClass]="analyseResult.compatibleATS ? 'success-box' : 'warning-box'" *ngIf="analyseResult.conseilsATS?.length">
+                    <h4>🤖 ATS : {{ analyseResult.compatibleATS ? '✅ Compatible' : '⚠️ À améliorer' }}</h4>
+                    <ul><li *ngFor="let c of analyseResult.conseilsATS">{{ c }}</li></ul>
+                </div>
+                <div class="analyse-box danger-box" *ngIf="analyseResult.motsClesManquants?.length">
+                    <h4>🔑 Mots-clés manquants</h4>
+                    <div class="keywords-cloud">
+                        <span *ngFor="let k of analyseResult.motsClesManquants" class="keyword-tag">{{ k }}</span>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button class="btn-submit" (click)="showAnalyseCVModal=false; ouvrirOptimisation(documentEnCours)">
+                        <i class="ri-rocket-line"></i> Optimiser pour une offre
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL OPTIMISATION ==================== -->
+<div class="modal-overlay" *ngIf="showOptimiseModal" (click)="showOptimiseModal=false">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #10b981, #34d399); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white;">
+                <i class="ri-rocket-line"></i> Optimiser pour une offre
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);"
+                    (click)="showOptimiseModal=false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div *ngIf="!optimisationResult">
+                <div class="form-group">
+                    <label style="font-weight: 600; margin-bottom: 8px; display: block;">
+                        📋 Collez l'offre d'emploi ici
+                    </label>
+                    <textarea class="form-control" rows="8" [(ngModel)]="offreEmploiInput"
+                              placeholder="Copiez-collez ici le texte complet de l'offre d'emploi...">
+                    </textarea>
+                </div>
+                <button class="btn-submit" (click)="lancerOptimisation()" [disabled]="isOptimising">
+                    {{ isOptimising ? '🤖 Analyse en cours...' : '🚀 Analyser la compatibilité' }}
+                </button>
+            </div>
+            <div *ngIf="isOptimising" class="text-center py-5">
+                <div class="spinner-border" style="color: #10b981;"></div>
+                <p class="mt-3">🤖 Le modèle ML analyse votre CV...</p>
+            </div>
+            <div *ngIf="optimisationResult && !isOptimising">
+                <div class="analyse-score-section">
+                    <div class="score-big-circle" [style.borderColor]="getScoreColor(optimisationResult.scoreCompatibilite)">
+                        <span [style.color]="getScoreColor(optimisationResult.scoreCompatibilite)">{{ optimisationResult.scoreCompatibilite }}</span>
+                        <small>%</small>
+                    </div>
+                    <div>
+                        <div class="score-label-big" [style.color]="getScoreColor(optimisationResult.scoreCompatibilite)">Compatibilité avec l'offre</div>
+                        <p style="color: #6b7280; font-size: 14px;">Probabilité d'entretien : {{ optimisationResult.probabiliteEntretien }}%</p>
+                    </div>
+                </div>
+                <div class="analyse-box success-box">
+                    <h4>✅ Compétences correspondantes</h4>
+                    <div class="keywords-cloud">
+                        <span *ngFor="let c of optimisationResult.competencesCorrespondantes" class="keyword-tag success-tag">{{ c }}</span>
+                    </div>
+                </div>
+                <div class="analyse-box danger-box">
+                    <h4>❌ Compétences à ajouter</h4>
+                    <div class="keywords-cloud">
+                        <span *ngFor="let c of optimisationResult.competencesManquantes" class="keyword-tag danger-tag">{{ c }}</span>
+                    </div>
+                </div>
+                <div class="analyse-box info-box">
+                    <h4>💡 Suggestions d'optimisation</h4>
+                    <ul><li *ngFor="let s of optimisationResult.suggestionsOptimisation">{{ s }}</li></ul>
+                </div>
+                <div class="analyse-box warning-box">
+                    <h4>✍️ Phrases à ajouter</h4>
+                    <ul><li *ngFor="let p of optimisationResult.phrasesAjouter" style="font-style: italic;">{{ p }}</li></ul>
+                </div>
+                <button class="btn-cancel mt-3" (click)="optimisationResult=null; offreEmploiInput=''">
+                    ↩️ Tester une autre offre
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL RÉSULTATS ==================== -->
+<div class="modal-overlay" *ngIf="showResultModal" (click)="closeResultModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white; margin: 0;">
+                <i class="ri-bar-chart-2-line"></i> {{ modalTitle }}
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2); border-radius: 50%; width: 32px; height: 32px;"
+                    (click)="closeResultModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div *ngIf="modalData?.error" class="alert alert-danger">
+                <i class="ri-error-warning-line"></i> {{ modalData.error }}
+            </div>
+            <div *ngIf="modalData && !modalData.error">
+                <div class="result-count" style="margin-bottom: 20px; padding: 10px; background: #f0fdf4; border-radius: 12px; text-align: center;">
+                    <i class="ri-database-2-line"></i>
+                    <strong>{{ modalData.length }}</strong> résultat(s) trouvé(s)
+                </div>
+                <div style="display: grid; gap: 15px;">
+                    <div *ngFor="let item of modalData" style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #667eea;">
+                        <div *ngFor="let key of getObjectKeys(item)" style="margin-bottom: 8px; display: flex; flex-wrap: wrap;">
+                            <span style="font-weight: 600; color: #4a5568; min-width: 180px;">
+                                <i class="ri-information-line"></i> {{ formatKey(key) }} :
+                            </span>
+                            <span style="color: #2d3748; word-break: break-word;">{{ item[key] }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="modalData.length === 0" class="empty-state" style="text-align: center; padding: 40px;">
+                    <i class="ri-inbox-line" style="font-size: 48px; color: #ccc;"></i>
+                    <p style="margin-top: 16px; color: #6b7280;">Aucun résultat trouvé</p>
+                </div>
+            </div>
+            <details style="margin-top: 20px;">
+                <summary style="cursor: pointer; color: #667eea; font-size: 12px;">📋 Voir les données brutes (JSON)</summary>
+                <pre style="background: #1e1e2e; color: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 11px; margin-top: 10px;">{{ modalData | json }}</pre>
+            </details>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid #e9ecef;">
+            <button class="btn-cancel" (click)="closeResultModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CAMÉRA (une seule fois) ==================== -->
+<div class="modal-overlay" *ngIf="showCameraModal" (click)="closeCameraModal()">
+    <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white;">
+                <i class="ri-camera-line"></i> Photo professionnelle
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);"
+                    (click)="closeCameraModal()">&times;</button>
+        </div>
+        <div class="modal-body camera-body">
+            <div class="camera-container">
+                <video #videoElement autoplay playsinline></video>
+                <canvas #canvasElement style="display: none;"></canvas>
+
+                <div class="camera-controls" *ngIf="!capturedImage">
+                    <div class="camera-guidelines">
+                        <div class="guideline-frame"></div>
+                        <p class="guideline-text">Cadrez votre visage dans le cadre</p>
+                    </div>
+                    <button class="btn-capture" (click)="capturePhoto()">
+                        <i class="ri-camera-line"></i> Capturer
+                    </button>
+                </div>
+
+                <div class="preview-controls" *ngIf="capturedImage && !isProcessing">
+                    <img [src]="capturedImage" alt="Photo capturée" class="captured-preview">
+                    <div class="action-buttons">
+                        <button class="btn-retake" (click)="retakePhoto()">
+                            <i class="ri-refresh-line"></i> Reprendre
+                        </button>
+                        <button class="btn-validate" (click)="processPhotoWithML()">
+                            <i class="ri-magic-line"></i> Professionnaliser
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="isProcessing" class="processing-overlay">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p>Application du fond blanc professionnel...</p>
+                    <div class="processing-steps">
+                        <span [class.completed]="processingStep >= 1">📸 Capture</span>
+                        <span [class.completed]="processingStep >= 2">🎨 Préparation</span>
+                        <span [class.completed]="processingStep >= 3">🤖 IA</span>
+                        <span [class.completed]="processingStep >= 4">✨ Finalisation</span>
+                    </div>
+                </div>
+
+                <div *ngIf="photoProcessingError" class="error-message">
+                    <i class="ri-error-warning-line"></i> {{ photoProcessingError }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MODAL CONFIRMATION PHOTO ==================== -->
+<div class="modal-overlay" *ngIf="showPhotoConfirmationModal" (click)="rejectProcessedPhoto()" style="z-index: 10000 !important;">
+    <div class="modal-container modal-photo-preview" (click)="$event.stopPropagation()" style="z-index: 10001 !important; position: relative;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 28px 28px 0 0;">
+            <h3 style="color: white; margin: 0;">
+                <i class="ri-image-edit-line"></i> Amélioration photo
+            </h3>
+            <button class="modal-close" style="color: white; background: rgba(255,255,255,0.2);" (click)="rejectProcessedPhoto()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 24px;">
+            <div *ngIf="isProcessingPhoto" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3" style="color: #475569;">🤖 Traitement de votre photo par l'IA...</p>
+            </div>
+            <div *ngIf="!isProcessingPhoto && originalPhoto && processedPhoto">
+                <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #475569;">📸 Originale</div>
+                        <div style="width: 200px; height: 200px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img [src]="originalPhoto" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; color: #cbd5e1;">
+                        <i class="ri-arrow-right-line" style="font-size: 32px;"></i>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #1e293b;">✨ Professionnelle</div>
+                        <div style="width: 200px; height: 200px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #10b981; position: relative;">
+                            <img [src]="processedPhoto" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: absolute; bottom: 8px; right: 8px; background: #10b981; color: white; font-size: 11px; padding: 2px 8px; border-radius: 20px;">
+                                <i class="ri-star-fill"></i> IA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 16px;">
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569;">
+                            <i class="ri-crop-line" style="color: #3b82f6;"></i> Détourage précis
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569;">
+                            <i class="ri-contrast-line" style="color: #3b82f6;"></i> Éclairage studio
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569;">
+                            <i class="ri-palette-line" style="color: #3b82f6;"></i> Fond neutre
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+            <button class="btn-secondary" (click)="retakeFromConfirmation()" style="background: #e2e8f0; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 500;">Reprendre</button>
+            <button class="btn-outline" (click)="rejectProcessedPhoto()" style="background: white; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 500;">Originale</button>
+            <button class="btn-primary" (click)="confirmProcessedPhoto()" style="background: #1e293b; border: none; padding: 10px 24px; border-radius: 40px; color: white; cursor: pointer; font-weight: 500;">Utiliser</button>
+        </div>
+    </div>
+</div>

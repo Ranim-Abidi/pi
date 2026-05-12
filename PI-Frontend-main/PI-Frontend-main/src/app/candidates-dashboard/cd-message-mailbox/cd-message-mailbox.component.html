@@ -1,0 +1,102 @@
+<div class="message-page">
+    <div class="page-header">
+        <div>
+            <h1>Message</h1>
+            <p>Echangez directement avec les recruteurs.</p>
+        </div>
+        <button class="refresh-btn" type="button" (click)="loadMessages()">Actualiser</button>
+    </div>
+
+    <div class="message-grid">
+        <aside class="sidebar-card">
+            <div class="summary-row">
+                <div>
+                    <span class="summary-label">Boite de reception</span>
+                    <strong>{{ conversations.length }}</strong>
+                </div>
+                <div>
+                    <span class="summary-label">Non lus</span>
+                    <strong>{{ unreadCount }}</strong>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" [(ngModel)]="searchTerm" (input)="applySearch()" placeholder="Rechercher un contact...">
+            </div>
+
+            <div class="conversation-list">
+                <button
+                    type="button"
+                    class="conversation-item"
+                    *ngFor="let conversation of filteredConversations"
+                    [class.active]="selectedContactEmail === conversation.email"
+                    (click)="selectConversation(conversation)">
+                    <div class="conversation-main">
+                        <strong>{{ conversation.name }}</strong>
+                        <span>{{ conversation.lastMessagePreview || 'Nouveau message' }}</span>
+                    </div>
+                    <div class="conversation-meta">
+                        <span *ngIf="conversation.unreadCount" class="badge">{{ conversation.unreadCount }}</span>
+                    </div>
+                </button>
+            </div>
+        </aside>
+
+        <section class="chat-card">
+            <div class="chat-header">
+                <div>
+                    <h2>{{ selectedContactName || 'Selectionnez une conversation' }}</h2>
+                    <p *ngIf="selectedContactEmail">{{ selectedContactEmail }}</p>
+                </div>
+            </div>
+
+            <div class="thread" *ngIf="selectedConversationMessages.length > 0; else emptyThread">
+                <div
+                    class="thread-item"
+                    *ngFor="let message of selectedConversationMessages"
+                    [class.outgoing]="message.senderEmail === currentUserEmail">
+                    <div class="bubble">
+                        <div class="bubble-meta">
+                            <strong>{{ message.senderEmail === currentUserEmail ? 'Moi' : (message.senderName || message.senderEmail) }}</strong>
+                            <span>{{ message.dateEnvoi | date:'short' }}</span>
+                        </div>
+                        <h3>{{ message.subject }}</h3>
+                        <p>{{ message.contenu }}</p>
+                        <button type="button" class="reply-link" (click)="replyTo(message)">Repondre</button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #emptyThread>
+                <div class="empty-thread">
+                    <p>Selectionnez un contact pour voir la conversation ou envoyez un nouveau message.</p>
+                </div>
+            </ng-template>
+
+            <div class="compose-box">
+                <div class="compose-grid">
+                    <label>
+                        Destinataire
+                        <input type="email" [(ngModel)]="composeForm.receiverEmail" placeholder="email@exemple.com">
+                    </label>
+                    <label>
+                        Nom du contact
+                        <input type="text" [(ngModel)]="composeForm.receiverName" placeholder="Nom du recruteur">
+                    </label>
+                    <label class="full-width">
+                        Sujet
+                        <input type="text" [(ngModel)]="composeForm.subject" placeholder="Sujet du message">
+                    </label>
+                    <label class="full-width">
+                        Message
+                        <textarea rows="5" [(ngModel)]="composeForm.contenu" placeholder="Ecrivez votre message..."></textarea>
+                    </label>
+                </div>
+
+                <div class="compose-actions">
+                    <button type="button" class="send-btn" (click)="sendMessage()">Envoyer</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

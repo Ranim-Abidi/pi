@@ -1,0 +1,92 @@
+<div class="recommendation-widget">
+  <div class="widget-header">
+    <h3>🎯 Recommended Candidates</h3>
+    <button *ngIf="!isLoading && recommendations.length > 0" 
+            (click)="refreshRecommendations()"
+            class="btn-refresh">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading recommendations...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error">
+    <p>{{ error }}</p>
+    <button (click)="refreshRecommendations()">Try Again</button>
+  </div>
+
+  <!-- Recommendations List -->
+  <div *ngIf="!isLoading && !error && recommendations.length > 0" class="recommendations-list">
+    <div *ngFor="let rec of recommendations" class="recommendation-card">
+      <div class="card-header">
+        <h4>{{ rec.candidatNom || 'Candidate' }}</h4>
+        <span class="score" style="background-color: #85B7EB; color: white; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 16px;">{{ rec.scoreglobal | number:'1.0-0' }}%</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="level-badge" [ngClass]="'level-' + getLevelClass(rec.recommendationLevel)">
+          {{ rec.recommendationLevel }}
+        </div>
+        
+        <div class="scores-breakdown">
+          <div class="score-item">
+            <span class="label">Skills:</span>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="((rec.sskills || 0) * 100)"></div>
+            </div>
+            <span class="value">{{ ((rec.sskills || 0) * 100) | number:'1.0-0' }}%</span>
+          </div>
+          
+          <div class="score-item">
+            <span class="label">Experience:</span>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="((rec.sexperience || 0) * 100)"></div>
+            </div>
+            <span class="value">{{ ((rec.sexperience || 0) * 100) | number:'1.0-0' }}%</span>
+          </div>
+          
+          <div class="score-item">
+            <span class="label">Location:</span>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="((rec.slocation || 0) * 100)"></div>
+            </div>
+            <span class="value">{{ ((rec.slocation || 0) * 100) | number:'1.0-0' }}%</span>
+          </div>
+          
+          <div class="score-item">
+            <span class="label">Domain:</span>
+            <div class="progress-bar">
+              <div class="progress" [style.width.%]="((rec.sdomain || 0) * 100)"></div>
+            </div>
+            <span class="value">{{ ((rec.sdomain || 0) * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <div class="match-details" *ngIf="rec.matchDetails">
+          <p><small>{{ rec.matchDetails }}</small></p>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn-view">View Profile</button>
+        <button class="btn-contact">Send Offer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && recommendations.length === 0" class="empty-state">
+    <p>No recommendations found yet.</p>
+    <p><small>Generate recommendations to see results</small></p>
+    <button *ngIf="mode === 'candidates'" 
+            (click)="generateRecommendations()" 
+            class="btn-generate"
+            [disabled]="isLoading">
+      🚀 Generate Recommendations
+    </button>
+  </div>
+</div>

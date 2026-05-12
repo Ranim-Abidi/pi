@@ -1,0 +1,175 @@
+<div class="feedback-section">
+
+  <div class="feedback-header">
+    <div class="feedback-header-left">
+      <h3 class="feedback-title">
+        <i class="ri-chat-3-line"></i>
+        Avis et évaluations
+        <span class="count-badge" *ngIf="feedbacks.length">{{ feedbacks.length }}</span>
+      </h3>
+      <div class="avg-display" *ngIf="feedbacks.length">
+        <span class="avg-value">{{ averageNote }}</span>
+        <div class="avg-stars">
+          <span *ngFor="let s of stars" class="star-display" [class.filled]="s <= averageNote">★</span>
+        </div>
+        <span class="avg-label">sur 5</span>
+      </div>
+    </div>
+
+    <button
+      *ngIf="peutDonnerFeedback && !showForm && !parcoursId"
+      type="button"
+      class="add-feedback-btn"
+      (click)="openCreate()">
+      <i class="ri-add-line"></i> Donner mon avis
+    </button>
+  </div>
+
+  <div class="alert-success" *ngIf="successMsg">
+    <i class="ri-checkbox-circle-line"></i> {{ successMsg }}
+  </div>
+
+  <div class="info-terminer" *ngIf="isCandidat && !aTermine && !checkingTermine && !myFeedback && !parcoursId">
+    <i class="ri-lock-line"></i>
+    <span>Terminez cette formation pour pouvoir laisser un avis.</span>
+  </div>
+
+  <div class="feedback-form-card" *ngIf="showForm && isCandidat && aTermine">
+
+    <h4 class="form-title">{{ editing ? 'Modifier mon avis' : 'Partager mon expérience' }}</h4>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="stars-group">
+        <label class="form-label">Ma note <span class="required">*</span></label>
+        <div class="stars-row">
+          <span
+            *ngFor="let s of stars"
+            [class]="getStarClass(s)"
+            (click)="setNote(s)"
+            (mouseenter)="hoverStar(s)"
+            (mouseleave)="leaveStar()"
+          >★</span>
+          <span class="note-label" *ngIf="form.value.note > 0">{{ noteLabel }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Commentaire <span class="required">*</span></label>
+        <textarea
+          class="form-control"
+          [class.is-invalid]="hasError('commentaire')"
+          formControlName="commentaire"
+          rows="4"
+          placeholder="Partagez votre expérience : contenu, qualité, points forts..."
+          maxlength="100">
+        </textarea>
+
+        <div class="char-counter"
+             [class.warning]="commentaireRestant < 100"
+             [class.danger]="commentaireRestant < 20">
+          {{ commentaireRestant }} caractères restants
+        </div>
+
+        <div class="invalid-feedback" *ngIf="hasError('commentaire')">
+          {{ getError('commentaire') }}
+        </div>
+      </div>
+
+<div class="alert-error" 
+     *ngIf="errorMsg || (form.get('note')?.invalid && form.get('note')?.dirty && form.value.note < 1)">
+  <i class="ri-error-warning-line"></i>
+  <span *ngIf="form.get('note')?.invalid && form.get('note')?.dirty && form.value.note < 1">
+    Veuillez sélectionner une note.
+  </span>
+  <span *ngIf="errorMsg && !(form.get('note')?.invalid && form.get('note')?.dirty && form.value.note < 1)">
+    {{ errorMsg }}
+  </span>
+</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancelForm()">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="saving">
+          <i class="ri-loader-4-line spin" *ngIf="saving"></i>
+          <i class="ri-send-plane-line" *ngIf="!saving"></i>
+          {{ saving ? 'Enregistrement...' : (editing ? 'Mettre à jour' : 'Publier mon avis') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="my-feedback-card" *ngIf="myFeedback && !showForm">
+    <div class="my-feedback-header">
+      <div class="my-badge"><i class="ri-user-line"></i> Mon avis</div>
+      <div class="my-feedback-actions" *ngIf="isCandidat">
+        <button type="button" class="action-btn edit" (click)="openEdit()">
+          <i class="ri-edit-line"></i> Modifier
+        </button>
+        <button type="button" class="action-btn delete"
+          (click)="delete()" [disabled]="deletingId === myFeedback.id">
+          <i class="ri-delete-bin-line"></i>
+          {{ deletingId === myFeedback.id ? '...' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+    <div class="feedback-card-body">
+      <div class="stars-row static">
+        <span *ngFor="let s of stars" [class]="getDisplayStarClass(myFeedback.note, s)">★</span>
+        <span class="note-chip">{{ myFeedback.note }}/5</span>
+      </div>
+      <p class="feedback-comment">{{ myFeedback.commentaire }}</p>
+      <span class="feedback-date">{{ formatDate(myFeedback.dateCreation) }}</span>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <span class="text-muted">Chargement des avis...</span>
+  </div>
+
+  <div class="feedbacks-list" *ngIf="!loading">
+
+    <div class="empty-feedbacks" *ngIf="feedbacks.length === 0">
+      <i class="ri-chat-off-line empty-icon"></i>
+      <p>Aucun avis pour cette formation.</p>
+      <span *ngIf="aTermine && !myFeedback">Partagez votre expérience !</span>
+    </div>
+
+    <div
+      *ngFor="let f of feedbacks"
+      [hidden]="f.id === myFeedback?.id"
+      class="feedback-card"
+      [class.is-mine]="f.candidat?.id === candidatId"
+    >
+      <div class="feedback-card-header">
+        <div class="avatar">
+          {{ (f.candidat?.nom || f.candidat?.email || 'A')[0].toUpperCase() }}
+        </div>
+        <div class="feedback-meta">
+          <div class="meta-top">
+            <span class="feedback-author">{{ f.candidat?.nom || f.candidat?.email || 'Anonyme' }}</span>
+            <span class="level-badge" *ngIf="f.displayLevel" [class.macro]="f.type === 'MACRO'">
+              {{ f.displayLevel }}
+            </span>
+          </div>
+          <span class="feedback-date">{{ formatDate(f.dateCreation || f.createdAt) }}</span>
+        </div>
+        <div class="stars-row static ms-auto">
+          <span *ngFor="let s of stars" [class]="getDisplayStarClass(f.note, s)">★</span>
+          <span class="note-chip">{{ f.note }}/5</span>
+        </div>
+      </div>
+      <p class="feedback-comment">{{ f.commentaire }}</p>
+      <div class="edited-badge" *ngIf="f.dateModification !== f.dateCreation">
+        <i class="ri-edit-2-line"></i> Modifié
+      </div>
+    </div>
+
+  </div>
+
+</div>

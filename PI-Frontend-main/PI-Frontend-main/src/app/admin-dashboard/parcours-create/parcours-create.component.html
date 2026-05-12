@@ -1,0 +1,388 @@
+<div class="admin-page-wrap">
+
+  <!-- ── Back + Title ──────────────────────────────────────────── -->
+  <div class="admin-header">
+    <button class="back-btn" routerLink="/admin-dashboard/formations">
+      <i class="ri-arrow-left-line"></i> Retour
+    </button>
+  </div>
+
+  <!-- ── Main card ─────────────────────────────────────────────── -->
+  <div class="content-card">
+
+    <!-- ── Success State ──────────────────────────────────────── -->
+    <!-- Chargement (mode édition) -->
+    <div class="success-state" *ngIf="loadingEdit">
+      <i class="ri-loader-4-line spin" style="font-size:3rem;color:#667eea"></i>
+      <h2>Chargement des données...</h2>
+      <p>Récupération du parcours en cours</p>
+    </div>
+
+    <div class="success-state" *ngIf="submitted">
+      <i class="ri-checkbox-circle-line"></i>
+      <h2>{{ editMode ? 'Parcours mis à jour avec succès !' : 'Parcours créé avec succès !' }}</h2>
+      <p>Redirection vers la liste des formations...</p>
+    </div>
+
+    <div *ngIf="!submitted && !loadingEdit">
+
+      <!-- ── STEPS 1–4 ── -->
+      <ng-container *ngIf="currentStep < 4">
+
+        <div class="form-card-header">
+          <div class="form-icon">🎓</div>
+          <div>
+            <h2>
+              <span class="step-badge">Étape {{ currentStep + 1 }}/4</span>
+              Formation {{ steps[currentStep].label }}
+            </h2>
+            <p>Remplissez les champs pour ce niveau</p>
+          </div>
+        </div>
+
+
+              <!-- Stepper -->
+      <div class="stepper">
+        <div class="step-item" *ngFor="let s of steps; let i = index"
+             [class.active]="currentStep === i"
+             [class.done]="currentStep > i && s.titre"
+             (click)="goToStep(i)">
+          <div class="step-circle">
+            <i class="ri-check-line" *ngIf="currentStep > i && s.titre"></i>
+            <span *ngIf="!(currentStep > i && s.titre)">{{ i + 1 }}</span>
+          </div>
+          <span class="step-name">{{ s.label }}</span>
+        </div>
+        <div class="step-item" [class.active]="currentStep === 4" (click)="goToStep(4)">
+          <div class="step-circle"><i class="ri-file-list-3-line"></i></div>
+          <span class="step-name">Récap</span>
+        </div>
+      </div>
+
+
+        <div class="form-card-body">
+
+          <!-- 1. YouTube -->
+          <div class="form-section-title">
+            <span class="section-number">1</span> Recherche YouTube (optionnel)
+          </div>
+          <div class="search-section">
+            <div class="search-bar">
+              <i class="ri-search-line"></i>
+              <input type="text" [(ngModel)]="steps[currentStep].searchQuery"
+                     placeholder="Ex: Angular pour débutants..."
+                     (keyup.enter)="searchYoutube(currentStep)">
+              <button class="search-btn" (click)="searchYoutube(currentStep)"
+                      [disabled]="steps[currentStep].searching">
+                <i class="ri-search-line" *ngIf="!steps[currentStep].searching"></i>
+                <i class="ri-loader-4-line spin" *ngIf="steps[currentStep].searching"></i>
+                Rechercher
+              </button>
+            </div>
+          </div>
+
+          <div class="suggestions-list"
+               *ngIf="steps[currentStep].suggestions.length > 0 && !steps[currentStep].selectedSuggestion">
+            <div class="suggestion-card" *ngFor="let s of steps[currentStep].suggestions"
+                 (click)="selectSuggestion(currentStep, s)">
+              <img [src]="s.thumbnail" [alt]="s.titre" class="suggestion-thumb"
+                   onerror="this.style.display='none'">
+              <div class="suggestion-info">
+                <h4>{{ s.titre }}</h4>
+                <div class="suggestion-meta">
+                  <span><i class="ri-youtube-line"></i> {{ s.chaineYoutube }}</span>
+                  <span *ngIf="s.nbVideos"><i class="ri-play-list-line"></i> {{ s.nbVideos }} vidéos</span>
+                </div>
+              </div>
+              <i class="ri-add-circle-line select-icon"></i>
+            </div>
+          </div>
+
+          <div class="selected-formation" *ngIf="steps[currentStep].selectedSuggestion">
+            <div class="selected-card">
+              <img [src]="steps[currentStep].selectedSuggestion.thumbnail"
+                   [alt]="steps[currentStep].selectedSuggestion.titre"
+                   onerror="this.style.display='none'">
+              <div class="selected-info">
+                <h4>{{ steps[currentStep].selectedSuggestion.titre }}</h4>
+                <span class="selected-meta">
+                  {{ steps[currentStep].selectedSuggestion.chaineYoutube }}
+                  · {{ steps[currentStep].selectedSuggestion.nbVideos }} vidéos
+                </span>
+              </div>
+              <button class="btn-clear" (click)="clearSelection(currentStep)">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Informations générales -->
+          <div class="form-section-title">
+            <span class="section-number">2</span> Informations générales
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">Titre de la formation</label>
+            <input type="text" class="form-control"
+                   [class.is-invalid]="hasError(currentStep, 'titre')"
+                   [(ngModel)]="steps[currentStep].titre"
+                   placeholder="Titre de la formation">
+            <div class="invalid-feedback" *ngIf="hasError(currentStep, 'titre')">
+              {{ getError(currentStep, 'titre') }}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label required">Catégorie</label>
+                <select class="form-select"
+                        [class.is-invalid]="hasError(currentStep, 'categorie')"
+                        [(ngModel)]="steps[currentStep].categorie">
+                  <option value="">-- Choisir --</option>
+                  <option value="Frontend">Frontend</option>
+                  <option value="Backend">Backend</option>
+                  <option value="IA">IA</option>
+                  <option value="Data">Data</option>
+                  <option value="DevOps">DevOps</option>
+                  <option value="Design">Design</option>
+                  <option value="Mobile">Mobile</option>
+                  <option value="Développement">Développement</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="hasError(currentStep, 'categorie')">
+                  {{ getError(currentStep, 'categorie') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label required">Plateforme</label>
+                <select class="form-select"
+                        [class.is-invalid]="hasError(currentStep, 'plateforme')"
+                        [(ngModel)]="steps[currentStep].plateforme">
+                  <option value="YouTube">YouTube</option>
+                  <option value="Udemy">Udemy</option>
+                  <option value="Coursera">Coursera</option>
+                  <option value="OpenClassrooms">OpenClassrooms</option>
+                  <option value="LinkedIn Learning">LinkedIn Learning</option>
+                  <option value="Autre">Autre</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="hasError(currentStep, 'plateforme')">
+                  {{ getError(currentStep, 'plateforme') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Configuration -->
+          <div class="form-section-title">
+            <span class="section-number">3</span> Configuration
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Statut</label>
+                <select class="form-select" [(ngModel)]="steps[currentStep].statut">
+                  <option value="Disponible">Disponible</option>
+                  <option value="Bientôt">Bientôt</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label required">Durée</label>
+                <input type="text" class="form-control"
+                       [class.is-invalid]="hasError(currentStep, 'duree')"
+                       [(ngModel)]="steps[currentStep].duree" placeholder="Ex: 5h">
+                <div class="invalid-feedback" *ngIf="hasError(currentStep, 'duree')">
+                  {{ getError(currentStep, 'duree') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="form-label">Niveau</label>
+                <input type="text" class="form-control"
+                       [value]="steps[currentStep].label" disabled>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Contenu (masqué si Bientôt) -->
+          <div *ngIf="steps[currentStep].statut !== 'Bientôt'">
+            <div class="form-section-title">
+              <span class="section-number">4</span> Contenu
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Playlist YouTube</label>
+                  <input type="text" class="form-control"
+                         [class.is-invalid]="hasError(currentStep, 'playlistId')"
+                         [(ngModel)]="steps[currentStep].playlistId" placeholder="PLxxxx">
+                  <div class="invalid-feedback" *ngIf="hasError(currentStep, 'playlistId')">
+                    {{ getError(currentStep, 'playlistId') }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">YouTube ID</label>
+                  <input type="text" class="form-control"
+                         [(ngModel)]="steps[currentStep].youtubeId" placeholder="dQw4w9WgXcQ">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label class="form-label">Lien externe</label>
+                  <input type="text" class="form-control"
+                         [(ngModel)]="steps[currentStep].lienExterne" placeholder="https://...">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Éditeur -->
+          <div class="form-section-title">
+            <span class="section-number">5</span> Éditeur interactif
+          </div>
+          <div class="form-group">
+            <div class="editor-toggle-row">
+              <div class="toggle-info">
+                <label class="toggle-label">Activer l'éditeur de code</label>
+                <small>Pour Frontend, Backend, IA, Data...</small>
+              </div>
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="steps[currentStep].hasEditor" id="editorSwitch">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="steps[currentStep].hasEditor">
+            <label class="form-label">Template éditeur</label>
+            <select class="form-select" [(ngModel)]="steps[currentStep].stackBlitzUrl">
+              <option *ngFor="let t of stackBlitzTemplates" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+
+          <!-- 6. Documentation -->
+          <div class="form-section-title">
+            <span class="section-number">6</span> Documentation
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL documentation <span style="font-weight:400;font-size:0.8rem;color:#9ca3af">(optionnel)</span></label>
+            <input type="text" class="form-control"
+                   [(ngModel)]="steps[currentStep].writtenUrl"
+                   placeholder="https://docs.microsoft.com/...">
+          </div>
+
+          <!-- Navigation -->
+          <div class="step-nav">
+            <button class="btn-nav" (click)="prevStep()" *ngIf="currentStep > 0">
+              <i class="ri-arrow-left-line"></i> Précédent
+            </button>
+            <span *ngIf="currentStep === 0"></span>
+            <button class="btn-nav primary" (click)="nextStep()" [disabled]="!canProceed">
+              Suivant <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+
+        </div><!-- /form-card-body -->
+      </ng-container>
+
+      <!-- ── RÉCAP (step 4) ── -->
+      <ng-container *ngIf="currentStep === 4">
+
+        <div class="form-card-header">
+          <div class="form-icon">📋</div>
+          <div>
+            <h2>Récapitulatif du parcours</h2>
+            <p>Vérifiez et nommez votre parcours avant de créer</p>
+          </div>
+        </div>
+
+        <div class="form-card-body">
+
+          <div class="form-section-title">
+            <span class="section-number">1</span> Identité du parcours
+          </div>
+
+          <div class="recap-meta">
+            <div class="field">
+              <label>Titre du parcours</label>
+              <input type="text"
+                     [class.is-invalid]="hasError(4, 'parcoursTitre')"
+                     [(ngModel)]="parcoursTitre" [placeholder]="autoTitre">
+              <div class="invalid-feedback" *ngIf="hasError(4, 'parcoursTitre')">
+                {{ getError(4, 'parcoursTitre') }}
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Catégorie</label>
+                <input type="text"
+                       [class.is-invalid]="hasError(4, 'parcoursCategorie')"
+                       [(ngModel)]="parcoursCategorie"
+                       [placeholder]="steps[0].categorie || 'Développement'">
+                <div class="invalid-feedback" *ngIf="hasError(4, 'parcoursCategorie')">
+                  {{ getError(4, 'parcoursCategorie') }}
+                </div>
+              </div>
+              <div class="field">
+                <label>Image URL (optionnel)</label>
+                <input type="text" [(ngModel)]="parcoursImageUrl" placeholder="https://...">
+              </div>
+            </div>
+            <div class="field">
+              <label>Description (optionnel)</label>
+              <textarea [(ngModel)]="parcoursDescription" rows="2"
+                        placeholder="Description courte du parcours..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span class="section-number">2</span> Les 4 niveaux
+          </div>
+
+          <div class="recap-niveaux">
+            <div class="recap-niveau" *ngFor="let s of steps; let i = index">
+              <div class="recap-index">{{ i + 1 }}</div>
+              <div class="recap-info">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span class="recap-label">{{ s.label }}</span>
+                  <span class="badge" [ngClass]="s.statut === 'Disponible' ? 'bg-success' : 'bg-warning'">
+                    {{ s.statut }}
+                  </span>
+                </div>
+                <strong>{{ s.titre || '(non renseigné)' }}</strong>
+                <div class="recap-extra">
+                  <span *ngIf="s.categorie">{{ s.categorie }}</span>
+                  <span *ngIf="s.plateforme"> · {{ s.plateforme }}</span>
+                  <span *ngIf="s.duree"> · {{ s.duree }}</span>
+                  <span *ngIf="s.hasEditor" class="ms-2 badge bg-primary" style="font-size:0.65rem">
+                    <i class="ri-code-s-slash-line"></i> Éditeur
+                  </span>
+                </div>
+              </div>
+              <i class="ri-checkbox-circle-fill recap-ok" *ngIf="s.titre"></i>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-nav" (click)="prevStep()">
+              <i class="ri-arrow-left-line"></i> Précédent
+            </button>
+            <button class="btn-nav primary" (click)="submit()" [disabled]="submitting">
+              <i class="ri-save-line" *ngIf="!submitting"></i>
+              <i class="ri-loader-4-line spin" *ngIf="submitting"></i>
+              {{ submitting ? (editMode ? 'Mise à jour...' : 'Création en cours...') : (editMode ? 'Mettre à jour' : 'Créer le parcours') }}
+            </button>
+          </div>
+
+        </div><!-- /form-card-body -->
+      </ng-container>
+
+    </div><!-- /!submitted -->
+  </div><!-- /content-card -->
+</div><!-- /admin-page-wrap -->

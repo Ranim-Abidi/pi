@@ -1,0 +1,398 @@
+﻿<div
+    class="navbar-area"
+    [ngClass]="{'white-navbar': router.url === '/index-2', 'sticky': isSticky}"
+>
+    <div class="container-fluid">
+        <nav
+            class="navbar navbar-expand-lg"
+            [class.active]="classApplied"
+        >
+            <a
+                class="navbar-brand"
+                routerLink="/"
+                [ngClass]="{'d-none': router.url === '/index-2'}"
+            >
+                <img src="images/logo.png" alt="logo">
+            </a>
+            @if (router.url === '/index-2') {
+                <a class="navbar-brand" routerLink="/">
+                    <img src="images/white-logo2.png" alt="white-logo">
+                </a>
+            }
+            <button
+                class="navbar-toggler"
+                type="button"
+                (click)="toggleClass()"
+            >
+                <span class="burger-menu">
+                    <span class="top-bar"></span>
+                    <span class="middle-bar"></span>
+                    <span class="bottom-bar"></span>
+                </span>
+            </button>
+            <div
+                class="collapse navbar-collapse"
+            >
+                <ul class="navbar-nav">
+
+                    <!-- Home -->
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">Home</a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Home Demo - 1
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a routerLink="/index-2" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Home Demo - 2
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Jobs -->
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">Jobs</a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                <a routerLink="/jobs-grid" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Jobs Grid
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a routerLink="/jobs-listing" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Jobs Listing
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a routerLink="/job-details" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Job Details
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a routerLink="/categories" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Categories
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- ✅ Formations — menu conditionnel selon rôle -->
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">Formations</a>
+                        <ul class="dropdown-menu">
+
+                            <!-- ✅ Tout le monde : liste publique -->
+                            <li class="nav-item">
+                                <a routerLink="/formations" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Liste des formations
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                    <!-- Candidates -->
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link">Candidates</a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                <a routerLink="/candidates" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Candidates
+                                </a>
+                            </li>
+                            <li class="nav-item" *ngIf="userRole && userRole.includes('CANDIDAT')">
+                                <a routerLink="/candidate-details" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Candidate Details
+                                </a>
+                            </li>
+                            <li class="nav-item" *ngIf="userRole && userRole.includes('CANDIDAT')">
+                                <a routerLink="/candidates-dashboard" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Candidates Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item" *ngIf="userRole && userRole.includes('CANDIDAT')">
+                                <a routerLink="/candidate-entretiens" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                                    Mes Entretiens
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    
+
+                </ul>   
+
+                <div class="others-option d-md-flex align-items-center">
+
+                    <!-- Login/Register bouton si non connecté -->
+                    <div class="option-item" *ngIf="!isLoggedIn">
+                        <span class="d-block login-register" (click)="openPopup()">
+                            <i class="ri-user-line"></i>
+                            Login/Register
+                        </span>
+                    </div>
+
+                    <!-- Post A Job (caché) -->
+                    <div class="option-item">
+                        <a routerLink="/dashboard/post-a-new-job" class="default-btn" style="display: none;">
+                            Post A Job
+                        </a>
+                    </div>
+
+                    <!-- Dropdown utilisateur connecté (Candidat) -->
+                    <div class="option-item" *ngIf="isLoggedIn && isCandidat">
+                        <div class="dropdown position-relative candidate-dropdown">
+                            <button
+                                class="candidate-badge"
+                                type="button"
+                                (click)="toggleUserDropdown()"
+                                [title]="userName"
+                            >
+                                <i class="ri-user-search-line"></i>
+                            </button>
+                            <ul class="dropdown-menu" [ngClass]="{'show': userDropdownOpen}">
+                                <li class="user-info-item">
+                                    <i class="ri-mail-line"></i>
+                                    <div class="user-name">{{ userName }}</div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" routerLink="/candidates-dashboard" (click)="closeUserDropdown()">
+                                        <i class="ri-user-line"></i> My Profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" (click)="deleteAccount()" style="color: #dc3545; cursor:pointer;">
+                                        <i class="ri-delete-bin-line"></i> Delete Account
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" (click)="logout()" style="cursor:pointer;">
+                                        <i class="ri-logout-box-line"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown utilisateur connecté (Admin et autres rôles) -->
+                    <div class="option-item" *ngIf="isLoggedIn && !isCandidat">
+                        <div class="dropdown position-relative candidate-dropdown">
+                            <button
+                                class="candidate-badge"
+                                type="button"
+                                (click)="toggleUserDropdown()"
+                                [title]="userName"
+                            >
+                                <i class="ri-user-settings-line"></i>
+                            </button>
+                            <ul class="dropdown-menu" [ngClass]="{'show': userDropdownOpen}">
+                                <li class="user-info-item">
+                                    <i class="ri-mail-line"></i>
+                                    <div class="user-name">{{ userName }}</div>
+                                </li>
+                                <li class="user-info-item">
+                                    <i class="ri-shield-user-line"></i>
+                                    <div class="user-name">{{ normalizedRole }}</div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" (click)="logout()" style="cursor:pointer;">
+                                        <i class="ri-logout-box-line"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Numéro de téléphone -->
+                    <div
+                        class="option-item"
+                        [ngClass]="{'d-none': router.url === '/index-2'}"
+                    >
+                        <a href="tel:+216 24 236 562" class="d-inline-block hotline fw-medium">
+                            <i class="ri-phone-line"></i>
+                            <span class="d-block fw-normal">Call Us</span>
+                            +216 24 236 562
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<!-- Modal Login/Register -->
+@if (isOpen) {
+    <div class="modal fade loginRegisterModal" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg position-relative">
+                <button (click)="closePopup()" type="button" class="close-btn position-absolute" style="top: 15px; right: 15px; z-index: 1000; background: none; border: none; font-size: 24px; color: #333;">
+                    <i class="ri-close-fill"></i>
+                </button>
+                <div class="modal-body p-5 text-center">
+                    @if (currentTab === 'tab1') {
+                        <!-- Login Form -->
+                        <div class="login-container">
+                            <div class="mb-4">
+                                <img src="images/logo.png" alt="Matchy Khedma" class="mb-3" style="max-height: 80px;">
+                                <h3 class="fw-bold text-dark mb-1">Sign in to Matchy Khedma</h3>
+                            </div>
+                            <form #loginForm="ngForm" class="authentication-form" (ngSubmit)="loginForm.valid && login()">
+                                <div class="form-group text-start mb-3">
+                                    <label class="form-label fw-semibold mb-2">Email</label>
+                                    <input type="text" class="form-control shadow-sm" [(ngModel)]="loginData.email" name="email" placeholder="Saisir un email" required style="border: 1px solid #ddd;">
+                                    <div *ngIf="loginForm.submitted && loginForm.controls['email']?.invalid" class="text-danger small mt-1">Email requis</div>
+                                </div>
+                                <div class="form-group text-start mb-3">
+                                    <label class="form-label fw-semibold mb-2">Mot de passe</label>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <input type="password" class="form-control shadow-sm flex-grow-1" [(ngModel)]="loginData.motDePasse" name="motDePasse" placeholder="Saisir un password" required style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div *ngIf="loginForm.submitted && loginForm.controls['motDePasse']?.invalid" class="text-danger small mt-1">Mot de passe requis</div>
+                                    <button type="button" class="btn btn-link p-0 text-primary fw-semibold small mt-2" (click)="switchTab($event, 'tab3')">Mot de passe oublié?</button>
+                                </div>
+                                <button type="submit" class="btn w-100 btn-primary fw-semibold py-2 mb-3" [disabled]="!loginForm.valid" style="background-color: #2563eb; border: none; border-radius: 6px;">
+                                    Connexion
+                                </button>
+                                <div class="text-center">
+                                    <span class="text-muted">Vous n'avez pas de compte? </span>
+                                    <button type="button" class="btn btn-link p-0 text-primary fw-semibold" (click)="switchTab($event, 'tab2')">S'inscrire</button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                        @if (currentTab === 'tab2') {
+                        <!-- Register Form -->
+                        <div class="register-container">
+                            <div class="mb-4">
+                                <img src="images/logo.png" alt="Matchy Khedma" class="mb-3" style="max-height: 80px;">
+                                <h3 class="fw-bold text-dark mb-1">Create Account</h3>
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-block w-100 py-3 px-2 fw-semibold d-flex flex-column align-items-center justify-content-center gap-2" style="height: 120px; border-radius: 12px;" [ngClass]="{'btn-primary text-white': currentInnerTab === 'candidat', 'btn-outline-primary': currentInnerTab !== 'candidat'}" (click)="switchInnerTab($event, 'candidat')">
+                                        <i class="ri-user-3-line" style="font-size: 36px;"></i>
+                                        <span style="font-size: 14px;">Candidat</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-block w-100 py-3 px-2 fw-semibold d-flex flex-column align-items-center justify-content-center gap-2" style="height: 120px; border-radius: 12px;" [ngClass]="{'btn-primary text-white': currentInnerTab === 'recruteur', 'btn-outline-primary': currentInnerTab !== 'recruteur'}" (click)="switchInnerTab($event, 'recruteur')">
+                                        <i class="ri-building-2-line" style="font-size: 36px;"></i>
+                                        <span style="font-size: 14px;">Recruteur</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-block w-100 py-3 px-2 fw-semibold d-flex flex-column align-items-center justify-content-center gap-2" style="height: 120px; border-radius: 12px;" [ngClass]="{'btn-primary text-white': currentInnerTab === 'clientFreelance', 'btn-outline-primary': currentInnerTab !== 'clientFreelance'}" (click)="switchInnerTab($event, 'clientFreelance')">
+                                        <i class="ri-user-star-line" style="font-size: 36px;"></i>
+                                        <span style="font-size: 14px;">Freelance</span>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-block w-100 py-3 px-2 fw-semibold d-flex flex-column align-items-center justify-content-center gap-2" style="height: 120px; border-radius: 12px;" [ngClass]="{'btn-primary text-white': currentInnerTab === 'organisateur', 'btn-outline-primary': currentInnerTab !== 'organisateur'}" (click)="switchInnerTab($event, 'organisateur')">
+                                        <i class="ri-calendar-2-line" style="font-size: 36px;"></i>
+                                        <span style="font-size: 14px;">Organisateur</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tab-content">
+                                <form #registerForm="ngForm" class="authentication-form text-start" (ngSubmit)="registerForm.valid && register()">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label fw-semibold mb-2">Nom</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.nom" name="nom" placeholder="Saisir votre nom" required style="border: 1px solid #ddd;">
+                                        <div *ngIf="registerForm.submitted && registerForm.controls['nom']?.invalid" class="text-danger small mt-1">Nom requis</div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="form-label fw-semibold mb-2">Email</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.email" name="email" placeholder="Saisir un email" required style="border: 1px solid #ddd;">
+                                        <div *ngIf="registerForm.submitted && registerForm.controls['email']?.invalid" class="text-danger small mt-1">Email requis</div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="form-label fw-semibold mb-2">Mot de passe</label>
+                                        <input type="password" class="form-control shadow-sm" [(ngModel)]="registerData.motDePasse" name="motDePasse" placeholder="Saisir un password" required style="border: 1px solid #ddd;">
+                                        <div *ngIf="registerForm.submitted && registerForm.controls['motDePasse']?.invalid" class="text-danger small mt-1">Mot de passe requis</div>
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_RECRUTEUR'">
+                                        <label class="form-label fw-semibold mb-2">Entreprise</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.entreprise" name="entreprise" placeholder="Saisir l'entreprise" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_RECRUTEUR'">
+                                        <label class="form-label fw-semibold mb-2">Poste</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.poste" name="poste" placeholder="Saisir votre poste" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_RECRUTEUR'">
+                                        <label class="form-label fw-semibold mb-2">Secteur</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.secteur" name="secteur" placeholder="Saisir le secteur" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_CLIENT_FREELANCE'">
+                                        <label class="form-label fw-semibold mb-2">Entreprise</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.entreprise" name="entreprise" placeholder="Saisir l'entreprise" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_CLIENT_FREELANCE'">
+                                        <label class="form-label fw-semibold mb-2">Budget</label>
+                                        <input type="number" step="0.01" class="form-control shadow-sm" [(ngModel)]="registerData.budget" name="budget" placeholder="Saisir le budget" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_ORGANISATEUR'">
+                                        <label class="form-label fw-semibold mb-2">Organisation</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.organisation" name="organisation" placeholder="Saisir l'organisation" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_ORGANISATEUR'">
+                                        <label class="form-label fw-semibold mb-2">Adresse</label>
+                                        <input type="text" class="form-control shadow-sm" [(ngModel)]="registerData.adresse" name="adresse" placeholder="Saisir l'adresse" style="border: 1px solid #ddd;">
+                                    </div>
+                                    <div class="form-group mb-3" *ngIf="registerRole === 'ROLE_ORGANISATEUR'">
+                                        <label class="form-label fw-semibold mb-2">Description du projet</label>
+                                        <textarea class="form-control shadow-sm" [(ngModel)]="registerData.descriptionProjet" name="descriptionProjet" placeholder="Saisir la description" style="border: 1px solid #ddd;"></textarea>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="terms" required>
+                                        <label class="form-check-label small" for="terms">
+                                            J'accepte les <a routerLink="/" class="text-primary">Conditions</a> et la <a routerLink="/" class="text-primary">Politique de Confidentialité</a>
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn w-100 btn-primary fw-semibold py-2" [disabled]="!registerForm.valid" style="background-color: #2563eb; border: none; border-radius: 6px;">
+                                        S'inscrire
+                                    </button>
+                                    <div class="text-center mt-3">
+                                        <span class="text-muted small">Vous avez déjà un compte? </span>
+                                        <button type="button" class="btn btn-link p-0 text-primary fw-semibold" (click)="switchTab($event, 'tab1')">Se connecter</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    @if (currentTab === 'tab3') {
+                        <!-- Forgot Password Form -->
+                        <div class="forgot-password-container">
+                            <div class="mb-4">
+                                <img src="images/logo.png" alt="Matchy Khedma" class="mb-3" style="max-height: 80px;">
+                                <h3 class="fw-bold text-dark mb-1">Récupérer votre compte</h3>
+                                <p class="text-muted small">Entrez votre numéro de téléphone pour recevoir un nouveau mot de passe temporaire</p>
+                            </div>
+                            <form #forgotForm="ngForm" class="authentication-form" (ngSubmit)="forgotForm.valid && resetPassword()">
+                                <div class="form-group text-start mb-3">
+                                    <label class="form-label fw-semibold mb-2">Numéro de téléphone</label>
+                                    <input type="tel" class="form-control shadow-sm" [(ngModel)]="forgotPasswordData.phone" name="phone" placeholder="Saisir votre numéro" required style="border: 1px solid #ddd;">
+                                    <div *ngIf="forgotForm.submitted && forgotForm.controls['phone']?.invalid" class="text-danger small mt-1">Numéro requis</div>
+                                </div>
+                                <button type="submit" class="btn w-100 btn-primary fw-semibold py-2 mb-3" [disabled]="!forgotForm.valid" style="background-color: #2563eb; border: none; border-radius: 6px;">
+                                    Envoyer le mot de passe
+                                </button>
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-link p-0 text-primary fw-semibold" (click)="switchTab($event, 'tab1')">Retour à la connexion</button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    </div>
+}

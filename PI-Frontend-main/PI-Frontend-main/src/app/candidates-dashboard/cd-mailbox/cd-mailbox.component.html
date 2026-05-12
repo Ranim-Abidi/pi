@@ -1,0 +1,191 @@
+<div class="mailbox-container">
+  <!-- En-tête -->
+  <div class="mailbox-header">
+    <h2 class="title">📬 Mes Messages</h2>
+    <p class="subtitle">Consultez les notifications de candidatures acceptées ou rejetées</p>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-number">{{ totalMessages }}</div>
+      <div class="stat-label">Messages totaux</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="stat-number">{{ getNonLusCount() }}</div>
+      <div class="stat-label">Non lus</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ getAcceptationCount() }}</div>
+      <div class="stat-label">Acceptations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ getRejetCount() }}</div>
+      <div class="stat-label">Rejets</div>
+    </div>
+  </div>
+
+  <!-- Contrôles de filtrage -->
+  <div class="filter-section">
+    <div class="filter-controls">
+      <div class="filter-buttons">
+        <button (click)="selectedFilter = 'tous'; applyFilters()" 
+                [class.active]="selectedFilter === 'tous'" class="filter-btn">
+          <i class="fas fa-inbox"></i> Tous
+        </button>
+        <button (click)="selectedFilter = 'nonLus'; applyFilters()" 
+                [class.active]="selectedFilter === 'nonLus'" class="filter-btn">
+          <i class="fas fa-envelope"></i> Non lus
+        </button>
+        <button (click)="selectedFilter = 'acceptation'; applyFilters()" 
+                [class.active]="selectedFilter === 'acceptation'" class="filter-btn">
+          <i class="fas fa-check-circle"></i> Acceptations
+        </button>
+        <button (click)="selectedFilter = 'rejet'; applyFilters()" 
+                [class.active]="selectedFilter === 'rejet'" class="filter-btn">
+          <i class="fas fa-times-circle"></i> Rejets
+        </button>
+        <button (click)="selectedFilter = 'entretien'; applyFilters()" 
+                [class.active]="selectedFilter === 'entretien'" class="filter-btn">
+          <i class="fas fa-calendar"></i> Entretiens
+        </button>
+      </div>
+
+      <!-- Barre de recherche -->
+      <div class="search-container">
+        <input type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" 
+               placeholder="Rechercher dans les messages..." class="search-input">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+
+      <!-- Bouton de rafraîchissement -->
+      <button (click)="loadMessages()" class="btn btn-refresh">
+        <i class="fas fa-sync-alt" [class.loading]="loading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste des messages -->
+  <div class="messages-section">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des messages...</p>
+    </div>
+
+    <div *ngIf="!loading && paginatedMessages.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <p>Aucun message pour l'instant</p>
+    </div>
+
+    <div *ngIf="!loading && paginatedMessages.length > 0" class="messages-list">
+      <div *ngFor="let message of paginatedMessages" 
+           [ngClass]="getMessageClass(message)" 
+           (click)="showDetails(message)">
+        <div class="message-header">
+          <div class="message-icon" [class]="getMessageColor(message.type)">
+            <i [class]="getMessageIcon(message.type)"></i>
+          </div>
+          <div class="message-info">
+            <h3 class="message-subject">{{ message.subject }}</h3>
+            <p class="message-sender">{{ message.senderName }}</p>
+          </div>
+          <div class="message-meta">
+            <span class="message-badge" [class]="'badge-' + getMessageColor(message.type)">
+              <i [class]="getMessageIcon(message.type)"></i>
+              {{ message.type }}
+            </span>
+            <span class="message-date">{{ formatDate(message.dateEnvoi) }}</span>
+            <span *ngIf="!message.lu" class="unread-indicator"></span>
+          </div>
+        </div>
+        <div class="message-preview">
+          {{ message.contenu | slice:0:100 }}...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && totalPages > 1" class="pagination-section">
+    <button (click)="previousPage()" [disabled]="currentPage === 1" class="btn btn-nav">
+      <i class="fas fa-chevron-left"></i> Précédent
+    </button>
+    <span class="page-info">Page {{ currentPage }} sur {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn btn-nav">
+      Suivant <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Modal des détails du message -->
+  <div *ngIf="showDetailModal && selectedMessage" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-section">
+          <div class="modal-icon" [class]="getMessageColor(selectedMessage.type)">
+            <i [class]="getMessageIcon(selectedMessage.type)"></i>
+          </div>
+          <div>
+            <h2 class="modal-title">{{ selectedMessage.subject }}</h2>
+            <p class="modal-sender">De: {{ selectedMessage.senderName }}</p>
+          </div>
+        </div>
+        <button (click)="closeDetailModal()" class="close-btn">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="message-metadata">
+          <div class="meta-item">
+            <label>Type:</label>
+            <span class="badge" [class]="'badge-' + getMessageColor(selectedMessage.type)">
+              {{ selectedMessage.type }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <label>Reçu le:</label>
+            <span>{{ formatDate(selectedMessage.dateEnvoi) }}</span>
+          </div>
+        </div>
+
+        <div class="message-content">
+          <p>{{ selectedMessage.contenu }}</p>
+        </div>
+
+        <!-- Actions spéciales selon le type de message -->
+        <div *ngIf="selectedMessage.type === 'ACCEPTATION'" class="message-actions">
+          <div class="action-card success">
+            <i class="fas fa-thumbs-up"></i>
+            <p>Félicitations! Votre candidature a été acceptée.</p>
+            <p class="action-hint">Vous recevrez bientôt les détails pour votre entretien.</p>
+          </div>
+        </div>
+
+        <div *ngIf="selectedMessage.type === 'ENTRETIEN'" class="message-actions">
+          <div class="action-card info">
+            <i class="fas fa-calendar-check"></i>
+            <p>Un entretien a été planifié pour vous.</p>
+            <p class="action-hint">Consultez les détails ci-dessus pour plus d'informations.</p>
+          </div>
+        </div>
+
+        <div *ngIf="selectedMessage.type === 'REJET'" class="message-actions">
+          <div class="action-card warning">
+            <i class="fas fa-hand-paper"></i>
+            <p>Malheureusement, votre candidature n'a pas été retenue.</p>
+            <p class="action-hint">N'hésitez pas à postuler à d'autres offres.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="supprimerMessage(selectedMessage)" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Supprimer
+        </button>
+        <button (click)="closeDetailModal()" class="btn btn-secondary">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

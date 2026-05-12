@@ -1,0 +1,87 @@
+<div class="page-container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <h4>
+            <i class="ri-calendar-event-line"></i>
+            Liste des Événements
+        </h4>
+        <span class="badge-count">{{ filteredEvenements.length }} événements</span>
+    </div>
+
+    <!-- BARRE DE RECHERCHE -->
+    <div class="search-bar">
+        <div class="search-wrapper">
+            <i class="ri-search-line search-icon"></i>
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Rechercher par titre, lieu, type ou organisateur..."
+                [ngModel]="searchTerm"
+                (ngModelChange)="onSearch($event)"
+            />
+            <button *ngIf="searchTerm" class="clear-btn" type="button" (click)="onSearch('')">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="state-box" *ngIf="isLoading">
+        <i class="ri-loader-4-line spin"></i>
+        <p>Chargement des événements...</p>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper" *ngIf="!isLoading && filteredEvenements.length > 0">
+        <table class="events-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Lieu</th>
+                    <th>Date</th>
+                    <th>Organisateur</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let e of filteredEvenements; let i = index">
+                    <td class="col-index">{{ i + 1 }}</td>
+                    <td class="title-col">
+                        <div class="name-cell">
+                            <i class="ri-calendar-event-line"></i>
+                            {{ e.titre || '-' }}
+                        </div>
+                    </td>
+                    <td>{{ e.description || '-' }}</td>
+                    <td>
+                        <span class="type-badge"
+                            [class.entreprise]="e.type === 'JOB_FAIR'"
+                            [class.universite]="e.type !== 'JOB_FAIR'">
+                            {{ e.type || '-' }}
+                        </span>
+                    </td>
+                    <td>{{ e.lieu || '-' }}</td>
+                    <td>{{ formatDate(e.date) }}</td>
+                    <td>{{ e.nomOrganisateur || '-' }}</td>
+                    <td>
+                        <!-- ✅ Uniquement supprimer -->
+                        <button class="btn btn-supprimer" (click)="supprimer(e.id)">
+                            <i class="ri-delete-bin-line"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- EMPTY -->
+    <div class="state-box" *ngIf="!isLoading && filteredEvenements.length === 0">
+        <i class="ri-inbox-line"></i>
+        <p>{{ searchTerm ? 'Aucun résultat trouvé' : 'Aucun événement disponible' }}</p>
+    </div>
+
+</div>

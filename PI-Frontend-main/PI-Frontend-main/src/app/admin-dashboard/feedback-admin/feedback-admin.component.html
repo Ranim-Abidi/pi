@@ -1,0 +1,113 @@
+<div class="feedback-admin-area">
+  <div class="container">
+
+    <div class="stats-banner" *ngIf="!loading && feedbacks.length">
+      <div class="stat-main">
+        <span class="big-note">{{ stats.moyenne }}</span>
+        <div class="big-stars">
+          <span *ngFor="let s of stars" class="star-lg" [class.filled]="s <= stats.moyenne">★</span>
+        </div>
+        <span class="stat-sub">{{ stats.total }} avis</span>
+      </div>
+
+      <div class="distribution">
+        <div class="dist-row" *ngFor="let s of [5,4,3,2,1]">
+          <span class="dist-label">{{ s }} ★</span>
+          <div class="dist-bar">
+            <div class="dist-fill" [style.width.%]="distributionPercent[s-1]"></div>
+          </div>
+          <span class="dist-count">{{ distribution[s-1] }}</span>
+        </div>
+      </div>
+
+      <div class="stat-cards">
+        <div class="stat-card">
+          <span class="stat-val">{{ stats.total }}</span>
+          <span class="stat-lbl">Total avis</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">{{ stats.moyenne }}/5</span>
+          <span class="stat-lbl">Note moyenne</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val">{{ distribution[4] }}</span>
+          <span class="stat-lbl">Avis 5 étoiles</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <h2 class="page-title">
+        Tous les avis
+        <span *ngIf="!loading">({{ feedbacks.length }})</span>
+      </h2>
+              <a routerLink="/admin-dashboard/formations" class="back-btn">
+          <i class="ri-arrow-left-line"></i> Retour
+        </a>
+    </div>
+
+    <div class="empty-state" *ngIf="loading">Chargement des feedbacks...</div>
+
+    <!-- Alertes flash admin -->
+    <div class="alert-success" *ngIf="successMsg">
+      <i class="ri-checkbox-circle-line"></i> {{ successMsg }}
+    </div>
+    <div class="alert-error" *ngIf="errorMsg">
+      <i class="ri-error-warning-line"></i> {{ errorMsg }}
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && feedbacks.length === 0">
+      <i class="ri-chat-off-line" style="font-size:40px;opacity:0.3;display:block;margin-bottom:12px"></i>
+      Aucun feedback pour cette formation.
+    </div>
+
+    <div class="feedbacks-grid" *ngIf="!loading && feedbacks.length">
+      <div class="feedback-card" *ngFor="let f of feedbacks">
+
+        <div class="feedback-card-header">
+          <div class="avatar">
+            {{ (f.candidat?.nom || f.candidat?.email || 'A')[0].toUpperCase() }}
+          </div>
+          <div class="author-info">
+            <span class="author-name">{{ f.candidat?.nom || 'Candidat' }}</span>
+            <span class="author-email">{{ f.candidat?.email || '' }}</span>
+          </div>
+          <div class="note-section ms-auto">
+            <div class="stars-row">
+              <span *ngFor="let s of stars" class="star" [class.filled]="s <= f.note">★</span>
+            </div>
+            <span class="note-tag" [ngClass]="getNoteClass(f.note)">
+              {{ f.note }}/5 — {{ getNoteLabel(f.note) }}
+            </span>
+          </div>
+        </div>
+
+        <p class="feedback-comment">{{ f.commentaire }}</p>
+
+        <div class="feedback-footer">
+          <span class="feedback-date">
+            <i class="ri-calendar-line"></i> {{ formatDate(f.dateCreation) }}
+          </span>
+          <span class="modified-tag" *ngIf="f.dateModification !== f.dateCreation">
+            <i class="ri-edit-2-line"></i> Modifié
+          </span>
+
+          <!-- Bouton supprimer admin -->
+          <button
+            type="button"
+            class="btn-delete-admin"
+            (click)="deleteFeedback(f)"
+            [disabled]="deletingId === f.id"
+            title="Supprimer ce feedback">
+            <i class="ri-loader-4-line spin" *ngIf="deletingId === f.id"></i>
+            <i class="ri-delete-bin-line" *ngIf="deletingId !== f.id"></i>
+            {{ deletingId === f.id ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+

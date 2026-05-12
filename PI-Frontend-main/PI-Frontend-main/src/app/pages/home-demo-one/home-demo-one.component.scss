@@ -1,0 +1,586 @@
+// home-demo-one.component.scss
+
+.home-offres-area {
+	background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+	padding: 60px 0;
+
+	.section-title {
+		margin-bottom: 40px;
+
+		.sub-title {
+			color: #0c7a43;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-size: 14px;
+		}
+
+		h2 {
+			color: #1b3e63;
+			font-size: 32px;
+			font-weight: 700;
+			margin: 10px 0;
+		}
+
+		p {
+			color: #5d6f84;
+			font-size: 16px;
+			max-width: 700px;
+			margin: 0 auto;
+		}
+	}
+}
+
+// Sections des offres
+.offres-section {
+	margin-bottom: 50px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	.section-header {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		margin-bottom: 25px;
+		flex-wrap: wrap;
+
+		h3 {
+			font-size: 22px;
+			font-weight: 700;
+			color: #1b3e63;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+
+			i {
+				font-size: 26px;
+				color: #0c7a43;
+			}
+		}
+
+		.section-line {
+			flex: 1;
+			height: 2px;
+			background: linear-gradient(90deg, #0c7a43, #c8e6df, transparent);
+			border-radius: 2px;
+		}
+
+		.demo-badge {
+			background: linear-gradient(135deg, #ff9800, #f57c00);
+			color: white;
+			padding: 5px 14px;
+			border-radius: 30px;
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.5px;
+			box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+			
+			i {
+				margin-right: 4px;
+			}
+		}
+	}
+}
+
+.demo-section {
+	background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+	border-radius: 24px;
+	padding: 24px;
+	margin-top: 30px;
+	border: 1px solid rgba(255, 152, 0, 0.15);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.home-offres-state {
+	border: 1px dashed rgba(12, 122, 67, 0.35);
+	background: #ffffff;
+	color: #1f6d4d;
+	border-radius: 16px;
+	padding: 30px 20px;
+	text-align: center;
+
+	.loading-spinner {
+		width: 40px;
+		height: 40px;
+		border: 3px solid #e0e0e0;
+		border-top: 3px solid #0c7a43;
+		border-radius: 50%;
+		margin: 0 auto 15px;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	p {
+		margin: 0;
+		font-size: 14px;
+	}
+
+	&.error {
+		border-color: rgba(220, 38, 38, 0.35);
+		color: #b42323;
+	}
+}
+
+.home-offres-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+.home-offre-card {
+	background: #fff;
+	border: 1px solid rgba(12, 122, 67, 0.15);
+	border-radius: 20px;
+	padding: 20px;
+	box-shadow: 0 10px 30px rgba(24, 84, 129, 0.06);
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 4px;
+		height: 100%;
+		background: #0c7a43;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	&:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 20px 35px rgba(24, 84, 129, 0.12);
+		
+		&::before {
+			opacity: 1;
+		}
+	}
+
+	&.recruiter-card {
+		border-left: 3px solid #0c7a43;
+	}
+
+	&.demo-card {
+		border-left: 3px solid #ff9800;
+		background: linear-gradient(135deg, #ffffff 0%, #fffaf5 100%);
+	}
+
+	h3 {
+		margin: 12px 0 8px;
+		font-size: 1.1rem;
+		font-weight: 700;
+		line-height: 1.35;
+		color: #1b3e63;
+	}
+
+	.offre-company, .offre-location {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 13px;
+		color: #5d6f84;
+		margin: 6px 0;
+
+		i {
+			font-size: 14px;
+			color: #8ba0b5;
+		}
+	}
+
+	.offre-description {
+		margin: 10px 0;
+		color: #4d627a;
+		line-height: 1.5;
+		min-height: 60px;
+		font-size: 13px;
+	}
+
+	.offre-details {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin: 12px 0;
+		padding: 10px 0;
+		border-top: 1px solid #eef3f8;
+		border-bottom: 1px solid #eef3f8;
+
+		.detail-badge {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			font-size: 12px;
+			color: #456887;
+			background: #f7fafc;
+			padding: 4px 10px;
+			border-radius: 20px;
+
+			i {
+				font-size: 12px;
+			}
+		}
+	}
+
+	.offre-skills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 12px 0;
+
+		.skill-tag {
+			background: #f0f6fa;
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			color: #2c6b2f;
+			font-weight: 500;
+		}
+
+		.skill-more {
+			font-size: 11px;
+			color: #8ba0b5;
+			padding: 4px 8px;
+		}
+	}
+}
+
+.offre-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
+
+	.offre-type {
+		border-radius: 30px;
+		padding: 4px 12px;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+
+		&.type-recruiter {
+			background: #e7f6ee;
+			color: #0c7a43;
+		}
+
+		&.type-demo {
+			background: #fff3e0;
+			color: #ef6c00;
+		}
+	}
+
+	.offre-domain {
+		border-radius: 30px;
+		padding: 4px 10px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		background: #f5f5f5;
+		color: #555;
+
+		&.domain-informatique {
+			background: #e3f2fd;
+			color: #1565c0;
+		}
+
+		&.domain-sante {
+			background: #fce4ec;
+			color: #c62828;
+		}
+
+		&.domain-finance {
+			background: #fff3e0;
+			color: #ef6c00;
+		}
+
+		&.domain-marketing {
+			background: #e8eaf6;
+			color: #3f51b5;
+		}
+
+		&.domain-enseignement {
+			background: #f3e5f5;
+			color: #7b1fa2;
+		}
+	}
+
+	.offre-date {
+		font-size: 0.7rem;
+		color: #8ba0b5;
+	}
+}
+
+.offre-card-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 15px;
+	padding-top: 12px;
+	border-top: 1px dashed #d6e3ef;
+	font-size: 0.8rem;
+
+	span {
+		color: #456887;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+
+		i {
+			font-size: 13px;
+		}
+	}
+
+	a {
+		text-decoration: none;
+		font-weight: 700;
+		color: #0965A4;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		transition: all 0.2s;
+
+		&:hover {
+			color: #0c7a43;
+			transform: translateX(3px);
+		}
+	}
+}
+
+// ============================================
+// ENTRETIENS TESTS
+// ============================================
+.public-tests-area {
+	background: linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%);
+	padding: 60px 0;
+
+	.section-title {
+		margin-bottom: 40px;
+
+		.sub-title {
+			color: #0965A4;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-size: 14px;
+		}
+
+		h2 {
+			color: #074d82;
+			font-size: 32px;
+			font-weight: 700;
+			margin: 10px 0;
+		}
+
+		p {
+			color: #5c6c84;
+			font-size: 16px;
+			max-width: 700px;
+			margin: 0 auto;
+		}
+	}
+}
+
+.public-tests-state {
+	border: 1px dashed rgba(9, 101, 164, 0.35);
+	background: #ffffff;
+	color: #315a7a;
+	border-radius: 16px;
+	padding: 30px 20px;
+	text-align: center;
+
+	&.error {
+		border-color: rgba(220, 38, 38, 0.35);
+		color: #b42323;
+	}
+}
+
+.public-tests-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+.public-test-card {
+	background: #fff;
+	border: 1px solid rgba(9, 101, 164, 0.15);
+	border-radius: 20px;
+	overflow: hidden;
+	box-shadow: 0 10px 30px rgba(7, 77, 130, 0.06);
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 20px 35px rgba(7, 77, 130, 0.12);
+	}
+}
+
+.test-cover {
+	position: relative;
+	height: 190px;
+	overflow: hidden;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transition: transform 0.4s ease;
+	}
+
+	&:hover img {
+		transform: scale(1.05);
+	}
+
+	.test-domaine {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		background: linear-gradient(135deg, #0965A4, #074d82);
+		color: #fff;
+		border-radius: 30px;
+		padding: 5px 14px;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+}
+
+.test-body {
+	padding: 18px;
+
+	.test-date {
+		color: #3a6a8f;
+		font-size: 0.8rem;
+		margin-bottom: 10px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+
+		i {
+			font-size: 14px;
+		}
+	}
+
+	h3 {
+		margin: 0 0 10px;
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: #074d82;
+		line-height: 1.35;
+	}
+
+	p {
+		color: #4b5f7b;
+		margin: 0 0 15px;
+		line-height: 1.5;
+		min-height: 60px;
+		font-size: 13px;
+	}
+
+	.test-action {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		text-decoration: none;
+		background: linear-gradient(135deg, #0965A4 0%, #3a86c8 100%);
+		color: #fff;
+		border-radius: 30px;
+		padding: 8px 18px;
+		font-size: 0.8rem;
+		font-weight: 700;
+		transition: all 0.2s;
+
+		&:hover {
+			background: linear-gradient(135deg, #074d82 0%, #0965A4 100%);
+			transform: translateX(3px);
+		}
+	}
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media only screen and (max-width: 991px) {
+	.home-offres-grid,
+	.public-tests-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20px;
+	}
+
+	.offre-card-header {
+		flex-wrap: wrap;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	.home-offres-area,
+	.public-tests-area {
+		padding: 40px 0;
+	}
+
+	.home-offres-grid,
+	.public-tests-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.offres-section .section-header {
+		flex-direction: column;
+		align-items: flex-start;
+
+		.section-line {
+			display: none;
+		}
+	}
+
+	.demo-section {
+		padding: 16px;
+	}
+
+	.offre-card-header,
+	.offre-card-footer {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.offre-card-footer {
+		gap: 8px;
+	}
+
+	.section-title h2 {
+		font-size: 24px;
+	}
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.home-offre-card, .public-test-card {
+	animation: fadeInUp 0.5s ease forwards;
+}
+
+// Loading spinner animation
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}

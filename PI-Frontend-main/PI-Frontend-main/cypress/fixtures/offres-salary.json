@@ -1,0 +1,26 @@
+[
+  {
+    "offreId": 2,
+    "titrOffre": "React Developer",
+    "entreprise": "WebStudio",
+    "recruteurNom": "Fatima Ben",
+    "recruteurEmail": "fatima@webstudio.com",
+    "nombreCandidatures": 8,
+    "nombreCandidaturesAcceptees": 2,
+    "derniereCandidatureDate": "2026-04-14",
+    "salaire": "70",
+    "typeContrat": "CDI"
+  },
+  {
+    "offreId": 1,
+    "titrOffre": "Java Developer",
+    "entreprise": "TechCorp",
+    "recruteurNom": "Ali Bouali",
+    "recruteurEmail": "ali@techcorp.com",
+    "nombreCandidatures": 15,
+    "nombreCandidaturesAcceptees": 3,
+    "derniereCandidatureDate": "2026-04-15",
+    "salaire": "80",
+    "typeContrat": "CDI"
+  }
+]

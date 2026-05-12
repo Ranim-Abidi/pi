@@ -1,0 +1,441 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div class="partner-title-block">
+      <div class="partner-icon-box">
+        <i class="ri-building-line"></i>
+      </div>
+      <div class="partner-title-text">
+        <span>Nos Partenaires</span>
+        <div class="title-underline"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-banner">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="ri-team-line"></i></div>
+        <div>
+          <div class="stat-number">{{ partenaires.length }}</div>
+          <div class="stat-label">Total partenaires</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="ri-building-line"></i></div>
+        <div>
+          <div class="stat-number">{{ getCount('ENTREPRISE') }}</div>
+          <div class="stat-label">Entreprises</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="ri-graduation-cap-line"></i></div>
+        <div>
+          <div class="stat-number">{{ getCount('UNIVERSITE') }}</div>
+          <div class="stat-label">Universités</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+
+    <div [style]="isFocused ?
+      'display:flex; align-items:center; background:white; border:1.5px solid #7c3aed; border-radius:50px; padding:6px 16px 6px 6px; box-shadow:0 0 0 3px rgba(124,58,237,0.15); flex:1;' :
+      'display:flex; align-items:center; background:white; border:1.5px solid #e5e7eb; border-radius:50px; padding:6px 16px 6px 6px; box-shadow:0 2px 8px rgba(0,0,0,.06); flex:1;'">
+      <div style="background:#EDE9FE; color:#7C3AED; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; margin-right:10px; flex-shrink:0;">
+        <i class="ri-search-eye-line"></i>
+      </div>
+      <input type="text"
+             style="flex:1; border:none; outline:none; font-size:14px; padding:6px 0; background:transparent; color:#374151;"
+             placeholder="Rechercher un partenaire..."
+             [value]="searchTerm"
+             (focus)="isFocused = true"
+             (blur)="isFocused = false"
+             (input)="searchTerm = $any($event.target).value"/>
+      <button *ngIf="searchTerm" type="button"
+              style="background:#f3f4f6; border:none; cursor:pointer; color:#9ca3af; font-size:14px; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;"
+              (click)="searchTerm = ''">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+
+    <button (click)="comparaisonMode ? resetComparaison() : comparaisonMode = true"
+            class="btn-outline" [class.btn-cancel]="comparaisonMode">
+      <span>{{ comparaisonMode ? '✕' : '⚖️' }}</span>
+      <span>{{ comparaisonMode ? 'Annuler' : 'Comparer' }}</span>
+    </button>
+
+    <div style="background:white; border-radius:10px; padding:6px 14px 6px 10px; border:1.5px solid #7c3aed; outline:2px solid rgba(124,58,237,0.1); display:flex; align-items:center; gap:10px; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:700; color:#6366f1; white-space:nowrap; display:flex; align-items:center; gap:4px;">🏆 Top</span>
+      <div style="width:1px; height:20px; background:#e5e7eb;"></div>
+      <div style="display:flex; gap:6px;">
+        <div *ngFor="let t of topPartenaires; let i = index"
+             (click)="voirOffres(t.id)"
+             [style]="i === 0 ? 'display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px; border:1px solid #f59e0b; background:linear-gradient(135deg,#fef3c7,#fde68a); cursor:pointer;' :
+                      i === 1 ? 'display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px; border:1px solid #9ca3af; background:linear-gradient(135deg,#f3f4f6,#e5e7eb); cursor:pointer;' :
+                                'display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px; border:1px solid #b45309; background:linear-gradient(135deg,#fef3c7,#fed7aa); cursor:pointer;'">
+          <span style="font-size:12px;">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}</span>
+          <span [style]="i === 0 ? 'font-size:11px; font-weight:700; color:#b45309;' :
+                         i === 1 ? 'font-size:11px; font-weight:700; color:#6b7280;' :
+                                   'font-size:11px; font-weight:700; color:#92400e;'">
+            {{ t.nom }} · {{ t.nbOffres }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="resultatComparaison" class="comparaison-container">
+
+  
+  <div class="comp-header">
+    <h5>⚖️ Résultat de la comparaison</h5>
+    <button (click)="resetComparaison()" class="comp-close">
+      <i class="ri-close-line"></i>
+    </button>
+  </div>
+
+  
+  <div class="comparaison-grid">
+
+    <!-- PARTENAIRE 1 -->
+    <div class="comp-card"
+         [class.winner]="resultatComparaison.meilleur === resultatComparaison.nom1">
+
+      <div class="comp-name">
+        {{ resultatComparaison.nom1 }}
+        <span *ngIf="resultatComparaison.meilleur === resultatComparaison.nom1">🏆</span>
+      </div>
+
+      <div class="comp-stat">
+        <i class="ri-file-list-line"></i>
+        {{ resultatComparaison.nbOffres1 }} offres
+      </div>
+
+      <div class="comp-stat">
+        <i class="ri-bar-chart-line"></i>
+        {{ resultatComparaison.tauxActivite1 }} offres/semaine
+      </div>
+    </div>
+
+    
+    <div class="vs-circle">VS</div>
+
+    <!-- PARTENAIRE 2 -->
+    <div class="comp-card"
+         [class.winner]="resultatComparaison.meilleur === resultatComparaison.nom2">
+
+      <div class="comp-name">
+        {{ resultatComparaison.nom2 }}
+        <span *ngIf="resultatComparaison.meilleur === resultatComparaison.nom2">🏆</span>
+      </div>
+
+      <div class="comp-stat">
+        <i class="ri-file-list-line"></i>
+        {{ resultatComparaison.nbOffres2 }} offres
+      </div>
+
+      <div class="comp-stat">
+        <i class="ri-bar-chart-line"></i>
+        {{ resultatComparaison.tauxActivite2 }} offres/semaine
+      </div>
+    </div>
+
+  </div>
+
+  
+  <div class="comp-result">
+    🏆 Meilleur partenaire : {{ resultatComparaison.meilleur }}
+  </div>
+
+</div>
+
+  <div class="cards-grid">
+    <div class="partner-card"
+         *ngFor="let p of filteredPartenaires"
+         [style.border]="comparaisonMode && (partenaireSelectionne1?.id === p.id || partenaireSelectionne2?.id === p.id) ? '2px solid #6366f1' : ''">
+
+      <button *ngIf="comparaisonMode && !resultatComparaison"
+              (click)="selectionnerPourComparaison(p)"
+              style="position:absolute; top:10px; right:10px; z-index:3; background:#6366f1; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">
+        <i class="ri-add-line"></i>
+      </button>
+
+      <div class="card-cover"
+           [class.cover-entreprise]="p.type === 'ENTREPRISE'"
+           [class.cover-universite]="p.type === 'UNIVERSITE'">
+        <div class="photo-wrap">
+          <div class="partner-initials"
+               [class.initials-entreprise]="p.type === 'ENTREPRISE'"
+               [class.initials-universite]="p.type === 'UNIVERSITE'">
+            {{ p.nom?.substring(0, 2).toUpperCase() }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-name">{{ p.nom }}</div>
+
+        <div class="vues-badge">
+          <span class="vues-inner">
+            <span style="font-size:14px;">👁️</span>
+            <span>{{ vues[p.id] || 0 }} vues</span>
+          </span>
+        </div>
+
+        <div class="activity-badge"
+             [style.background]="getActivityColor(activityRates[p.id] || 0) + '20'"
+             [style.color]="getActivityColor(activityRates[p.id] || 0)"
+             [style.border-color]="getActivityColor(activityRates[p.id] || 0) + '40'">
+          <i class="ri-bar-chart-line"></i>
+          {{ getActivityLabel(activityRates[p.id] || 0) }} · {{ activityRates[p.id] || 0 }} offres/semaine
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+
+          <div class="tooltip-wrap">
+            <div class="prediction-badge"
+                 [class.pred-emploi]="predictions[p.id]?.type === 'EMPLOI'"
+                 [class.pred-stage]="predictions[p.id]?.type === 'STAGE'"
+                 style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+              <span class="pulse"
+                    [class.pulse-stage]="predictions[p.id]?.type === 'STAGE'"
+                    [class.pulse-emploi]="predictions[p.id]?.type === 'EMPLOI'"></span>
+              {{ predictions[p.id]?.type || '...' }} · {{ predictions[p.id]?.probability || '' }}%
+            </div>
+            <div class="tooltip-box">
+              <div class="tt-header">
+                <p class="tt-label">Prédiction ML</p>
+                <p class="tt-type">{{ predictions[p.id]?.type === 'STAGE' ? '🎓 Offre de stage' : '💼 Offre d\'emploi' }}</p>
+              </div>
+              <div class="tt-body">
+                <div class="tt-row">
+                  <span class="tt-name"><span class="pulse pulse-stage"></span>Stage</span>
+                  <span class="pct-stage">{{ predictions[p.id]?.probaStage }}%</span>
+                </div>
+                <div class="bar-wrap">
+                  <div class="bar-stage" [style.width.%]="predictions[p.id]?.probaStage"></div>
+                </div>
+                <div class="tt-row">
+                  <span class="tt-name"><span class="pulse pulse-emploi"></span>Emploi</span>
+                  <span class="pct-emploi">{{ predictions[p.id]?.probaEmploi }}%</span>
+                </div>
+                <div class="bar-wrap">
+                  <div class="bar-emploi" [style.width.%]="predictions[p.id]?.probaEmploi"></div>
+                </div>
+              </div>
+              <div class="tt-footer">
+                <span class="conf-label">Confiance</span>
+                <span class="conf-badge"
+                      [class.conf-high]="predictions[p.id]?.confidence === 'HIGH'"
+                      [class.conf-medium]="predictions[p.id]?.confidence === 'MEDIUM'"
+                      [class.conf-low]="predictions[p.id]?.confidence === 'LOW'">
+                  {{ predictions[p.id]?.confidence === 'LOW' ? 'Insuffisant' : predictions[p.id]?.confidence }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="type-pill"
+               [class.pill-entreprise]="p.type === 'ENTREPRISE'"
+               [class.pill-universite]="p.type === 'UNIVERSITE'">
+            <span class="pill-dot"
+                  [class.dot-entreprise]="p.type === 'ENTREPRISE'"
+                  [class.dot-universite]="p.type === 'UNIVERSITE'"></span>
+            {{ p.type }}
+          </div>
+
+        </div>
+
+        <div class="info-block">
+          <div class="info-line">
+            <i class="ri-mail-line"></i>
+            <span>{{ p.email }}</span>
+          </div>
+          <div class="info-line">
+            <i class="ri-phone-line"></i>
+            <span>{{ p.telephone || '—' }}</span>
+          </div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <button class="btn-voir-offres" type="button" (click)="voirOffres(p.id)">
+          <i class="ri-eye-line"></i> Voir les Offres
+        </button>
+
+        <button class="btn-prediction-ia" type="button" (click)="ouvrirPrediction(p)">
+          <i class="ri-line-chart-line"></i>
+          <span>Prédiction IA</span>
+        </button>
+
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredPartenaires.length === 0">
+      <i class="ri-inbox-line"></i>
+      <p>{{ searchTerm ? 'Aucun résultat pour "' + searchTerm + '"' : 'Aucun partenaire trouvé' }}</p>
+    </div>
+  </div>
+
+</div>
+
+
+
+<div class="pred-overlay" *ngIf="predModalOuvert" (click)="fermerPrediction()">
+  <div class="pred-popup" (click)="$event.stopPropagation()">
+
+    <div class="pred-popup-bar"></div>
+
+    <div class="pred-popup-body">
+
+      <div class="pred-header-row">
+        <div class="pred-partner-info">
+          <div class="pred-partner-av"
+               [class.av-entreprise]="partenaireActif?.type === 'ENTREPRISE'"
+               [class.av-universite]="partenaireActif?.type === 'UNIVERSITE'">
+            {{ partenaireActif?.nom?.substring(0,2).toUpperCase() }}
+          </div>
+          <div>
+            <div class="pred-partner-name">{{ partenaireActif?.nom }}</div>
+            <div class="pred-partner-type">{{ partenaireActif?.type }} · Partenaire</div>
+          </div>
+        </div>
+        <button class="pred-close-btn" (click)="fermerPrediction()">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <div class="pred-title-block">
+        <h2 class="pred-title">Prédiction · Type d'offre</h2>
+        
+      </div>
+
+      <div class="pred-type-row">
+        <div class="pred-type-btn" [class.active]="getPredictionType() === 'EMPLOI'">
+          <div class="pred-type-btn-inner">
+            <i class="ri-briefcase-line"></i>
+            <span>EMPLOI</span>
+          </div>
+        </div>
+        <div class="pred-type-btn" [class.active]="getPredictionType() === 'STAGE'">
+          <div class="pred-type-btn-inner">
+            <i class="ri-book-open-line"></i>
+            <span>STAGE</span>
+          </div>
+        </div>
+        <div class="pred-type-btn" [class.active]="getPredictionType() === 'MEDIUM'">
+          <div class="pred-type-btn-inner">
+            <i class="ri-pie-chart-line"></i>
+            <span>MEDIUM</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="pred-section-label">FEATURES</p>
+
+      <div class="pred-feats-grid">
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">nbOffres</span>
+          <span class="pred-feat-val">{{ featuresActives?.nbOffres }}</span>
+        </div>
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">activityRate</span>
+          <span class="pred-feat-val">{{ featuresActives?.activityRate }} /sem</span>
+        </div>
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">typePartenaire</span>
+          <span class="pred-feat-val">{{ featuresActives?.typePartenaire }}</span>
+        </div>
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">tauxEpinglee</span>
+          <span class="pred-feat-val">{{ featuresActives?.tauxEpinglee }}%</span>
+        </div>
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">ancienneté</span>
+          <span class="pred-feat-val">{{ featuresActives?.anciennete }} sem</span>
+        </div>
+        <div class="pred-feat-card">
+          <span class="pred-feat-key">nbOffreEmploi</span>
+          <span class="pred-feat-val">{{ featuresActives?.nbOffreEmploi }}</span>
+        </div>
+      </div>
+
+      <div class="pred-result-box">
+        <div class="pred-result-bar"></div>
+        <div class="pred-result-inner">
+
+          <p class="pred-section-label">RÉSULTAT DE LA PRÉDICTION</p>
+
+          <div class="pred-result-row">
+
+            <div class="pred-gauge-wrap">
+              <svg width="110" height="110" viewBox="0 0 110 110"
+                   style="transform:rotate(-90deg); display:block;">
+                <circle cx="55" cy="55" r="42"
+                        fill="none" stroke="#f1f5f9" stroke-width="13">
+                </circle>
+                <circle cx="55" cy="55" r="42"
+                        fill="none"
+                        [attr.stroke]="getGaugeColor()"
+                        stroke-width="13"
+                        stroke-linecap="round"
+                        stroke-dasharray="263.9"
+                        [attr.stroke-dashoffset]="getGaugeOffset(predictionActive?.probability)">
+                </circle>
+              </svg>
+              <div class="pred-gauge-center">
+                <span class="pred-gauge-pct">{{ predictionActive?.probability }}%</span>
+                <span class="pred-gauge-lbl">{{ getPredictionType() }}</span>
+              </div>
+            </div>
+
+            <div class="pred-result-info">
+              <div class="pred-result-badge" [ngClass]="getBadgeClass()">
+                <span class="pred-result-dot" [ngClass]="getDotClass()"></span>
+                <span>{{ predictionActive?.type }} PRÉDIT</span>
+              </div>
+              <div class="pred-conf-line">
+                Confiance :
+                <strong [class.conf-high]="predictionActive?.confidence === 'HIGH'"
+                        [class.conf-medium]="predictionActive?.confidence === 'MEDIUM'"
+                        [class.conf-low]="predictionActive?.confidence === 'LOW'">
+                  {{ predictionActive?.confidence }}
+                </strong>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="pred-section-label" style="margin-top:16px; margin-bottom:10px;">
+            PROBABILITÉS
+          </p>
+
+          <div class="pred-prob-row">
+            <span class="pred-prob-name">EMPLOI</span>
+            <div class="pred-prob-track">
+              <div class="pred-prob-fill pred-prob-emploi"
+                   [style.width.%]="predictionActive?.probaEmploi">
+              </div>
+            </div>
+            <span class="pred-prob-pct">{{ predictionActive?.probaEmploi }}%</span>
+          </div>
+
+          <div class="pred-prob-row">
+            <span class="pred-prob-name">STAGE</span>
+            <div class="pred-prob-track">
+              <div class="pred-prob-fill pred-prob-stage"
+                   [style.width.%]="predictionActive?.probaStage">
+              </div>
+            </div>
+            <span class="pred-prob-pct">{{ predictionActive?.probaStage }}%</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

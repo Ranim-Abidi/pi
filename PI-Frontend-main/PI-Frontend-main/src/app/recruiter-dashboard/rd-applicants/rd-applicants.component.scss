@@ -1,0 +1,101 @@
+.card {
+    background-color: var(--matchy-bg-white);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px var(--matchy-card-shadow);
+    border: 1px solid var(--matchy-bg-light);
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 8px 20px var(--matchy-card-shadow);
+    }
+
+    .card-header {
+        padding: 25px;
+        border-bottom: 2px solid var(--matchy-bg-light);
+        background: linear-gradient(135deg, var(--matchy-bg-white) 0%, var(--matchy-bg-light) 100%);
+
+        h4 {
+            margin: 0;
+            color: var(--matchy-blue-dark);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            &::before {
+                content: '';
+                width: 4px;
+                height: 24px;
+                background: linear-gradient(180deg, var(--matchy-orange) 0%, var(--matchy-orange-light) 100%);
+                border-radius: 2px;
+            }
+        }
+    }
+
+    .card-body {
+        padding: 25px;
+
+        p {
+            margin: 0;
+            color: var(--matchy-blue-light);
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            
+            thead {
+                th {
+                    background-color: var(--matchy-bg-light);
+                    color: var(--matchy-blue-dark);
+                    font-weight: 600;
+                    padding: 12px;
+                    text-align: left;
+                    border-bottom: 2px solid #e8eef5;
+                }
+            }
+
+            tbody {
+                tr {
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background-color: var(--matchy-bg-light);
+                    }
+
+                    td {
+                        padding: 12px;
+                        color: var(--matchy-blue-light);
+                        border-bottom: 1px solid #e8eef5;
+                    }
+                }
+            }
+        }
+
+        .btn {
+            &.btn-primary {
+                background-color: var(--matchy-orange);
+                border-color: var(--matchy-orange);
+                color: var(--matchy-bg-white);
+                font-weight: 600;
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                }
+            }
+
+            &.btn-secondary {
+                background-color: var(--matchy-blue-light);
+                border-color: var(--matchy-blue-light);
+                color: var(--matchy-bg-white);
+
+                &:hover {
+                    background-color: var(--matchy-blue-dark);
+                    border-color: var(--matchy-blue-dark);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+.recruiter-footer {
+    p {
+        a {
+            color: var(--primaryColor);
+
+            &:hover {
+                color: var(--secondaryColor);
+            }
+        }
+    }
+}
+
+

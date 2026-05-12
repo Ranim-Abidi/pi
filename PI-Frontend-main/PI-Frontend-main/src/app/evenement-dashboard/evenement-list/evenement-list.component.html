@@ -1,0 +1,177 @@
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>Liste des Événements</h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">Accueil</a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Événements
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evenements List Area -->
+<div class="evenements-area ptb-100">
+    <div class="container">
+
+        <!-- Barre de recherche -->
+        <form class="jobs-search-form" (ngSubmit)="rechercher()">
+            <div class="row mx-0 align-items-center">
+                <div class="col-6 px-0">
+                    <div class="form-group position-relative">
+                        <i class="ri-search-line"></i>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Rechercher par titre..."
+                            [(ngModel)]="searchTitre"
+                            name="searchTitre"
+                            (ngModelChange)="rechercher()"
+                        >
+                    </div>
+                </div>
+                <div class="col-4 px-0">
+                    <div class="form-group position-relative">
+                        <i class="ri-map-pin-line"></i>
+                        <select
+                            class="form-control"
+                            [(ngModel)]="searchLieu"
+                            name="searchLieu"
+                            (ngModelChange)="rechercher()"
+                        >
+                            <option value="">Tous les lieux</option>
+                            <option *ngFor="let lieu of lieux" [value]="lieu">{{ lieu }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-2 px-0">
+                    <button type="submit" class="default-btn w-100">
+                        <i class="ri-search-line"></i> Rechercher
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="text-center py-5">
+            <p class="text-muted">Chargement des événements...</p>
+        </div>
+
+        <!-- Erreur -->
+        <div class="alert alert-danger d-flex align-items-center gap-2" *ngIf="error">
+            <i class="ri-error-warning-line"></i>
+            Erreur lors du chargement des événements.
+        </div>
+
+        <ng-container *ngIf="!loading && !error">
+
+            <!-- Tri + compteur -->
+            <div class="jove-grid-sorting d-flex align-items-center justify-content-between">
+                <div class="result-count">
+                    <p>
+                        <span class="count">{{ evenementsFiltres.length }}</span>
+                        événement(s) trouvé(s)
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="ordering">
+                        <label>Date événement :</label>
+                        <select [(ngModel)]="sortByDate" (ngModelChange)="trier()">
+                            <option value="">-- Choisir --</option>
+                            <option value="proche">Plus proche</option>
+                            <option value="loin">Plus loin</option>
+                        </select>
+                    </div>
+                    <div class="ordering">
+                        <label>Date d'ajout :</label>
+                        <select [(ngModel)]="sortByAjout" (ngModelChange)="trier()">
+                            <option value="">-- Choisir --</option>
+                            <option value="recent">Plus récent</option>
+                            <option value="ancien">Plus ancien</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid événements -->
+            <div class="row" *ngIf="evenementsFiltres.length > 0">
+                <div class="col-lg-6 col-md-6" *ngFor="let evenement of evenementsFiltres">
+                    <div class="single-evenement-box">
+
+                        <!-- Header -->
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                            <div class="d-sm-flex align-items-center">
+                                <div class="event-logo">
+                                    <i class="ri-calendar-event-line"></i>
+                                </div>
+                                <div class="content">
+                                    <h3 class="fw-semibold">{{ evenement.titre }}</h3>
+                                    <span class="location d-block">
+                                        <i class="ri-map-pin-line"></i>
+                                        {{ evenement.lieu }}
+                                    </span>
+                                    <span class="event-type d-inline-block">
+                                        {{ evenement.type }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="event-actions">
+                                <button
+                                    type="button"
+                                    class="action-btn edit"
+                                    (click)="modifier(evenement.id)"
+                                    title="Modifier">
+                                    <i class="ri-edit-line"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="action-btn delete"
+                                    (click)="supprimer(evenement.id)"
+                                    title="Supprimer">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="event-footer d-sm-flex align-items-center justify-content-between">
+                            <span class="organisateur d-block">
+                                <i class="ri-user-line"></i>
+                                {{ evenement.nomOrganisateur }}
+                            </span>
+                           <span class="event-date d-block">
+                                <i class="ri-calendar-line"></i>
+                                {{ evenement.dateHeure | date:'dd/MM/yyyy HH:mm' }}
+                            </span>
+                            <a class="link-btn d-inline-block position-relative"
+                               (click)="voir(evenement.id)"
+                               style="cursor: pointer;">
+                                Voir détails <i class="ri-arrow-right-line"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state text-center py-5" *ngIf="evenementsFiltres.length === 0">
+                <div class="empty-icon">
+                    <i class="ri-calendar-event-line"></i>
+                </div>
+                <h3>Aucun événement trouvé</h3>
+                <p>Essayez de modifier vos critères de recherche.</p>
+            </div>
+
+        </ng-container>
+    </div>
+</div>

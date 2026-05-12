@@ -1,0 +1,140 @@
+<app-navbar />
+
+<!-- Page Banner -->
+<div class="page-banner-area">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-12">
+                <h1>
+                    Candidates Listing
+                </h1>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <ul class="ps-0 mb-0 list-unstyled">
+                    <li class="d-inline-block position-relative">
+                        <a routerLink="/">
+                            Home
+                        </a>
+                    </li>
+                    <li class="d-inline-block position-relative">
+                        Candidates
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Page Banner -->
+
+<!-- Candidates Area -->
+<div class="candidates-area ptb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                <div class="jove-grid-sorting row align-items-center">
+                    <div class="col-lg-6 col-md-6 result-count">
+                        <p>
+                            Showing <span class="count">1 – {{ candidates.length }}</span> of {{ candidates.length }} results
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 ordering">
+                        <div class="select-box">
+                            <label>Sort By:</label>
+                            <select class="form-select">
+                                <option selected="">Default</option>
+                                <option value="1">Popularity</option>
+                                <option value="2">Latest</option>
+                                <option value="3">Price: low to high</option>
+                                <option value="4">Price: high to low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="row">
+                    <div class="col-lg-12 text-center" style="padding: 40px;">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p style="margin-top: 10px;">Loading candidates...</p>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="errorMessage" class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger" role="alert">
+                            {{ errorMessage }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Candidates List -->
+                <div class="row" *ngIf="!isLoading && candidates.length > 0">
+                    <div class="col-lg-12" *ngFor="let candidate of candidates">
+                        <div class="single-candidate-box d-sm-flex align-items-center justify-content-between">
+                            <div class="d-sm-flex align-items-center">
+                                <div class="image">
+                                    <img [src]="getProfileImageUrl(candidate)" 
+                                         class="rounded-circle" 
+                                         alt="candidate-image"
+                                         (error)="onImageError($event)">
+                                </div>
+                                <div class="content">
+                                    <h3 class="fw-semibold">
+                                        <a [routerLink]="['/candidate-details', candidate.id]">
+                                            {{ candidate.prenom }} {{ candidate.nom || '' }}
+                                        </a>
+                                    </h3>
+                                    <span class="designation d-block">
+                                        {{ candidate.niveau_etude || 'Candidat' }}
+                                    </span>
+                                    <span class="location d-block">
+                                        <span>Location:</span> {{ candidate.localisation?.ville || 'Non spécifié' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="view-profile d-sm-flex align-items-center">
+                                <span class="d-block">
+                                    {{ candidate.tarif_horaire || 'N/A' }} / hour
+                                </span>
+                                <a [routerLink]="['/candidate-details', candidate.id]" class="default-btn">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="row" *ngIf="!isLoading && candidates.length === 0">
+                    <div class="col-lg-12 text-center" style="padding: 40px;">
+                        <p style="font-size: 16px; color: #666;">No candidates found.</p>
+                    </div>
+                </div>
+
+                <div class="pagination-area">
+                    <a routerLink="/candidates" class="next page-numbers">
+                        <i class="ri-arrow-left-line"></i>
+                    </a>
+                    <span class="page-numbers current" aria-current="page">1</span>
+                    <a routerLink="/candidates" class="page-numbers">2</a>
+                    <a routerLink="/candidates" class="page-numbers">3</a>
+                    <a routerLink="/candidates" class="next page-numbers">
+                        <i class="ri-arrow-right-line"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                <app-jobs-sidebar />
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-subscribe />
+
+<app-footer />
+
+<ngx-scrolltop />

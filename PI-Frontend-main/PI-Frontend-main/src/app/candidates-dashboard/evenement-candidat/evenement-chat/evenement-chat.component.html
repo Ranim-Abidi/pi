@@ -1,0 +1,70 @@
+<div class="cev-wrapper">
+
+    <!-- Chat fermé -->
+    <div class="cev-closed" *ngIf="!isLoading && !chatOuvert">
+        <div class="cev-closed__icon">
+            <i class="ri-lock-line"></i>
+        </div>
+        <h3>Chat indisponible</h3>
+        <p>Le chat ouvrira 24h avant le début de l'événement</p>
+    </div>
+
+    <!-- Erreur -->
+    <div class="cev-error" *ngIf="erreur">
+        <i class="ri-error-warning-line"></i>
+        <p>{{ erreur }}</p>
+    </div>
+
+    <!-- Chat ouvert -->
+    <div class="cev-container" *ngIf="!isLoading && chatOuvert">
+
+        <div class="cev-header">
+            <div class="cev-header__left">
+                <div class="cev-header__icon">
+                    <i class="ri-chat-3-line"></i>
+                </div>
+                <div class="cev-header__text">
+                    <span class="cev-header__title">Chat des participants</span>
+                    <span class="cev-header__sub">Échangez en temps réel</span>
+                </div>
+            </div>
+            <span class="cev-live-badge">
+                <span class="cev-live-badge__dot"></span>
+                LIVE
+            </span>
+        </div>
+
+        <!-- Messages -->
+        <div class="cev-messages" #messagesContainer>
+            <div class="cev-message"
+                 *ngFor="let msg of messages"
+                 [class.cev-message--moi]="msg.candidatId === candidatId">
+                <div class="cev-message__auteur">{{ msg.nomExpediteur }}</div>
+                <div class="cev-message__bulle">{{ msg.contenu }}</div>
+                <div class="cev-message__heure">{{ msg.envoyeA | date:'HH:mm' }}</div>
+            </div>
+        </div>
+
+        <!-- Saisie -->
+        <div class="cev-input">
+            <input
+                type="text"
+                [(ngModel)]="nouveauMessage"
+                placeholder="Votre message..."
+                (keyup.enter)="envoyer()">
+            <button (click)="envoyer()" [disabled]="!nouveauMessage.trim()">
+                <i class="ri-send-plane-line"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Loading -->
+    <div class="cev-loading" *ngIf="isLoading">
+        <div class="cev-loading__spinner">
+            <div class="cev-loading__ring"></div>
+        </div>
+        <p>Vérification du chat...</p>
+    </div>
+
+</div>

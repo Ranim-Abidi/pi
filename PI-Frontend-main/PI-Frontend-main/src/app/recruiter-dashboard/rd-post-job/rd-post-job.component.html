@@ -1,0 +1,354 @@
+<div class="card">
+    <div class="card-header">
+        <h4>Publier une Offre d'emploi</h4>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="form-group">
+                    <label>Titre du poste *</label>
+                    <input
+                        class="form-control"
+                        [(ngModel)]="formulaire.titre"
+                        name="titre"
+                        required
+                        minlength="3"
+                        maxlength="120"
+                        [class.input-invalid]="
+                            isInvalidTextField(formulaire.titre, 3, 120, true)
+                        "
+                        placeholder="Ex: Developpeur Full Stack"
+                    />
+                    <div
+                        class="field-error"
+                        *ngIf="
+                            isInvalidTextField(formulaire.titre, 3, 120, true)
+                        "
+                    >
+                        Le titre est obligatoire (3 a 120 caracteres).
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea
+                        class="form-control"
+                        rows="5"
+                        [(ngModel)]="formulaire.description"
+                        name="description"
+                        required
+                        minlength="20"
+                        maxlength="2000"
+                        [class.input-invalid]="
+                            isInvalidTextField(
+                                formulaire.description,
+                                20,
+                                2000,
+                                true
+                            )
+                        "
+                        placeholder="Description de l'offre"
+                    ></textarea>
+                    <div
+                        class="field-error"
+                        *ngIf="
+                            isInvalidTextField(
+                                formulaire.description,
+                                20,
+                                2000,
+                                true
+                            )
+                        "
+                    >
+                        La description est obligatoire (20 a 2000 caracteres).
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Entreprise *</label>
+                            <input
+                                class="form-control"
+                                [(ngModel)]="formulaire.entreprise"
+                                name="entreprise"
+                                required
+                                minlength="2"
+                                maxlength="100"
+                                [class.input-invalid]="
+                                    isInvalidTextField(
+                                        formulaire.entreprise,
+                                        2,
+                                        100,
+                                        true
+                                    )
+                                "
+                                placeholder="Ex: Matchy Khedma"
+                            />
+                            <div
+                                class="field-error"
+                                *ngIf="
+                                    isInvalidTextField(
+                                        formulaire.entreprise,
+                                        2,
+                                        100,
+                                        true
+                                    )
+                                "
+                            >
+                                Entreprise obligatoire (2 a 100 caracteres).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Localisation *</label>
+                            <input
+                                class="form-control"
+                                [(ngModel)]="formulaire.location"
+                                name="location"
+                                required
+                                minlength="2"
+                                maxlength="100"
+                                [class.input-invalid]="
+                                    isInvalidTextField(
+                                        formulaire.location,
+                                        2,
+                                        100,
+                                        true
+                                    )
+                                "
+                                placeholder="Ex: Tunis"
+                            />
+                            <div
+                                class="field-error"
+                                *ngIf="
+                                    isInvalidTextField(
+                                        formulaire.location,
+                                        2,
+                                        100,
+                                        true
+                                    )
+                                "
+                            >
+                                Localisation obligatoire (2 a 100 caracteres).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Salaire *</label>
+                            <div class="input-group">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    (click)="genererSalaire()"
+                                    [disabled]="predictingSalary"
+                                    title="Générer un salaire automatiquement"
+                                >
+                                    {{ predictingSalary ? "Generation..." : "Generer" }}
+                                </button>
+                                <input
+                                    class="form-control"
+                                    [(ngModel)]="formulaire.salary"
+                                    name="salary"
+                                    required
+                                    maxlength="50"
+                                    [class.input-invalid]="
+                                        isInvalidTextField(
+                                            formulaire.salary,
+                                            1,
+                                            50,
+                                            true
+                                        )
+                                    "
+                                    placeholder="Ex: 2500-3000 TND"
+                                />
+                            </div>
+                            <div
+                                class="field-error"
+                                *ngIf="
+                                    isInvalidTextField(
+                                        formulaire.salary,
+                                        1,
+                                        50,
+                                        true
+                                    )
+                                "
+                            >
+                                Salaire obligatoire (1 a 50 caracteres).
+                            </div>
+                            <div *ngIf="predictedSalary" class="text-info mt-1">
+                                <small
+                                    >Salaire suggéré :
+                                    {{ predictedSalary }} TND</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Type de contrat *</label>
+                            <select
+                                class="form-control"
+                                [(ngModel)]="formulaire.typeContrat"
+                                name="typeContrat"
+                                required
+                                [class.input-invalid]="isInvalidTypeContrat()"
+                            >
+                                <option value="">Choisir un type</option>
+                                <option value="CDI">CDI</option>
+                                <option value="CDD">CDD</option>
+                                <option value="STAGE">STAGE</option>
+                                <option value="FREELANCE">FREELANCE</option>
+                            </select>
+                            <div
+                                class="field-error"
+                                *ngIf="isInvalidTypeContrat()"
+                            >
+                                Type de contrat obligatoire.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Date limite *</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                [(ngModel)]="formulaire.deadline"
+                                name="deadline"
+                                required
+                                [class.input-invalid]="isInvalidDeadline()"
+                            />
+                            <div
+                                class="field-error"
+                                *ngIf="isInvalidDeadline()"
+                            >
+                                Date limite obligatoire et strictement future.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Competences (separees par virgule) *</label>
+                    <input
+                        class="form-control"
+                        [(ngModel)]="formulaire.competences"
+                        name="competences"
+                        required
+                        minlength="2"
+                        maxlength="300"
+                        [class.input-invalid]="
+                            isInvalidTextField(
+                                formulaire.competences,
+                                2,
+                                300,
+                                true
+                            )
+                        "
+                        placeholder="Angular, Java, SQL"
+                    />
+                    <div
+                        class="field-error"
+                        *ngIf="
+                            isInvalidTextField(
+                                formulaire.competences,
+                                2,
+                                300,
+                                true
+                            )
+                        "
+                    >
+                        Competences obligatoires (2 a 300 caracteres).
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button
+                        class="btn btn-primary"
+                        (click)="publierOffre()"
+                        [disabled]="saving"
+                    >
+                        {{ saving ? "Publication..." : "Publier l'offre" }}
+                    </button>
+                    <button
+                        class="btn btn-secondary"
+                        (click)="reinitialiser()"
+                        [disabled]="saving"
+                    >
+                        Reinitialiser
+                    </button>
+                </div>
+
+                <div
+                    *ngIf="successMessage"
+                    class="alert alert-success mt-3 mb-0"
+                >
+                    {{ successMessage }}
+                </div>
+                <div *ngIf="errorMessage" class="alert alert-danger mt-3 mb-0">
+                    {{ errorMessage }}
+                </div>
+
+                <div
+                    *ngIf="lastCandidatureLink"
+                    class="alert alert-info mt-3 mb-0"
+                >
+                    <div class="fw-bold mb-1">Lien formulaire candidature</div>
+                    <a
+                        [href]="lastCandidatureLink"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >{{ lastCandidatureLink }}</a
+                    >
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <h6 class="mb-3">Mes offres recentes</h6>
+                <div *ngIf="loading" class="text-muted">Chargement...</div>
+                <div
+                    *ngIf="!loading && mesOffres.length === 0"
+                    class="text-muted"
+                >
+                    Aucune offre publiee pour le moment.
+                </div>
+
+                <div
+                    *ngFor="let offre of mesOffres | slice: 0 : 5"
+                    class="border rounded p-2 mb-2"
+                >
+                    <div class="fw-bold">{{ offre.titre }}</div>
+                    <div class="small text-muted">
+                        {{ offre.location }} - {{ offre.typeContrat || "-" }}
+                    </div>
+                    <div class="small text-muted">
+                        Publie le {{ formatDate(offre.datePublication) }}
+                    </div>
+                    <div class="mt-2 d-flex gap-2">
+                        <a
+                            class="btn btn-sm btn-outline-primary"
+                            [href]="getCandidatureFormLink(offre)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Ouvrir lien candidature
+                        </a>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            (click)="copyCandidatureFormLink(offre)"
+                        >
+                            Copier lien
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
