@@ -1,11 +1,9 @@
-/**
- * Production build — replace apiUrl/mlUrl at CI time if the API is on another origin
- * (e.g. set apiUrl to https://api.example.com/api and mlUrl to https://ml.example.com or a gateway path).
- */
 export const environment = {
   production: true,
-  apiUrl: '/api',
-  mlUrl: '/ml',
+  apiUrl: 'http://192.168.1.214:30080/api',
+  wsUrl: 'ws://192.168.1.214:30080/ws',
+  /** Same NodePort origin without /api — legacy ML paths (may 503 on slim backend). */
+  mlUrl: 'http://192.168.1.214:30080',
   cloudinary: {
     cloudName: 'dlmeofspy',
     uploadPreset: 'testtest'
