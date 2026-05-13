@@ -1,9 +1,8 @@
 package t.esprit.arctic.jobmatch.freelance.service;
 
 import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
-import lombok.RequiredArgsConstructor;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import t.esprit.arctic.jobmatch.entity.Utilisateur;
@@ -16,23 +15,37 @@ import t.esprit.arctic.jobmatch.freelance.repository.CandidatureMissionRepositor
 import t.esprit.arctic.jobmatch.freelance.repository.MissionRepository;
 import t.esprit.arctic.jobmatch.repository.UtilisateurRepository;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * AI-powered matching service using in-process sentence embeddings.
  * Uses the all-MiniLM-L6-v2 ONNX model (runs locally, no API calls).
+ * ONNX native libraries are extracted under a writable directory (see constructor).
  */
 @Service
-@RequiredArgsConstructor
 public class FreelanceMatchingService {
 
     private final MissionRepository missionRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final CandidatureMissionRepository candidatureRepository;
+    private final EmbeddingModel embeddingModel;
 
-    // In-process ONNX embedding model — loaded once, reused for every request
-    private final EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+    public FreelanceMatchingService(
+            MissionRepository missionRepository,
+            UtilisateurRepository utilisateurRepository,
+            CandidatureMissionRepository candidatureRepository) {
+        this.missionRepository = missionRepository;
+        this.utilisateurRepository = utilisateurRepository;
+        this.candidatureRepository = candidatureRepository;
+
+        File onnxTmp = new File("/app/onnx-tmp");
+        onnxTmp.mkdirs();
+        System.setProperty("java.io.tmpdir", onnxTmp.getAbsolutePath());
+
+        this.embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+    }
 
     // ────────────────────────────────────────────────────────────────────
     // Freelancer → "Smart Matching": find best missions for me
