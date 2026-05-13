@@ -11,9 +11,11 @@ import t.esprit.arctic.jobmatch.service.FormationService;
 import t.esprit.arctic.jobmatch.entity.Candidat;
 import t.esprit.arctic.jobmatch.repository.CandidatRepository;
 import t.esprit.arctic.jobmatch.repository.InscriptionFormationRepository;
-import java.util.*;
+import t.esprit.arctic.jobmatch.service.RecommendationMLClient;
 
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -24,6 +26,7 @@ public class FormationController {
     private final FormationService formationService;
     private final CandidatRepository candidatRepository;
     private final InscriptionFormationRepository inscriptionRepository;
+    private final RecommendationMLClient recommendationMLClient;
 
 
     @GetMapping("/admin/all")
@@ -134,12 +137,6 @@ public class FormationController {
         Candidat candidat = candidatRepository.findById(candidatId)
                 .orElseThrow(() -> new RuntimeException("Candidat non trouvé"));
 
-        // Charger les compétences (EAGER sur Candidat → pas de problème)
-        List<String> competences = new java.util.ArrayList<>();
-        if (candidat.getCompetences() != null) {
-            candidat.getCompetences().forEach(c -> competences.add(c.getNom()));
-        }
-
         // Identifier les formations déjà inscrites (pour les exclure)
         List<t.esprit.arctic.jobmatch.entity.InscriptionFormation> inscriptions =
                 inscriptionRepository.findByCandidatId(candidatId);
@@ -151,60 +148,24 @@ public class FormationController {
         // Récupérer toutes les formations actives AVEC leurs compétences (JOIN FETCH)
         List<Formation> toutesFormations = formationService.getAllActivesWithCompetences();
 
-        // Construire le payload pour le service ML Python
-        List<java.util.Map<String, Object>> formationsData = toutesFormations.stream().map(f -> {
-            List<String> compNames = new java.util.ArrayList<>();
-            if (f.getCompetences() != null) {
-                f.getCompetences().forEach(c -> compNames.add(c.getNom()));
-            }
-            java.util.Map<String, Object> m = new java.util.HashMap<>();
-            m.put("id", f.getId());
-            m.put("titre", f.getTitre() != null ? f.getTitre() : "");
-            m.put("description", f.getDescription() != null ? f.getDescription() : "");
-            m.put("categorie", f.getCategorie() != null ? f.getCategorie() : "");
-            m.put("niveau", f.getNiveau() != null ? f.getNiveau() : "");
-            m.put("competences", compNames);
-            return m;
-        }).collect(java.util.stream.Collectors.toList());
+        List<Formation> disponibles = toutesFormations.stream()
+                .filter(f -> !termineesIds.contains(f.getId()))
+                .collect(Collectors.toList());
 
-        java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
-        requestBody.put("candidat_competences", competences);
-        requestBody.put("candidat_niveau", candidat.getNiveauEtude() != null ? candidat.getNiveauEtude() : "");
-        requestBody.put("formations_terminees_ids", termineesIds);
-        requestBody.put("formations_disponibles", formationsData);
+        List<Map<String, Object>> scored = recommendationMLClient.getRecommendations(candidat, disponibles);
 
-        // Appel direct au service Python ML (port 5000)
-        org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-        org.springframework.http.HttpEntity<java.util.Map<String, Object>> entity =
-            new org.springframework.http.HttpEntity<>(requestBody, headers);
-
-        List mlResults;
-        try {
-            mlResults = restTemplate.postForObject("http://127.0.0.1:5000/recommend", entity, List.class);
-            if (mlResults == null) mlResults = new java.util.ArrayList<>();
-        } catch (Exception e) {
-            System.err.println("[ML] Erreur connexion Python : " + e.getMessage());
-            return ResponseEntity.status(503).build();
-        }
-
-        // Enrichir avec les objets Formation complets
-        List<java.util.Map<String, Object>> enrichis = new java.util.ArrayList<>();
-        for (Object resObj : mlResults) {
-            java.util.Map<String, Object> res = (java.util.Map<String, Object>) resObj;
-            Object idRaw = res.get("formation_id");
-            if (idRaw == null) continue;
-            Long formId = ((Number) idRaw).longValue();
-
+        List<Map<String, Object>> enrichis = new ArrayList<>();
+        for (Map<String, Object> res : scored) {
+            Long formId = ((Number) res.get("id")).longValue();
             Formation f = toutesFormations.stream()
-                .filter(form -> form.getId().equals(formId))
-                .findFirst().orElse(null);
+                    .filter(form -> form.getId().equals(formId))
+                    .findFirst()
+                    .orElse(null);
             if (f != null) {
-                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("formation", f);
-                map.put("score_match", res.get("score_match"));
-                map.put("raisons", res.get("raisons"));
+                map.put("score_match", res.get("score"));
+                map.put("raisons", res.get("matched_skills"));
                 enrichis.add(map);
             }
         }
@@ -213,70 +174,13 @@ public class FormationController {
     }
 
     @PostMapping("/analyze-gap/{candidatId}")
-    public ResponseEntity<Object> analyzeGap(@PathVariable Long candidatId, @RequestBody java.util.Map<String, String> payload) {
-        String targetJob = payload.get("targetJob");
-        Candidat candidat = candidatRepository.findById(candidatId)
-                .orElseThrow(() -> new RuntimeException("Candidat non trouvé"));
-
-        List<Formation> actives = formationService.getAllActivesWithCompetences();
-
-        List<String> competences = new java.util.ArrayList<>();
-        if (candidat.getCompetences() != null) {
-            candidat.getCompetences().forEach(c -> competences.add(c.getNom()));
-        }
-
-        // Charger TOUTES les inscriptions pour exclure ce que le candidat fait déjà
-        List<t.esprit.arctic.jobmatch.entity.InscriptionFormation> inscriptions =
-            inscriptionRepository.findByCandidatId(candidatId);
-
-        List<Long> termineesIds = inscriptions.stream()
-            .filter(i -> i.getFormation() != null)
-            .map(i -> i.getFormation().getId())
-            .collect(java.util.stream.Collectors.toList());
-
-        List<java.util.Map<String, Object>> coursesData = actives.stream().map(f -> {
-            java.util.Map<String, Object> m = new java.util.HashMap<>();
-            m.put("id", f.getId());
-            m.put("titre", f.getTitre());
-            m.put("categorie", f.getCategorie());
-            m.put("description", f.getDescription());
-            List<String> sk = new java.util.ArrayList<>();
-            if(f.getCompetences() != null) f.getCompetences().forEach(c -> sk.add(c.getNom()));
-            m.put("competences", sk);
-            return m;
-        }).collect(java.util.stream.Collectors.toList());
-
-        java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
-        requestBody.put("candidat_competences", competences);
-        requestBody.put("target_job", targetJob);
-        requestBody.put("formations_terminees_ids", termineesIds);
-        requestBody.put("formations_disponibles", coursesData);
-
-        try {
-            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-            org.springframework.http.HttpEntity<java.util.Map<String, Object>> entity =
-                new org.springframework.http.HttpEntity<>(requestBody, headers);
-
-            Object response = restTemplate.postForObject("http://127.0.0.1:5000/analyze-gap", entity, Object.class);
-            
-            if (response instanceof java.util.Map) {
-                java.util.Map<String, Object> resMap = (java.util.Map<String, Object>) response;
-                List<java.util.Map<String, Object>> recs = (List<java.util.Map<String, Object>>) resMap.get("recommended_formations");
-                if (recs != null) {
-                    for (java.util.Map<String, Object> rec : recs) {
-                        Long fId = ((Number) rec.get("formation_id")).longValue();
-                        actives.stream().filter(f -> f.getId().equals(fId)).findFirst().ifPresent(f -> rec.put("formation", f));
-                    }
-                }
-            }
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            System.err.println("[GAP] Erreur connexion Python : " + e.getMessage());
-            return ResponseEntity.status(503).build();
-        }
+    public ResponseEntity<Object> analyzeGap(@PathVariable Long candidatId, @RequestBody Map<String, String> payload) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "analyze-gap ML désactivé dans ce déploiement");
+        body.put("target_job", payload != null ? payload.get("targetJob") : null);
+        body.put("recommended_formations", Collections.emptyList());
+        body.put("skill_gaps", Collections.emptyList());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 }
 

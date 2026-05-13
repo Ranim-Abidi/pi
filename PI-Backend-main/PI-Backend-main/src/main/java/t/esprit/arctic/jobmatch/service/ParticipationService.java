@@ -11,7 +11,6 @@ import t.esprit.arctic.jobmatch.entity.Participation;
 import t.esprit.arctic.jobmatch.repository.CandidatRepository;
 import t.esprit.arctic.jobmatch.repository.EvenementRepository;
 import t.esprit.arctic.jobmatch.repository.ParticipationRepository;
-import t.esprit.arctic.jobmatch.service.QRCodeService;
 
 
 import java.time.LocalDateTime;
@@ -26,8 +25,6 @@ public class ParticipationService {
     private final ParticipationRepository repository;
     private final EvenementRepository evenementRepository;
     private final CandidatRepository candidatRepository;
-    private final QRCodeService qrCodeService;
-    private final ParticipationRepository participationRepository;
     private final NotificationService notificationService;
 
 
@@ -103,12 +100,8 @@ public class ParticipationService {
                 p.getDateInscription().toString()
         );
 
-        try {
-            String qrBase64 = qrCodeService.generateQRCode(contenu);
-            p.setQrCode(qrBase64);
-        } catch (Exception e) {
-
-        }
+        // QR image generation removed (ZXing); store raw verification payload for scanners that read text.
+        p.setQrCode(contenu);
 
         repository.save(p);
         return toResponse(p);
@@ -168,7 +161,7 @@ public class ParticipationService {
 
 
     public List<Participation> findConfirmedByCandidatId(Long candidatId ,String statut ) {
-        return participationRepository.findByCandidatIdAndStatut(candidatId, "CONFIRME");
+        return repository.findByCandidatIdAndStatut(candidatId, "CONFIRME");
     }
 
     private ParticipationResponse toResponse(Participation p) {

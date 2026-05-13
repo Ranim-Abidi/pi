@@ -1,11 +1,8 @@
 package t.esprit.arctic.jobmatch.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import t.esprit.arctic.jobmatch.entity.*;
 import t.esprit.arctic.jobmatch.repository.OffrePartenaireRepository;
@@ -19,9 +16,6 @@ public class OffrePredictionService {
 
     private final OffrePartenaireRepository offreRepo;
     private final PartenaireRepository partenaireRepo;
-
-    @Value("${flask.ml.url}")
-    private String flaskUrl;
 
     @Transactional
     public Map<String, Object> predict(Long partenaireId) {
@@ -76,38 +70,16 @@ public class OffrePredictionService {
         body.put("nbOffreStage",   nbOffreStage);
         body.put("nbOffreEmploi",  nbOffreEmploi);
 
-
-        RestTemplate rest = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Map<String, Object>> req =
-                new HttpEntity<>(body, headers);
-
         Map<String, Object> result = new LinkedHashMap<>();
-
-        try {
-            ResponseEntity<Map> response = rest.postForEntity(
-                    flaskUrl + "/predict", req, Map.class
-            );
-
-            Map<String, Object> flaskResponse = response.getBody();
-
-            if (flaskResponse != null) {
-                result.putAll(flaskResponse);
-            }
-
-        } catch (Exception e) {
-
-            result.put("type", "EMPLOI");
-            result.put("probability", 50.0);
-            result.put("confidence", "LOW");
-            result.put("probaStage", 50.0);
-            result.put("probaEmploi", 50.0);
-        }
-
-
+        double probaEmploi = 45.0 + Math.min(35, nbOffreEmploi * 4.0) - Math.min(20, nbOffreStage * 3.0)
+                + Math.min(15, activityRate * 3.0) + (typePartenaire == 0 ? 8 : 0);
+        probaEmploi = Math.max(5, Math.min(95, probaEmploi));
+        double probaStage = 100.0 - probaEmploi;
+        result.put("type", nbOffreEmploi >= nbOffreStage ? "EMPLOI" : "STAGE");
+        result.put("probability", probaEmploi);
+        result.put("confidence", activityRate > 1.5 ? "MEDIUM" : "LOW");
+        result.put("probaStage", Math.round(probaStage * 10.0) / 10.0);
+        result.put("probaEmploi", Math.round(probaEmploi * 10.0) / 10.0);
         result.putAll(body);
 
         return result;

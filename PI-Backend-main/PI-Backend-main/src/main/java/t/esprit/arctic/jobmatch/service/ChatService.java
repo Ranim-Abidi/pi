@@ -1,8 +1,6 @@
 package t.esprit.arctic.jobmatch.service;
 
-import com.pusher.rest.Pusher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import t.esprit.arctic.jobmatch.dto.ChatMessageRequest;
 import t.esprit.arctic.jobmatch.dto.ChatMessageResponse;
@@ -21,8 +19,6 @@ public class ChatService {
     private final EvenementRepository evenementRepository;
     private final CandidatRepository candidatRepository;
     private final ParticipationRepository participationRepository;
-    private final ObjectProvider<Pusher> pusherProvider;
-
 
     public ChatMessageResponse envoyer(ChatMessageRequest request) {
 
@@ -33,10 +29,8 @@ public class ChatService {
             throw new RuntimeException("Le chat n'est pas encore ouvert");
         }
 
-
         boolean estOrganisateur = evenement.getOrganisateur() != null
                 && evenement.getOrganisateur().getId().equals(request.getCandidatId());
-
 
         boolean estConfirme = participationRepository
                 .existsByCandidatIdAndEvenementIdAndStatut(
@@ -49,15 +43,12 @@ public class ChatService {
             throw new RuntimeException("Accès refusé");
         }
 
-
         String nomExpediteur;
         Candidat candidat = null;
 
         if (estOrganisateur) {
-
             nomExpediteur = evenement.getOrganisateur().getNom();
         } else {
-
             candidat = candidatRepository.findById(request.getCandidatId())
                     .orElseThrow(() -> new RuntimeException("Candidat non trouvé"));
             nomExpediteur = candidat.getNom() + " " + candidat.getPrenom();
@@ -72,20 +63,8 @@ public class ChatService {
                 .build();
 
         ChatMessage saved = chatMessageRepository.save(message);
-        ChatMessageResponse response = toResponse(saved);
-
-        Pusher pusher = pusherProvider.getIfAvailable();
-        if (pusher != null) {
-            pusher.trigger(
-                    "chat-evenement-" + request.getEvenementId(),
-                    "nouveau-message",
-                    response
-            );
-        }
-
-        return response;
+        return toResponse(saved);
     }
-
 
     public List<ChatMessageResponse> getMessages(Long evenementId, Long candidatId) {
 
@@ -96,14 +75,11 @@ public class ChatService {
             throw new RuntimeException("Le chat n'est pas ouvert");
         }
 
-
         boolean estOrganisateur = evenement.getOrganisateur() != null
                 && evenement.getOrganisateur().getId().equals(candidatId);
 
-
         boolean estConfirme = participationRepository
                 .existsByCandidatIdAndEvenementIdAndStatut(candidatId, evenementId, "CONFIRME");
-
 
         if (!estOrganisateur && !estConfirme) {
             throw new RuntimeException("Accès refusé");
@@ -121,7 +97,6 @@ public class ChatService {
                 .map(Evenement::isChatOuvert)
                 .orElse(false);
     }
-
 
     private ChatMessageResponse toResponse(ChatMessage m) {
         return new ChatMessageResponse(

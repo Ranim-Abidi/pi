@@ -1,10 +1,5 @@
 package t.esprit.arctic.jobmatch.freelance.service;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +13,7 @@ import t.esprit.arctic.jobmatch.freelance.exception.FreelanceNotFoundException;
 import t.esprit.arctic.jobmatch.freelance.repository.FreelanceInvoiceRepository;
 import t.esprit.arctic.jobmatch.repository.UtilisateurRepository;
 
-import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +54,9 @@ public class FreelanceInvoiceService {
         return invoices.stream().distinct().map(FreelanceInvoiceDTO::fromEntity).toList();
     }
 
+    /**
+     * Plain-text invoice (PDF libraries removed). Controller should use text/plain or .txt filename.
+     */
     @Transactional(readOnly = true)
     public byte[] generateInvoicePdf(Long invoiceId, String email) {
         Utilisateur user = utilisateurRepository.findByEmail(email)
@@ -68,26 +66,13 @@ public class FreelanceInvoiceService {
         if (!invoice.getClient().getId().equals(user.getId()) && !invoice.getFreelancer().getId().equals(user.getId())) {
             throw new FreelanceNotFoundException("Facture inaccessible");
         }
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Document document = new Document(PageSize.A4, 32, 32, 32, 32);
-            PdfWriter.getInstance(document, baos);
-            document.open();
-            Paragraph title = new Paragraph("FACTURE " + invoice.getInvoiceNumber());
-            title.setAlignment(Element.ALIGN_CENTER);
-            document.add(title);
-            document.add(new Paragraph(" "));
-            document.add(new Paragraph("Client: " + invoice.getClient().getNom()));
-            document.add(new Paragraph("Freelancer: " + invoice.getFreelancer().getNom()));
-            document.add(new Paragraph("Date: " + invoice.getCreatedAt()));
-            document.add(new Paragraph(" "));
-            document.add(new Paragraph("Sous-total: " + invoice.getSubtotal() + " TND"));
-            document.add(new Paragraph("TVA (" + invoice.getVatRate() + "%): " + invoice.getVatAmount() + " TND"));
-            document.add(new Paragraph("Total: " + invoice.getTotalAmount() + " TND"));
-            document.close();
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur génération facture PDF: " + e.getMessage(), e);
-        }
+        String text = "FACTURE " + invoice.getInvoiceNumber() + "\n\n"
+                + "Client: " + invoice.getClient().getNom() + "\n"
+                + "Freelancer: " + invoice.getFreelancer().getNom() + "\n"
+                + "Date: " + invoice.getCreatedAt() + "\n\n"
+                + "Sous-total: " + invoice.getSubtotal() + " TND\n"
+                + "TVA (" + invoice.getVatRate() + "%): " + invoice.getVatAmount() + " TND\n"
+                + "Total: " + invoice.getTotalAmount() + " TND\n";
+        return text.getBytes(StandardCharsets.UTF_8);
     }
 }

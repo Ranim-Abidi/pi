@@ -2,12 +2,8 @@ package t.esprit.arctic.jobmatch.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 import t.esprit.arctic.jobmatch.dto.*;
 import t.esprit.arctic.jobmatch.entity.Candidat;
 import t.esprit.arctic.jobmatch.entity.CandidateRecommendation;
@@ -29,16 +25,6 @@ public class RecommendationService {
     private final CandidatRepository candidatRepository;
     private final OffreEmploiRepository offreRepository;
     private final MatchingScoreCalculatorService scoreCalculator;
-    private final RestTemplate restTemplate;
-
-    @Value("${flask.recommendation.url:http://localhost:5000/api/recommend}")
-    private String flaskRecommendationUrl;
-
-    @Value("${flask.recommendation.enabled:false}")
-    private boolean flaskEnabled;
-
-    @Value("${ml.internal.api-key:}")
-    private String mlInternalApiKey;
 
     /**
      * Generate recommendations for a candidate against a specific job offer
@@ -127,8 +113,7 @@ public class RecommendationService {
             // Calculate matching scores
             MatchingScoresDTO scores = scoreCalculator.calculateMatchingScores(candidat, offre);
 
-            // Call Flask API for predictions
-            RecommendationResponse flaskResponse = callFlaskPrediction(scores);
+            RecommendationResponse flaskResponse = createDefaultResponse(scores);
 
             // Create or update recommendation record
             CandidateRecommendation recommendation = recommendationRepository
@@ -158,50 +143,6 @@ public class RecommendationService {
             log.error("Error generating recommendation for candidate {} and offre {}", 
                 candidat.getId(), offre.getId(), e);
             throw new RuntimeException("Failed to generate recommendation: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Call Flask API for prediction
-     */
-    private RecommendationResponse callFlaskPrediction(MatchingScoresDTO scores) {
-        if (!flaskEnabled) {
-            log.warn("Flask prediction disabled, using default classification");
-            return createDefaultResponse(scores);
-        }
-
-        try {
-            RecommendationRequest request = RecommendationRequest.builder()
-                    .s_skills(scores.getSSkills())
-                    .s_experience(scores.getSExperience())
-                    .s_location(scores.getSLocation())
-                    .s_domain(scores.getSDomain())
-                    .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            if (StringUtils.hasText(mlInternalApiKey)) {
-                headers.set("X-Internal-Api-Key", mlInternalApiKey);
-            }
-
-            HttpEntity<RecommendationRequest> entity = new HttpEntity<>(request, headers);
-
-            ResponseEntity<RecommendationResponse> response = restTemplate.postForEntity(
-                    flaskRecommendationUrl,
-                    entity,
-                    RecommendationResponse.class
-            );
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return response.getBody();
-            } else {
-                log.error("Flask API returned error status: {}", response.getStatusCode());
-                return createDefaultResponse(scores);
-            }
-
-        } catch (Exception e) {
-            log.error("Error calling Flask API: {}", e.getMessage());
-            return createDefaultResponse(scores);
         }
     }
 

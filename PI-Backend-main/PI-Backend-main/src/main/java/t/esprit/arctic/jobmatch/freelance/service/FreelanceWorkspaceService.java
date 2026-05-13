@@ -1,9 +1,7 @@
 package t.esprit.arctic.jobmatch.freelance.service;
 
-import com.pusher.rest.Pusher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,6 @@ public class FreelanceWorkspaceService {
     private final MissionRepository missionRepository;
     private final FreelanceMilestoneRepository milestoneRepository;
     private final FreelanceDisputeRepository disputeRepository;
-    private final ObjectProvider<Pusher> pusherProvider;
     private final NotificationService notificationService;
     private final FreelanceInvoiceService invoiceService;
 
@@ -123,16 +120,7 @@ public class FreelanceWorkspaceService {
         msg = messageRepository.save(msg);
         
         FreelanceChatMessageDTO dto = FreelanceChatMessageDTO.fromEntity(msg);
-        
-        // Push notification via Websockets (Pusher)
-        try {
-            Pusher pusher = pusherProvider.getIfAvailable();
-            if (pusher != null) {
-                pusher.trigger("chat-room-" + roomId, "new-message", dto);
-            }
-        } catch (Exception e) {
-            log.warn("Pusher trigger failed for room {}", roomId, e);
-        }
+
         Long receiverId = room.getClient().getId().equals(sender.getId())
                 ? room.getFreelancer().getId()
                 : room.getClient().getId();

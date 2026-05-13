@@ -1,14 +1,8 @@
 package t.esprit.arctic.jobmatch.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import t.esprit.arctic.jobmatch.dto.AiQuestionGenerateRequestDTO;
 import t.esprit.arctic.jobmatch.dto.ChoixDTO;
 import t.esprit.arctic.jobmatch.dto.QuestionDTO;
@@ -18,25 +12,10 @@ import t.esprit.arctic.jobmatch.repository.EntretienRepository;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class QuestionAiAssistantService {
 
     private final EntretienRepository entretienRepository;
-    private final ObjectMapper objectMapper;
-
-    @Value("${ai.generator.base-url:http://localhost:8000}")
-    private String aiBaseUrl;
-
-    @Value("${ai.generator.generate-path:/generate}")
-    private String aiGeneratePath;
-
-    @Value("${ml.internal.api-key:}")
-    private String mlInternalApiKey;
-
-    public QuestionAiAssistantService(EntretienRepository entretienRepository, ObjectMapper objectMapper) {
-        this.entretienRepository = entretienRepository;
-        this.objectMapper = objectMapper;
-    }
-
     public List<QuestionDTO> generateSuggestions(Long entretienId, AiQuestionGenerateRequestDTO request) {
         Entretien entretien = entretienRepository.findById(entretienId)
                 .orElseThrow(() -> new RuntimeException("Entretien non trouvé"));
@@ -45,49 +24,7 @@ public class QuestionAiAssistantService {
             throw new RuntimeException("Impossible de générer des questions pour un entretien terminé");
         }
 
-        Map<String, Object> payload = buildGeneratorPayload(entretien, request);
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            if (StringUtils.hasText(mlInternalApiKey)) {
-                headers.set("X-Internal-Api-Key", mlInternalApiKey);
-            }
-
-            String endpoint = buildEndpointUrl();
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
-
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                    endpoint,
-                    HttpMethod.POST,
-                    entity,
-                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
-            );
-
-            List<Map<String, Object>> body = response.getBody();
-            if (body == null || body.isEmpty()) {
-                return generateLocalSuggestions(entretien, request);
-            }
-
-            String fallbackNiveau = (String) payload.get("niveau");
-            List<QuestionDTO> suggestions = new ArrayList<>();
-            int ordre = 1;
-            for (Map<String, Object> item : body) {
-                QuestionDTO dto = mapGeneratedQuestion(item, fallbackNiveau, ordre++);
-                if (dto != null) {
-                    suggestions.add(dto);
-                }
-            }
-
-            if (suggestions.isEmpty()) {
-                return generateLocalSuggestions(entretien, request);
-            }
-
-            return suggestions;
-        } catch (RestClientException ex) {
-            return generateLocalSuggestions(entretien, request);
-        }
+        return generateLocalSuggestions(entretien, request);
     }
 
     private List<QuestionDTO> generateLocalSuggestions(Entretien entretien, AiQuestionGenerateRequestDTO request) {
@@ -180,180 +117,6 @@ public class QuestionAiAssistantService {
         return choices;
     }
 
-    private Map<String, Object> buildGeneratorPayload(Entretien entretien, AiQuestionGenerateRequestDTO request) {
-        String domaine = entretien.getDomaine() != null ? entretien.getDomaine().name() : "AUTRE";
-        String categorie = sanitizeUpper(
-                request != null ? request.getCategorie() : null,
-                entretien.getCategorie() != null ? entretien.getCategorie().name() : "TECHNIQUE"
-        );
-        String niveau = sanitizeUpper(
-                request != null ? request.getNiveau() : null,
-                "INTERMEDIAIRE"
-        );
-        String type = normalizeTypeForGenerator(request != null ? request.getType() : null);
-
-        int nombre = clampInt(request != null ? request.getNombre() : null, 1, 10, 3);
-        double temperature = clampDouble(request != null ? request.getTemperature() : null, 0.1, 1.2, 0.7);
-
-        String theme = request != null ? request.getTheme() : null;
-        if (!StringUtils.hasText(theme)) {
-            theme = entretien.getTitre();
-        }
-        if (!StringUtils.hasText(theme)) {
-            theme = "general";
-        }
-
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("domaine", domaine);
-        payload.put("categorie", categorie);
-        payload.put("niveau", niveau);
-        payload.put("type", type);
-        payload.put("theme", theme.trim());
-        payload.put("nombre", nombre);
-        payload.put("temperature", temperature);
-
-        return payload;
-    }
-
-    private String buildEndpointUrl() {
-        String base = aiBaseUrl == null ? "http://localhost:8000" : aiBaseUrl.trim();
-        String path = aiGeneratePath == null ? "/generate" : aiGeneratePath.trim();
-
-        if (base.endsWith("/")) {
-            base = base.substring(0, base.length() - 1);
-        }
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        return base + path;
-    }
-
-    private QuestionDTO mapGeneratedQuestion(Map<String, Object> item, String fallbackNiveau, int ordre) {
-        String contenu = asTrimmedText(item.get("contenu"));
-        if (!StringUtils.hasText(contenu)) {
-            return null;
-        }
-
-        String type = normalizeTypeFromGenerator(asTrimmedText(item.get("type")));
-        if (!StringUtils.hasText(type)) {
-            type = "QCM";
-        }
-
-        String niveau = sanitizeUpper(asTrimmedText(item.get("niveau")), fallbackNiveau);
-        int points = clampInt(asInteger(item.get("points")), 1, 100, 1);
-
-        List<ChoixDTO> choix = mapChoix(item.get("choix"), type);
-        enforceChoiceRules(choix, type);
-
-        QuestionDTO dto = new QuestionDTO();
-        dto.setContenu(contenu);
-        dto.setType(type);
-        dto.setNiveau(niveau);
-        dto.setOrdre(ordre);
-        dto.setActif(true);
-        dto.setPoints(points);
-        dto.setChoix(choix);
-        return dto;
-    }
-
-    private List<ChoixDTO> mapChoix(Object rawChoix, String type) {
-        List<ChoixDTO> result = new ArrayList<>();
-        if (!(rawChoix instanceof List<?> rawList)) {
-            return result;
-        }
-
-        int ordre = 1;
-        for (Object row : rawList) {
-            if (row == null) {
-                continue;
-            }
-
-            String texte;
-            boolean correcte = false;
-            int ordreChoix = ordre;
-
-            if (row instanceof String textChoice) {
-                texte = textChoice.trim();
-            } else {
-                Map<String, Object> asMap = objectMapper.convertValue(row, new TypeReference<Map<String, Object>>() {});
-                texte = asTrimmedText(firstNonNull(asMap.get("texte"), asMap.get("contenu"), asMap.get("text")));
-
-                Object correctRaw = firstNonNull(asMap.get("correcte"), asMap.get("correct"), asMap.get("isCorrecte"));
-                correcte = asBoolean(correctRaw);
-
-                Integer ordreRaw = asInteger(asMap.get("ordre"));
-                if (ordreRaw != null && ordreRaw > 0) {
-                    ordreChoix = ordreRaw;
-                }
-            }
-
-            if (!StringUtils.hasText(texte)) {
-                continue;
-            }
-
-            result.add(new ChoixDTO(null, texte, correcte, ordreChoix));
-            ordre++;
-        }
-
-        if ("VRAI_FAUX".equals(type) && result.isEmpty()) {
-            result.add(new ChoixDTO(null, "VRAI", true, 1));
-            result.add(new ChoixDTO(null, "FAUX", false, 2));
-        }
-
-        return result;
-    }
-
-    private void enforceChoiceRules(List<ChoixDTO> choix, String type) {
-        if ("VRAI_FAUX".equals(type)) {
-            if (choix.size() < 2) {
-                choix.clear();
-                choix.add(new ChoixDTO(null, "VRAI", true, 1));
-                choix.add(new ChoixDTO(null, "FAUX", false, 2));
-                return;
-            }
-
-            if (choix.stream().noneMatch(ChoixDTO::isCorrecte)) {
-                choix.get(0).setCorrecte(true);
-                for (int i = 1; i < choix.size(); i++) {
-                    choix.get(i).setCorrecte(false);
-                }
-            }
-            return;
-        }
-
-        if (choix.isEmpty()) {
-            return;
-        }
-
-        if ("QCU".equals(type)) {
-            boolean found = false;
-            for (ChoixDTO c : choix) {
-                if (!found && c.isCorrecte()) {
-                    found = true;
-                } else {
-                    c.setCorrecte(false);
-                }
-            }
-            if (!found) {
-                choix.get(0).setCorrecte(true);
-            }
-            return;
-        }
-
-        // QCM: s'il n'y a aucune réponse correcte, on en force une.
-        if (choix.stream().noneMatch(ChoixDTO::isCorrecte)) {
-            choix.get(0).setCorrecte(true);
-        }
-    }
-
-    private String normalizeTypeForGenerator(String raw) {
-        String type = sanitizeUpper(raw, "QCM");
-        if ("VRAI_FAUX".equals(type)) {
-            return "VF";
-        }
-        return type;
-    }
-
     private String normalizeTypeFromGenerator(String raw) {
         String type = sanitizeUpper(raw, "QCM");
         if ("VF".equals(type) || "VRAI/FAUX".equals(type) || "TRUE_FALSE".equals(type)) {
@@ -381,57 +144,5 @@ public class QuestionAiAssistantService {
             return max;
         }
         return target;
-    }
-
-    private double clampDouble(Double value, double min, double max, double fallback) {
-        double target = value == null ? fallback : value;
-        if (target < min) {
-            return min;
-        }
-        if (target > max) {
-            return max;
-        }
-        return target;
-    }
-
-    private String asTrimmedText(Object value) {
-        if (value == null) {
-            return "";
-        }
-        return String.valueOf(value).trim();
-    }
-
-    private Integer asInteger(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof Number n) {
-            return n.intValue();
-        }
-        try {
-            return Integer.parseInt(String.valueOf(value).trim());
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-    }
-
-    private boolean asBoolean(Object value) {
-        if (value instanceof Boolean b) {
-            return b;
-        }
-        if (value == null) {
-            return false;
-        }
-        String s = String.valueOf(value).trim().toLowerCase(Locale.ROOT);
-        return "true".equals(s) || "1".equals(s) || "yes".equals(s) || "oui".equals(s);
-    }
-
-    private Object firstNonNull(Object... candidates) {
-        for (Object candidate : candidates) {
-            if (candidate != null) {
-                return candidate;
-            }
-        }
-        return null;
     }
 }

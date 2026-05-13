@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import t.esprit.arctic.jobmatch.entity.Document;
 import t.esprit.arctic.jobmatch.repository.DocumentRepository;
 
@@ -17,9 +16,6 @@ import java.util.*;
 public class CvAnalyseController {
 
     private final DocumentRepository documentRepository;
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    private static final String ML_SERVICE_URL = "http://localhost:8000";
 
     @PostMapping("/analyser/{documentId}")
     public ResponseEntity<Map<String, Object>> analyserCV(@PathVariable Long documentId) {
@@ -49,14 +45,7 @@ public class CvAnalyseController {
                 return ResponseEntity.ok(genererReponseCvVide());
             }
 
-            // ✅ ESSAYER D'APPELER LE SERVICE ML
-            Map<String, Object> analyse = appelerServiceMLPourAnalyse(texteCV);
-
-            // Si le service ML a retourné une erreur ou des valeurs par défaut
-            if (analyse == null || analyse.containsKey("error")) {
-                log.warn("⚠️ Service ML indisponible, utilisation du fallback local");
-                analyse = genererAnalyseLocale(texteCV);
-            }
+            Map<String, Object> analyse = genererAnalyseLocale(texteCV);
 
             return ResponseEntity.ok(analyse);
 
@@ -88,80 +77,13 @@ public class CvAnalyseController {
                         .body(Map.of("error", "Offre d'emploi requise"));
             }
 
-            // ✅ ESSAYER D'APPELER LE SERVICE ML
-            Map<String, Object> optimisation = appelerServiceMLPourOptimisation(texteCV, offreEmploi);
-
-            if (optimisation == null || optimisation.containsKey("error")) {
-                log.warn("⚠️ Service ML indisponible pour optimisation, utilisation du fallback");
-                optimisation = genererOptimisationLocale(texteCV, offreEmploi);
-            }
+            Map<String, Object> optimisation = genererOptimisationLocale(texteCV, offreEmploi);
 
             return ResponseEntity.ok(optimisation);
 
         } catch (Exception e) {
             log.error("❌ Erreur optimisation", e);
             return ResponseEntity.ok(genererOptimisationLocale("", ""));
-        }
-    }
-
-    /**
-     * Appel au service ML pour l'analyse
-     */
-    private Map<String, Object> appelerServiceMLPourAnalyse(String cvContent) {
-        try {
-            String url = ML_SERVICE_URL + "/analyze";
-            log.info("📡 Appel du service ML: {}", url);
-
-            Map<String, String> request = new HashMap<>();
-            request.put("cv_content", cvContent);
-
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-            org.springframework.http.HttpEntity<Map<String, String>> entity =
-                    new org.springframework.http.HttpEntity<>(request, headers);
-
-            org.springframework.http.ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-
-            log.info("✅ Réponse du service ML reçue (statut: {})", response.getStatusCode());
-            return response.getBody();
-
-        } catch (Exception e) {
-            log.error("❌ Erreur appel service ML: {}", e.getMessage());
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Service ML indisponible: " + e.getMessage());
-            return error;
-        }
-    }
-
-    /**
-     * Appel au service ML pour l'optimisation
-     */
-    private Map<String, Object> appelerServiceMLPourOptimisation(String cvContent, String offreEmploi) {
-        try {
-            String url = ML_SERVICE_URL + "/optimize";
-            log.info("📡 Appel du service ML: {}", url);
-
-            Map<String, String> request = new HashMap<>();
-            request.put("cv_content", cvContent);
-            request.put("job_offer", offreEmploi);
-
-            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
-            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-            org.springframework.http.HttpEntity<Map<String, String>> entity =
-                    new org.springframework.http.HttpEntity<>(request, headers);
-
-            org.springframework.http.ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-
-            log.info("✅ Réponse du service ML reçue (statut: {})", response.getStatusCode());
-            return response.getBody();
-
-        } catch (Exception e) {
-            log.error("❌ Erreur appel service ML: {}", e.getMessage());
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Service ML indisponible: " + e.getMessage());
-            return error;
         }
     }
 

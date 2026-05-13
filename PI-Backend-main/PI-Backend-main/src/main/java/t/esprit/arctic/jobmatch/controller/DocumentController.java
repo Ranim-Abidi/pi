@@ -3,13 +3,9 @@ package t.esprit.arctic.jobmatch.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import t.esprit.arctic.jobmatch.entity.Candidat;
 import t.esprit.arctic.jobmatch.entity.Document;
@@ -17,9 +13,6 @@ import t.esprit.arctic.jobmatch.entity.Utilisateur;
 import t.esprit.arctic.jobmatch.repository.CandidatRepository;
 import t.esprit.arctic.jobmatch.repository.DocumentRepository;
 import t.esprit.arctic.jobmatch.repository.UtilisateurRepository;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.core.io.ByteArrayResource;
 
 import java.util.List;
 import java.util.Base64;
@@ -35,9 +28,6 @@ public class DocumentController {
     private final DocumentRepository documentRepository;
     private final CandidatRepository candidatRepository;
     private final UtilisateurRepository utilisateurRepository;
-
-    private final String ML_API_URL = "http://localhost:8000";
-    private final RestTemplate restTemplate = new RestTemplate();
 
     private Candidat getCandidatConnecte() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -400,7 +390,7 @@ public class DocumentController {
         }
     }
 
-    // ==================== ANALYSE CV (Appel au modèle ML) ====================
+    // ==================== ANALYSE CV (ML désactivé — déploiement slim) ====================
     @PostMapping("/{id}/analyser")
     public ResponseEntity<Map<String, Object>> analyserCV(@PathVariable Long id) {
         try {
@@ -413,28 +403,19 @@ public class DocumentController {
                 return ResponseEntity.badRequest().body(error);
             }
 
-            String mlUrl = ML_API_URL + "/analyze";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("cv_content", document.getContenu());
-
-            HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(mlUrl, request, Map.class);
-
-            return ResponseEntity.ok(response.getBody());
-
-        } catch (Exception e) {
             Map<String, Object> fallback = new HashMap<>();
-            fallback.put("error", "Service ML indisponible: " + e.getMessage());
+            fallback.put("error", "Service ML désactivé dans ce déploiement");
             fallback.put("scoreGlobal", 50);
             fallback.put("profilDetecte", "Non détecté");
             fallback.put("competencesTrouvees", new ArrayList<>());
-            fallback.put("pointsForts", List.of("Service d'analyse temporairement indisponible"));
-            fallback.put("pointsAmeliorer", List.of("Réessayez plus tard"));
+            fallback.put("pointsForts", List.of("Analyse ML non disponible"));
+            fallback.put("pointsAmeliorer", List.of("Utilisez une analyse locale côté client si besoin"));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
+
+        } catch (Exception e) {
+            Map<String, Object> fallback = new HashMap<>();
+            fallback.put("error", e.getMessage());
+            fallback.put("scoreGlobal", 50);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
         }
     }
@@ -515,7 +496,7 @@ public class DocumentController {
     public ResponseEntity<Map<String, Object>> optimiserCV(@PathVariable Long id,
                                                            @RequestBody Map<String, String> request) {
         try {
-            Document document = documentRepository.findById(id)
+            documentRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Document non trouvé"));
 
             String offreEmploi = request.get("offreEmploi");
@@ -526,27 +507,17 @@ public class DocumentController {
                 return ResponseEntity.badRequest().body(error);
             }
 
-            String mlUrl = ML_API_URL + "/optimize";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("cv_content", document.getContenu());
-            requestBody.put("job_offer", offreEmploi);
-
-            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(mlUrl, requestEntity, Map.class);
-
-            return ResponseEntity.ok(response.getBody());
+            Map<String, Object> fallback = new HashMap<>();
+            fallback.put("error", "Service ML désactivé dans ce déploiement");
+            fallback.put("scoreCompatibilite", 50);
+            fallback.put("probabiliteEntretien", 40);
+            fallback.put("suggestionsOptimisation", List.of("Optimisation ML non disponible"));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
 
         } catch (Exception e) {
             Map<String, Object> fallback = new HashMap<>();
-            fallback.put("error", "Service ML indisponible: " + e.getMessage());
+            fallback.put("error", e.getMessage());
             fallback.put("scoreCompatibilite", 50);
-            fallback.put("probabiliteEntretien", 40);
-            fallback.put("suggestionsOptimisation", List.of("Service d'optimisation temporairement indisponible"));
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
         }
     }
@@ -554,77 +525,25 @@ public class DocumentController {
     // ==================== CHATBOT ====================
     @PostMapping("/chat")
     public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> request) {
-        try {
-            String message = request.get("message");
-            String cvContent = request.getOrDefault("cv_content", "");
-
-            if (message == null || message.trim().isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("response", "Veuillez poser une question");
-                return ResponseEntity.badRequest().body(error);
-            }
-
-            String mlUrl = ML_API_URL + "/chat/ml";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("message", message);
-            requestBody.put("cv_content", cvContent);
-
-            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(mlUrl, requestEntity, Map.class);
-
-            Map<String, String> result = new HashMap<>();
-            result.put("response", (String) response.getBody().get("response"));
-            result.put("intention", (String) response.getBody().getOrDefault("intention", "general"));
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            Map<String, String> fallback = new HashMap<>();
-            fallback.put("response", "Désolé, je rencontre une difficulté technique. Veuillez réessayer plus tard.");
-            fallback.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
-        }
+        Map<String, String> fallback = new HashMap<>();
+        fallback.put("response", "Chat ML désactivé dans ce déploiement.");
+        fallback.put("error", "ml_disabled");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
     }
 
     // ==================== PRÉDICTION IA ====================
     @SuppressWarnings("unchecked")
     @PostMapping("/prediction/succes")
     public ResponseEntity<Map<String, Object>> predictionSucces(@RequestBody Map<String, Object> request) {
-        try {
-            String cvContent = (String) request.getOrDefault("cv_content", "");
-            List<Map<String, Object>> historique = (List<Map<String, Object>>) request.getOrDefault("historique_candidatures", new ArrayList<>());
-
-            String mlUrl = ML_API_URL + "/prediction/succes";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("cv_content", cvContent);
-            requestBody.put("historique_candidatures", historique);
-
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(mlUrl, requestEntity, Map.class);
-
-            return ResponseEntity.ok(response.getBody());
-
-        } catch (Exception e) {
-            Map<String, Object> fallback = new HashMap<>();
-            fallback.put("error", "Service ML indisponible: " + e.getMessage());
-            fallback.put("probabilite", 50);
-            fallback.put("meilleurMoment", "Service temporairement indisponible");
-            fallback.put("pointsForts", new ArrayList<>());
-            fallback.put("pointsAmeliorer", new ArrayList<>());
-            fallback.put("conseilsSpecifiques", new ArrayList<>());
-            fallback.put("couleur", "#f59e0b");
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
-        }
+        Map<String, Object> fallback = new HashMap<>();
+        fallback.put("error", "Service ML désactivé dans ce déploiement");
+        fallback.put("probabilite", 50);
+        fallback.put("meilleurMoment", "N/A");
+        fallback.put("pointsForts", new ArrayList<>());
+        fallback.put("pointsAmeliorer", new ArrayList<>());
+        fallback.put("conseilsSpecifiques", new ArrayList<>());
+        fallback.put("couleur", "#f59e0b");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(fallback);
     }
 
     // ==================== TRAITEMENT PHOTO ====================
@@ -641,40 +560,6 @@ public class DocumentController {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Photo trop volumineuse (max 5 Mo)");
                 return ResponseEntity.badRequest().body(error);
-            }
-
-            try {
-                String mlUrl = ML_API_URL + "/photo/professionalize";
-
-                // Créer le corps de la requête multipart
-                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-                
-                // Utiliser ByteArrayResource pour passer les bytes de la photo avec son nom original
-                ByteArrayResource photoResource = new ByteArrayResource(photo.getBytes()) {
-                    @Override
-                    public String getFilename() {
-                        return photo.getOriginalFilename();
-                    }
-                };
-                
-                // Le service ML attend le champ "file"
-                body.add("file", photoResource);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-                HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-                ResponseEntity<Map> response = restTemplate.postForEntity(mlUrl, requestEntity, Map.class);
-
-                if (response.getBody() != null && response.getBody().containsKey("image_professionnelle")) {
-                    Map<String, String> result = new HashMap<>();
-                    result.put("photoUrl", (String) response.getBody().get("image_professionnelle"));
-                    result.put("photoName", photo.getOriginalFilename());
-                    return ResponseEntity.ok(result);
-                }
-            } catch (Exception mlError) {
-                System.out.println("⚠ Service ML photo indisponible: " + mlError.getMessage());
             }
 
             String base64Image = Base64.getEncoder().encodeToString(photo.getBytes());
@@ -696,15 +581,9 @@ public class DocumentController {
     // ==================== HEALTH CHECK ML ====================
     @GetMapping("/ml/health")
     public ResponseEntity<Map<String, Object>> checkMLHealth() {
-        try {
-            String mlUrl = ML_API_URL + "/health";
-            ResponseEntity<Map> response = restTemplate.getForEntity(mlUrl, Map.class);
-            return ResponseEntity.ok(response.getBody());
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("status", "unavailable");
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
-        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", "unavailable");
+        body.put("message", "ML HTTP désactivé dans ce déploiement");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 }

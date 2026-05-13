@@ -1,12 +1,8 @@
 package t.esprit.arctic.jobmatch.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.pusher.rest.Pusher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import t.esprit.arctic.jobmatch.entity.Candidat;
 import t.esprit.arctic.jobmatch.entity.Notification;
@@ -22,9 +18,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final CandidatRepository candidatRepository;
-    private final ObjectProvider<Pusher> pusherProvider;
 
-    /** Freelance — notification persistée + Pusher */
+    /** Freelance — notification persistée (real-time push désactivé en déploiement slim). */
     public void createNotification(Long userId, Long senderId, String type, String message) {
         createNotification(userId, senderId, null, type, message);
     }
@@ -44,8 +39,7 @@ public class NotificationService {
             if (relatedEntityId != null) {
                 notification.setOffreEmploiId(relatedEntityId);
             }
-            Notification saved = notificationRepository.save(notification);
-            sendPusherNotification(userId, saved);
+            notificationRepository.save(notification);
         } catch (Exception e) {
             System.err.println("createNotification failed: " + e.getMessage());
         }
@@ -63,10 +57,8 @@ public class NotificationService {
             notification.setMessage("Your profile is incomplete. Missing: " + missingFields);
             notification.setIsRead(false);
             
-            Notification savedNotification = notificationRepository.save(notification);
+            notificationRepository.save(notification);
 
-            sendPusherNotification(userId, savedNotification);
-            
         } catch (Exception e) {
             System.err.println("Error sending profile incomplete notification: " + e.getMessage());
             e.printStackTrace();
@@ -89,41 +81,7 @@ public class NotificationService {
         notification.setMessage(sender.getNom() + " started following you");
         notification.setIsRead(false);
 
-        // Save to database
-        Notification savedNotification = notificationRepository.save(notification);
-
-        // Send real-time notification via Pusher
-        sendPusherNotification(userId, savedNotification);
-
-        return savedNotification;
-    }
-
-    /**
-     * Send notification via Pusher Channels
-     */
-    private void sendPusherNotification(Long userId, Notification notification) {
-        Pusher pusher = pusherProvider.getIfAvailable();
-        if (pusher == null) {
-            return;
-        }
-        try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("id", notification.getId());
-            data.put("type", notification.getType());
-            data.put("message", notification.getMessage());
-            data.put("senderId", notification.getSenderId());
-            data.put("offreEmploiId", notification.getOffreEmploiId());
-            data.put("createdAt", notification.getCreatedAt().toString());
-
-            // Send to private channel for specific user
-            String channelName = "private-user-" + userId;
-            pusher.trigger(channelName, "new-notification", data);
-
-            System.out.println("✅ Pusher notification sent to " + channelName);
-        } catch (Exception e) {
-            System.err.println("❌ Error sending Pusher notification: " + e.getMessage());
-            e.printStackTrace();
-        }
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -173,8 +131,7 @@ public class NotificationService {
                     notification.setMessage(candidatName + " joined the formation: " + formationName);
                     notification.setIsRead(false);
                     
-                    Notification savedNotification = notificationRepository.save(notification);
-                    sendPusherNotification(followerIdLong, savedNotification);
+                    notificationRepository.save(notification);
                     
                 } catch (NumberFormatException e) {
                     System.err.println("Error parsing follower ID: " + followerId);
@@ -212,8 +169,7 @@ public class NotificationService {
                     notification.setMessage(candidatName + " is participating in: " + eventName);
                     notification.setIsRead(false);
                     
-                    Notification savedNotification = notificationRepository.save(notification);
-                    sendPusherNotification(followerIdLong, savedNotification);
+                    notificationRepository.save(notification);
                     
                 } catch (NumberFormatException e) {
                     System.err.println("Error parsing follower ID: " + followerId);
@@ -251,8 +207,7 @@ public class NotificationService {
                     notification.setMessage(message);
                     notification.setIsRead(false);
                     
-                    Notification savedNotification = notificationRepository.save(notification);
-                    sendPusherNotification(candidate.getId(), savedNotification);
+                    notificationRepository.save(notification);
                     
                 } catch (Exception e) {
                     System.err.println("Error notifying candidate " + candidate.getId() + ": " + e.getMessage());
@@ -324,10 +279,7 @@ public class NotificationService {
                 notification.setIsRead(false);
                 
                 // Save to database
-                Notification savedNotification = notificationRepository.save(notification);
-                
-                // Send real-time notification via Pusher
-                sendPusherNotification(followerIdLong, savedNotification);
+                notificationRepository.save(notification);
                 
             } catch (NumberFormatException e) {
                 System.err.println("❌ Error parsing follower ID: " + followerId);
@@ -371,8 +323,7 @@ public class NotificationService {
                     notification.setMessage(message);
                     notification.setIsRead(false);
                     
-                    Notification savedNotification = notificationRepository.save(notification);
-                    sendPusherNotification(candidate.getId(), savedNotification);
+                    notificationRepository.save(notification);
                     
                 } catch (Exception e) {
                     System.err.println("Error notifying candidate " + candidate.getId() + ": " + e.getMessage());
@@ -399,8 +350,7 @@ public class NotificationService {
             notification.setIsRead(false);
             notification.setOffreEmploiId(parcoursId); // Utilisation temporaire pour l'ID du parcours
             
-            Notification savedNotification = notificationRepository.save(notification);
-            sendPusherNotification(userId, savedNotification);
+            notificationRepository.save(notification);
             
             System.out.println("✅ Parcours completion notification sent to user " + userId + " for parcours " + parcoursId);
         } catch (Exception e) {

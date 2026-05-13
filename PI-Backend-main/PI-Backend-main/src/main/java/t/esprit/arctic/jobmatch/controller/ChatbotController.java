@@ -3,6 +3,7 @@ package t.esprit.arctic.jobmatch.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +18,6 @@ import t.esprit.arctic.jobmatch.entity.ChatbotHistory;
 import t.esprit.arctic.jobmatch.repository.ChatbotHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import java.io.ByteArrayInputStream;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/chatbot")
@@ -171,24 +165,10 @@ public class ChatbotController {
                 ? body.get("fileText").toString() : null;
 
         if ((fileText == null || fileText.trim().isEmpty()) && fileData != null && fileData.contains(";base64,")) {
-            try {
-                String base64Data = fileData.split(";base64,")[1];
-                byte[] decodedBytes = Base64.getDecoder().decode(base64Data);
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes)) {
-                    if (fileName != null && fileName.toLowerCase().endsWith(".docx")) {
-                        try (XWPFDocument document = new XWPFDocument(bis);
-                             XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
-                            fileText = extractor.getText();
-                        }
-                    } else if (fileName != null && fileName.toLowerCase().endsWith(".pdf")) {
-                        try (PDDocument document = PDDocument.load(bis)) {
-                            PDFTextStripper pdfStripper = new PDFTextStripper();
-                            fileText = pdfStripper.getText(document);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Backend document text extraction failed: " + e.getMessage());
+            String fname = fileName != null ? fileName.toLowerCase(Locale.ROOT) : "";
+            if (fname.endsWith(".pdf") || fname.endsWith(".docx")) {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body(Map.of("error", "Document parsing disabled"));
             }
         }
 

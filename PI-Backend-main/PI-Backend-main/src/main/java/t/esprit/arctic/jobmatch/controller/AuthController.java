@@ -17,7 +17,6 @@ import t.esprit.arctic.jobmatch.dto.ProfileCompletenessDto;
 import t.esprit.arctic.jobmatch.entity.*;
 import t.esprit.arctic.jobmatch.security.JwtService;
 import t.esprit.arctic.jobmatch.service.UtilisateurService;
-import t.esprit.arctic.jobmatch.service.TwilioService;
 import t.esprit.arctic.jobmatch.service.LoginHistoryService;
 import t.esprit.arctic.jobmatch.service.NotificationService;
 import t.esprit.arctic.jobmatch.service.ProfileCheckService;
@@ -31,7 +30,6 @@ public class AuthController {
     private final UtilisateurService service;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
-    private final TwilioService twilioService;
     private final LoginHistoryService loginHistoryService;
     private final NotificationService notificationService;
     private final ProfileCheckService profileCheckService;
@@ -226,27 +224,15 @@ public class AuthController {
     // Password reset: Find user by phone, generate new password, send via SMS, update database
     @PostMapping("/reset-password")
     public PasswordResetResponse requestPasswordReset(@RequestBody PasswordResetRequest request) {
-        try {
-            String phoneNumber = request.getPhoneNumber();
-            System.out.println("[PASSWORD RESET] Received phone: " + phoneNumber);
-            
-            if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-                return new PasswordResetResponse(false, "Numéro de téléphone requis", "ERROR");
-            }
-
-            // Generate new password and send via SMS
-            String newPassword = twilioService.sendNewPasswordBySMS(phoneNumber);
-
-            // Update password in database
-            service.resetPasswordByPhone(phoneNumber, newPassword);
-
-            System.out.println("[PASSWORD RESET] Password reset successful for phone: " + phoneNumber);
-            return new PasswordResetResponse(true, "Nouveau mot de passe envoyé au numéro fourni. Vérifiez vos SMS.", "SUCCESS");
-        } catch (Exception e) {
-            System.err.println("[PASSWORD RESET] Error: " + e.getMessage());
-            e.printStackTrace();
-            return new PasswordResetResponse(false, "Erreur: " + e.getMessage(), "ERROR");
+        String phoneNumber = request.getPhoneNumber();
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return new PasswordResetResponse(false, "Numéro de téléphone requis", "ERROR");
         }
+        return new PasswordResetResponse(
+                false,
+                "Réinitialisation par SMS désactivée dans ce déploiement (Twilio retiré). Utilisez le support ou une autre méthode.",
+                "DISABLED"
+        );
     }
 
     @PostMapping("/change-password")

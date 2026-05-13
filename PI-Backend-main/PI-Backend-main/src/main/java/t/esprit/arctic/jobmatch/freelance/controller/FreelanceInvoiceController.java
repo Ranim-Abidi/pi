@@ -24,10 +24,9 @@ public class FreelanceInvoiceController {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> invoicePdf(@PathVariable Long id, Principal principal) {
-        byte[] pdf = invoiceService.generateInvoicePdf(id, principal.getName());
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice-" + id + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice-" + id + ".txt")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(invoiceService.generateInvoicePdf(id, principal.getName()));
     }
 }
