@@ -3,6 +3,8 @@ package t.esprit.arctic.jobmatch.freelance.service;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import t.esprit.arctic.jobmatch.entity.Utilisateur;
@@ -23,7 +25,9 @@ import java.util.stream.Collectors;
  * AI-powered matching service using in-process sentence embeddings.
  * Uses the all-MiniLM-L6-v2 ONNX model (runs locally, no API calls).
  * ONNX native libraries are extracted under a writable directory (see constructor).
+ * Lazy-init defers ONNX load until first use of this bean.
  */
+@Lazy
 @Service
 public class FreelanceMatchingService {
 
@@ -35,12 +39,13 @@ public class FreelanceMatchingService {
     public FreelanceMatchingService(
             MissionRepository missionRepository,
             UtilisateurRepository utilisateurRepository,
-            CandidatureMissionRepository candidatureRepository) {
+            CandidatureMissionRepository candidatureRepository,
+            @Value("${app.onnx.tmpdir:/app/onnx-tmp}") String onnxTmpDir) {
         this.missionRepository = missionRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.candidatureRepository = candidatureRepository;
 
-        File onnxTmp = new File("/app/onnx-tmp");
+        File onnxTmp = new File(onnxTmpDir);
         onnxTmp.mkdirs();
         System.setProperty("java.io.tmpdir", onnxTmp.getAbsolutePath());
 
